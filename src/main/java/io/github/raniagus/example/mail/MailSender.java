@@ -1,4 +1,4 @@
-package io.github.raniagus;
+package io.github.raniagus.example.mail;
 
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -8,11 +8,11 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-public class EmailService {
+public class MailSender {
   private final SendGrid sendGrid;
   private final Email fromEmail;
 
-  public EmailService() {
+  public MailSender() {
     this.fromEmail = new Email("SENDGRID_FROM_EMAIL");
     this.sendGrid = new Retrofit.Builder()
         .baseUrl("https://api.sendgrid.com/v3/mail/")
@@ -41,14 +41,13 @@ public class EmailService {
               new Content("text/plain", body)
           )
       ).execute();
-      if (result.isSuccessful()) {
-        return;
-      }
-      try (var errorBody = result.errorBody()) {
-        throw new EmailSendingException(errorBody != null ? errorBody.string() : "Unknown error");
+      if (!result.isSuccessful()) {
+        try (var errorBody = result.errorBody()) {
+          throw new MailSendingException(errorBody != null ? errorBody.string() : "Unknown error");
+        }
       }
     } catch (IOException e) {
-      throw new EmailSendingException("Unknown error", e);
+      throw new MailSendingException("Unknown error", e);
     }
   }
 }

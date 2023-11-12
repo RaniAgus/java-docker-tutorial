@@ -1,4 +1,4 @@
-package io.github.raniagus;
+package io.github.raniagus.example.mail;
 
 import com.sendgrid.helpers.mail.Mail;
 import retrofit2.Call;
