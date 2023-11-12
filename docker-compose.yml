@@ -1,0 +1,33 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+    container_name: example-web
+    ports:
+      - ${PORT:-8080}:80
+    environment:
+      - PRODUCTION=1
+      - DB_URL=jdbc:postgresql://db:5432/${DB_NAME:-example}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12.12-alpine
+    container_name: example-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=${DB_NAME:-example}
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
+    name: example-data
+    external: true

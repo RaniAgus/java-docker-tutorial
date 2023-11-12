@@ -61,6 +61,11 @@
             <artifactId>postgresql</artifactId>
             <version>[42.6.0,43.0.0)</version>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.5.0.Final</version>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -105,7 +110,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>${groupId}.${artifactId}.Application</mainClass>
+                            <mainClass>io.github.raniagus.example.Application</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
