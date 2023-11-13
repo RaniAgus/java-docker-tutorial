@@ -1,4 +1,4 @@
-FROM maven:3.9-amazoncorretto-17 AS builder
+FROM maven:3-amazoncorretto-17 AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,18 @@ RUN mvn package
 
 FROM amazoncorretto:17-al2023-headless as web
 
-WORKDIR /app
+ARG UID=1000
+ARG GID=1000
+
+RUN yum install shadow-utils.x86_64 -y && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+RUN useradd -m -u $UID -U appuser
+
+USER appuser
+
+WORKDIR /home/appuser
 
 COPY public ./public
 
