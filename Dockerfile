@@ -18,6 +18,7 @@ WORKDIR /app
 COPY public ./public
 
 COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
+COPY --from=builder /app/jte-classes ./jte-classes
 
 EXPOSE 80
 
