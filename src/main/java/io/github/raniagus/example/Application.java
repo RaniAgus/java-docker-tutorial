@@ -30,17 +30,18 @@ public class Application {
   public static void startDatabaseConnection() {
     if (Environment.isDevelopment()) {
       WithSimplePersistenceUnit.configure(properties -> properties
-              .set("hibernate.connection.url", Environment.getVariableOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/example"))
-              .set("hibernate.connection.username", Environment.getVariableOrDefault("DB_USERNAME", "postgres"))
-              .set("hibernate.connection.password", Environment.getVariableOrDefault("DB_PASSWORD", "postgres"))
+              .set("hibernate.connection.url", Environment.getVariableOrDefault("DATABASE_URL", "jdbc:postgresql://localhost:5432/example"))
+              .set("hibernate.connection.username", Environment.getVariableOrDefault("DATABASE_USERNAME", "postgres"))
+              .set("hibernate.connection.password", Environment.getVariableOrDefault("DATABASE_PASSWORD", "postgres"))
               .set("hibernate.hbm2ddl.auto", "update"));
     } else {
       WithSimplePersistenceUnit.configure(properties -> properties
-              .set("hibernate.connection.url", Environment.getVariable("DB_URL"))
-              .set("hibernate.connection.username", Environment.getVariable("DB_USERNAME"))
-              .set("hibernate.connection.password", Environment.getVariable("DB_PASSWORD"))
-              .set("hibernate.hbm2ddl.auto", "validate"));
+        .set("hibernate.connection.url", Environment.getVariable("DATABASE_URL"))
+        .set("hibernate.connection.username", Environment.getVariable("DATABASE_USERNAME"))
+        .set("hibernate.connection.password", Environment.getVariable("DATABASE_PASSWORD"))
+        .set("hibernate.hbm2ddl.auto", "validate"));
     }
+    WithSimplePersistenceUnit.dispose();
   }
 
   public static void startServer(Controller... controllers) {
@@ -59,9 +60,17 @@ public class Application {
 
   private static TemplateEngine createTemplateEngine() {
     if (Environment.isDevelopment()) {
-      return TemplateEngine.create(new DirectoryCodeResolver(Path.of("src","main", "jte")), ContentType.Html);
+      var path = Path.of("src","main", "jte");
+      if (!path.toFile().isDirectory()) {
+        throw new IllegalStateException("src/main/jte directory does not exist");
+      }
+      return TemplateEngine.create(new DirectoryCodeResolver(path), ContentType.Html);
     } else {
-      return TemplateEngine.createPrecompiled(Path.of("jte-classes"), ContentType.Html);
+      var path = Path.of("jte-classes");
+      if (!path.toFile().isDirectory()) {
+        throw new IllegalStateException("jte-classes directory does not exist");
+      }
+      return TemplateEngine.createPrecompiled(path, ContentType.Html);
     }
   }
 }

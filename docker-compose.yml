@@ -9,9 +9,9 @@ services:
       - ${PORT:-8080}:8080
     environment:
       - PRODUCTION=1
-      - DB_URL=jdbc:postgresql://db:5432/${DB_NAME:-example}
-      - DB_USERNAME=${DB_USERNAME:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DATABASE_URL=jdbc:postgresql://db:5432/${DATABASE_URL:-example}
+      - DATABASE_USERNAME=${DATABASE_USERNAME:-postgres}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
     depends_on:
       - db
 
@@ -21,9 +21,9 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_DB=${DB_NAME:-example}
-      - POSTGRES_USER=${DB_USERNAME:-postgres}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DATABASE_NAME:-example}
+      - POSTGRES_USER=${DATABASE_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-postgres}
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
