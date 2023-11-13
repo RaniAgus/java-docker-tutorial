@@ -11,16 +11,18 @@ COPY src ./src
 RUN mvn package
 
 
-FROM amazoncorretto:17-al2023-headless as web
+FROM amazoncorretto:17-al2023-headless AS web
 
-ARG UID=1000
-ARG GID=1000
-
-RUN yum install shadow-utils.x86_64 -y && \
+RUN yum update && \
+    yum install shadow-utils.x86_64 -y && \
     yum clean all && \
     rm -rf /var/cache/yum
 
-RUN useradd -m -u $UID -U appuser
+ARG UID=1001
+ARG GID=1001
+
+RUN groupadd -g $GID appuser && \
+    useradd -lm -u $UID -g $GID appuser
 
 USER appuser
 
