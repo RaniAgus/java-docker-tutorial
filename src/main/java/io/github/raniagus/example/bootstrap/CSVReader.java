@@ -22,7 +22,7 @@ public class CSVReader implements AutoCloseable {
 
   public <T> Stream<T> parse(Class<T> clazz) {
     try (var scanner = new Scanner(inputStream)) {
-      var streamBuilder = Stream.<Map<String, String>>builder();
+      var streamBuilder = Stream.builder();
       var header = scanner.nextLine().split(separator);
 
       while (scanner.hasNextLine()) {
