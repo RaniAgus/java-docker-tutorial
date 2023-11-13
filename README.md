@@ -323,12 +323,24 @@ WORKDIR /home/appuser
 ## Desplegando la imagen
 
 ¡Excelente! Ya tenemos nuestra imagen lista para desplegar. Existen un montón de formas de desplegar una imagen Docker:
-podríamos alquilarnos un servidor en la nube como [DigitalOcean](https://www.digitalocean.com/) y ejecutar los comandos
-ahí mismo, o utilizar un servicio PaaS como [Render](https://render.com/) que, a partir del `Dockerfile`, se encargan de
-construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno correspondientes.
+
+* Podríamos usar un IaaS como [DigitalOcean](https://www.digitalocean.com/) y ejecutar los comandos ahí mismo. Para esto
+  nos puede llegar a ser útil armar un `docker-compose.yml` para poder levantar la aplicación y la base de datos con un
+  solo comando.
+
+* Otra alternativa es utilizar algún servicio PaaS como [Render](https://render.com/) que, a partir del `Dockerfile`, se
+  encargue de construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno
+  correspondientes.
+
+## Extra: servicios de bases de datos
+
+En este tutorial utilizamos una base de datos PostgreSQL que corre en nuestra computadora, pero para desplegar la
+aplicación en producción necesitamos una base de datos que corra en la nube. Algunas alternativas gratuitas son:
+
+* [CockroachDB](https://www.cockroachlabs.com/) - compatible con PostgreSQL
+* [PlanetScale](https://planetscale.com/) - compatible con MySQL
 
 ## Material recomendado
 
 * [¿Qué son los contenedores?](https://www.ibm.com/es-es/topics/containers)
 * [¿Qué es la containerización?](https://www.ibm.com/es-es/topics/containerization)
-
