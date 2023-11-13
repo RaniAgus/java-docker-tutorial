@@ -13,7 +13,7 @@ body = @`
             <h2 class="counter"><span x-text="count"></span> ovejas</h2>
             <form class="grid" method="post" action="/logout">
                 <button @click="$event.preventDefault(); count++">Contar</button>
-                <button class="secondary">Cerrar sesión</button>
+                <button type="submit" class="secondary">Cerrar sesión</button>
             </form>
         </section>
     </main>
