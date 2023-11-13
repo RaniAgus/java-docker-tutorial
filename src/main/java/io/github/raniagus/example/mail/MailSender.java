@@ -12,7 +12,7 @@ public class MailSender {
   private final SendGrid sendGrid;
   private final Email fromEmail;
 
-  public MailSender() {
+  public MailSender(String token) {
     this.fromEmail = new Email("SENDGRID_FROM_EMAIL");
     this.sendGrid = new Retrofit.Builder()
         .baseUrl("https://api.sendgrid.com/v3/mail/")
@@ -21,7 +21,7 @@ public class MailSender {
             .addInterceptor(chain ->
                 chain.proceed(
                     chain.request().newBuilder()
-                        .addHeader("Authorization", "Bearer " + System.getenv("SENDGRID_API_KEY"))
+                        .addHeader("Authorization", "Bearer " + token)
                         .build()
                 )
             )

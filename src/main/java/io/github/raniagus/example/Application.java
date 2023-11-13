@@ -5,6 +5,9 @@ import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.controller.Controller;
+import io.github.raniagus.example.controller.ErrorController;
+import io.github.raniagus.example.controller.HomeController;
+import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.helpers.Environment;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
@@ -17,7 +20,11 @@ import java.time.LocalDate;
 public class Application {
   public static void main(String[] args) {
     startDatabaseConnection();
-    startServer();
+    startServer(
+        HomeController.INSTANCE,
+        LoginController.INSTANCE,
+        ErrorController.INSTANCE
+    );
   }
 
   public static void startDatabaseConnection() {
@@ -37,7 +44,7 @@ public class Application {
     JavalinRenderer.register(new JavalinJte(createTemplateEngine(), ctx -> Environment.isDevelopment()), ".jte");
     var app = Javalin.create(config -> {
       config.staticFiles.add("public", Location.EXTERNAL);
-      //config.accessManager(accessManager);
+      config.accessManager(LoginController.INSTANCE);
     });
     for (var controller : controllers) {
       controller.addRoutes(app);
