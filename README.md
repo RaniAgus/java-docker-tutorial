@@ -5,17 +5,58 @@ Ejecutar una aplicación Java en un contenedor Docker es muy sencillo. En este t
 ## Introducción
 
 Docker es una plataforma de código abierto que permite a los desarrolladores empaquetar, ejecutar y distribuir 
-aplicaciones dentro de contenedores. Los contenedores son similares a las máquinas virtuales, pero son más portátiles,
-más eficientes y más fáciles de usar.
+aplicaciones dentro de [contenedores](https://www.ibm.com/es-es/topics/containers). 
 
-En este tutorial veremos cómo desplegar una aplicación Java en un contenedor Docker. Para ello, utilizaremos una
-aplicación Java que hemos desarrollado previamente. Se trata de una aplicación web similar a la que desarrollamos para
-la materia Diseño de Sistemas en UTN-FRBA.
+En este tutorial no me voy a detener a explicar muy en detalle qué es un contenedor (aunque aconsejo fuertemente 
+revisar el [material recomendado](#material-recomendado), sino que luego de un repaso corto sobre los conceptos básicos
+veremos cómo desplegar una aplicación Java utilizando Docker. Para ello, utilicé una aplicación web similar a una
+desarrollada para la materia Diseño de Sistemas en UTN-FRBA. Si estás haciendo el TP Anual te aconsejo utilizar la tuya
+para seguir el tutorial.
+
+### Conceptos básicos
+
+- **Container**: Es una pieza de software que empaqueta software junto con sus dependencias. Corren como un **proceso**
+  **aislado** gestionado a través de un Container Engine y contienen el software mínimo necesario para correr la
+  aplicación sin drivers.
+
+- **Container Image**: Así como una [imagen ISO](https://en.wikipedia.org/wiki/Optical_disc_image) es un archivo que
+  almacena una copia exacta de un sistema de archivos (principalmente usado para discos CD-ROM), una imagen de un
+  container es la representación estática del sistema de archivos de nuestra aplicación una vez buildeada.
+
+- **Container Engine**: Es el intermediario entre cada contenedor y el sistema operativo. Tiene todos los drivers
+  necesarios para poder virtualizar cualquier contenedor en el sistema operativo sobre el cual está instalado y asigna
+  los recursos de hardware a demanda.
+
+### Ventajas sobre las [máquinas virtuales](https://www.ibm.com/es-es/topics/virtual-machines)
+
+- Al ser virtualización a nivel **procesos**, el Engine puede reasignar recursos de forma dinámica, a diferencia del
+  Hypervisor, el cual asigna recursos de hardware directamente a cada máquina virtual.
+
+- Al no contar con todos los drivers de un sistema operativo, los contenedores son muy livianos (un "hello world" en
+  Node.js no pesa mucho más que 50MB, mientas que una máquina virtual supera los 400MB).
+
+- Como crear contenedores es muy barato, ya no resulta inconveniente colocar cada componente del sistema en
+  un contenedor distinto. Al estar aislados, distintas versiones de software pueden convivir en un mismo sistema sin
+  problemas de incompatibilidad.
+
+- Podemos asegurar que lo que anda en local funciona igual en el servidor, ya que el Engine está preparado para
+  virtualizar cada contenedor de la misma forma independientemente de la arquitectura.
+
+El hecho de que los contenedores y las máquinas virtuales sean distintas formas de virtualizar no impide que ambas
+estrategias puedan combinarse: una máquina virtual en la nube puede tener instalado un Engine que corra contenedores.
 
 ## Pre-requisitos
 
-Para poder seguir este tutorial, necesitamos tener instalado Docker en nuestra computadora. Para ello, podemos seguir
+Obviamente, necesitamos tener instalado Docker en nuestra computadora. Para ello, podemos seguir
 las instrucciones que se encuentran en la [documentación oficial](https://docs.docker.com/get-docker/).
+
+Además, asumo que tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas sus dependencias
+con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html); y que ya contás con una
+instalación de alguna base de datos relacional como PostgreSQL o MySQL.
+
+En mi caso voy a utilizar una base de datos PostgreSQL corriendo en el puerto 5432 de mi máquina local. Si estás usando
+alguna otra, asegurate de utilizar el connection string, usuario, contraseña y JDBC driver correctos a la hora de seguir
+el tutorial.
 
 ## Eligiendo una imagen base
 
@@ -24,11 +65,11 @@ proyecto. Este archivo contiene las instrucciones para crear la imagen. Este arc
 contiene las instrucciones para crear la imagen.
 
 Todo archivo `Dockerfile` comienza con la instrucción `FROM`. Esta instrucción indica la imagen base que utilizaremos
-para crear nuestra imagen. Existen un montón de imágenes base disponibles en 
-[Docker Hub](https://hub.docker.com/) para prácticamente cualquier tipo de aplicación en cualquier stack tecnológico.
+para crear nuestra imagen. Existen un montón de imágenes base disponibles en [Docker Hub](https://hub.docker.com/) para
+prácticamente cualquier versión de cualquier tecnología sin necesidad de instalarla.
 
 En nuestro caso, como vamos a desplegar una aplicación Java 17 construida con Maven, partiremos de una de las
-imágenes de Maven en Docker Hub para Java 17: https://hub.docker.com/_/maven/tags?page=1&name=17
+[imágenes de Maven en Docker Hub para Java 17](https://hub.docker.com/_/maven/tags?page=1&name=17).
 
 Elegí usar la imagen `maven:3.9-amazoncorretto-17` para este tutorial. Esta imagen contiene Maven 3 y Java 17, por lo
 que cada vez que aparezca un nuevo parche para Maven 3.9 ya no será necesario actualizar el `Dockerfile`. Además,
@@ -96,14 +137,14 @@ hacer porque el contenedor se ejecuta en un entorno aislado, por lo que no podr�
 `localhost:8080` como lo haríamos normalmente.
 
 > [!NOTE]
-> Puse distintos números de puertos para que puedan identificar cuál es cuál, podríamos haber usado tranquilamente `8080:8080` (de hecho,
-> es lo que se suele hacer).
+> Puse distintos números de puertos para que puedan identificar cuál es cuál, podríamos haber usado tranquilamente
+> `8080:8080` (de hecho, es lo que se suele hacer).
 
 ¡Momento! La aplicación tiró una excepción. ¿Qué pasó? ¿Por qué no funciona?
 ```
 org.postgresql.util.PSQLException: Connection to localhost:5432 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
 ```
-El problema es el mismo que el del puerto pero al revés: nuestra aplicación intenta conectarse a una base de datos
+El problema es el mismo que el del puerto, pero al revés: nuestra aplicación intenta conectarse a una base de datos
 PostgreSQL que corre en el puerto 5432 del propio contenedor, pero la misma se encuentra en nuestra computadora.
 ¿Cómo lo solucionamos? Por ahora, lo que podemos hacer es editar el archivo `persistence.xml` para que en lugar de
 conectarse a `localhost` se conecte a `host.docker.internal`. De esta forma, la aplicación se conectará a la base de
@@ -119,6 +160,12 @@ datos que corre en nuestra computadora:
 
 ¡Ahora sí! Si volvemos a construir la imagen y ejecutarla, podremos acceder a la aplicación desde `localhost:7000`.
 
+> [!NOTE]
+> Antes de continuar, siempre está bueno tener un [machete](https://docs.docker.com/get-started/docker_cheatsheet.pdf) a
+> mano con los comandos principales de Docker. Los hay para listar todos los containers en ejecución, detenerlos, listar
+> imágenes, descargarlas de la nube, incluso podemos ejecutar comandos o abrir una consola interactiva dentro de un
+> contenedor en ejecución. ¡Muy útil!
+
 ## Externalizando la configuración
 
 ¡Momento! ¿Esto significa que cada vez que queramos cambiar la conexión a la base de datos vamos a tener que modificar
@@ -126,7 +173,7 @@ el código fuente y volver a construir la imagen?
 
 No, de hecho, es una muy mala práctica hacerlo, ya que significaría que todas las credenciales que utiliza nuestra
 aplicación estarían hardcodeadas en el código fuente. Esto en cualquier ambiente productivo es un problema de seguridad
-muy grave, ya que cualquier persona que tenga acceso al código fuente podría ver las credenciales de la base de datos.
+muy grave, puesto que cualquier persona que tenga acceso al código fuente podría ver las credenciales de la base de datos.
 
 Para evitar esto, vamos a externalizar la configuración de nuestra aplicación utilizando **variables de entorno**. No es
 la única forma de externalizar la configuración, pero es la más sencilla y la que vamos a utilizar en este tutorial.
@@ -164,7 +211,8 @@ docker run -p 7000:8080 \
 ## Optimizando la construcción de la imagen
 
 Si bien la imagen que construimos funciona, tiene un problema: cada vez que modifiquemos el código fuente y queramos
-volver a construir la imagen, Docker va a volver a ejecutar `mvn package` para generar el artefacto de la aplicación.
+volver a construir la imagen, Docker va a volver a descargar toooodas las dependencias al momento de ejecutar
+`mvn package` para generar el artefacto de la aplicación, lo cual toma bastante tiempo.
 
 El Docker Engine es muy inteligente y, cada vez que construimos una imagen, intenta utilizar la mayor cantidad de
 capas de imágenes que ya existan en el sistema. Cada instrucción del `Dockerfile` genera una nueva capa de imagen, por
@@ -220,7 +268,15 @@ construida nuestra aplicación ya podríamos mandar todo eso [a volaaar](https:/
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base, y la segunda será una imagen
 base más liviana que solo tenga el runtime de Java. Yo elegí la más liviana de las 
-[imágenes oficiales de Amazon Corretto](https://hub.docker.com/_/amazoncorretto/tags?page=1&name=17):
+[imágenes oficiales de Amazon Corretto](https://hub.docker.com/_/amazoncorretto/tags?page=1&name=17), que es la 
+`17-al2023-headless`:
+
+- `17` indica que la imagen tiene Java 17
+- `al2023` indica que la imagen corre sobre [Amazon Linux 2023](https://hub.docker.com/_/amazonlinux), una
+  distribución como puede ser [Ubuntu](https://hub.docker.com/_/ubuntu) o [Alpine](https://hub.docker.com/_/alpine).
+- `headless` indica que la imagen no permite correr aplicaciones con interfaz gráfica, solo por consola.
+
+Entonces la estructura nos va a quedar algo así:
 
 ```dockerfile
 FROM maven:3.9-amazoncorretto-17 AS builder
@@ -232,10 +288,9 @@ FROM amazoncorretto:17-al2023-headless
 # Pasos de ejecución
 ```
 
-¡Muy importante! Para poder copiar el artefacto de la imagen base a la imagen final, es necesario darle un nombre a la
-imagen base y utilizarlo en la sentencia `COPY`. En mi caso, como verán arriba, elegí ponerle el nombre `builder`.
-
-Entonces para copiar haremos:
+¡Muy importante! Como son dos imágenes distintas, vamos a tener que copiar el artefacto de la imagen base a la imagen
+final. Para esto es necesario darle un nombre a la imagen base y utilizarlo en la sentencia `COPY`. En mi caso, como
+verán arriba, elegí ponerle el nombre `builder`, así que lo que haremos será:
 
 ```dockerfile
 COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
@@ -293,7 +348,7 @@ si alguien logra vulnerar nuestra aplicación podría ejecutar comandos privileg
 
 Para solucionarlo, lo que se suele hacer es crear un usuario no privilegiado y ejecutar la aplicación con dicho usuario.
 
-Vamos a cambiar la línea que dice `WORKDIR /app` por lo siguiente:
+En la imagen final, vamos a cambiar la línea que dice `WORKDIR /app` por lo siguiente:
 
 ```dockerfile
 # Instalamos el paquete shadow-utils para poder crear usuarios
@@ -309,10 +364,10 @@ ARG GID=1001
 RUN groupadd -g $GID appuser && \
     useradd -lm -u $UID -g $GID appuser
 
-# Cambiamos el usuario a appuser
+# Cambiamos a un usuario no privilegiado
 USER appuser
 
-# Cambiamos el directorio de trabajo al home del appuser
+# Cambiamos el directorio de trabajo al home del usuario
 WORKDIR /home/appuser
 ```
 
@@ -320,13 +375,15 @@ WORKDIR /home/appuser
 > La imagen base que elegí es una imagen de Amazon Linux, por lo que utilizo `yum` para instalar el paquete
 > `shadow-utils`. Si utilizan otra imagen, puede que no necesiten instalarlo.
 
+¡Excelente! Ya tenemos nuestra imagen lista para desplegar.
+
 ## Desplegando la imagen
 
-¡Excelente! Ya tenemos nuestra imagen lista para desplegar. Existen un montón de formas de desplegar una imagen Docker:
+Existen un montón de formas de desplegar una imagen Docker:
 
 * Podríamos usar un IaaS como [DigitalOcean](https://www.digitalocean.com/) y ejecutar los comandos ahí mismo. Para esto
-  nos puede llegar a ser útil armar un `docker-compose.yml` para poder levantar la aplicación y la base de datos con un
-  solo comando.
+  nos puede llegar a ser útil armar un archivo [`compose.yml`](./compose.yml) para poder levantar la aplicación y la base
+  de datos con un solo comando: `docker compose up`[^1]
 
 * Otra alternativa es utilizar algún servicio PaaS como [Render](https://render.com/) que, a partir del `Dockerfile`, se
   encargue de construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno
@@ -342,5 +399,8 @@ aplicación en producción necesitamos una base de datos que corra en la nube. A
 
 ## Material recomendado
 
-* [¿Qué son los contenedores?](https://www.ibm.com/es-es/topics/containers)
-* [¿Qué es la containerización?](https://www.ibm.com/es-es/topics/containerization)
+- [¿Qué son los contenedores?](https://www.ibm.com/es-es/topics/containers)
+- [¿Qué es la containerización?](https://www.ibm.com/es-es/topics/containerization)
+- [¿Qué son las máquinas virtuales (VM)?](https://www.ibm.com/es-es/topics/virtual-machines)
+
+[^1]: https://docs.docker.com/engine/reference/commandline/compose_up/

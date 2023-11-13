@@ -52,26 +52,18 @@ public enum LoginController implements Controller, AccessManager {
     var password = ctx.formParamAsClass("password", String.class);
     var origin = ctx.formParamAsClass("origin", String.class).getOrDefault("/");
 
-    try {
-      RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
-          .filter(u -> u.getPassword().matches(password.get()))
-          .ifPresentOrElse(usuario -> {
-            ctx.sessionAttribute("usuario", usuario);
-            ctx.redirect(origin);
-          }, () -> {
-            ctx.redirect("/login?" + HtmlUtil.encode(
-                Map.entry("origin", origin),
-                Map.entry("email", email.get()),
-                Map.entry("error", "NOT_FOUND")
-            ));
-          });
-    } catch (Exception e) {
-      ctx.redirect("/login?" + HtmlUtil.encode(
-          Map.entry("origin", origin),
-          Map.entry("email", email.get()),
-          Map.entry("error", "UNKNOWN")
-      ));
-    }
+    RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
+        .filter(u -> u.getPassword().matches(password.get()))
+        .ifPresentOrElse(usuario -> {
+          ctx.sessionAttribute("usuario", usuario);
+          ctx.redirect(origin);
+        }, () -> {
+          ctx.redirect("/login?" + HtmlUtil.encode(
+              Map.entry("origin", origin),
+              Map.entry("email", email.get()),
+              Map.entry("error", "NOT_FOUND")
+          ));
+        });
   }
 
   public void logout(Context ctx) {

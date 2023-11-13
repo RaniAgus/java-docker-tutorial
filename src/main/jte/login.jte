@@ -18,8 +18,6 @@
 
         @if("NOT_FOUND".equals(view.error()))
             <p>Usuario o contraseña incorrectos.</p>
-        @elseif(view.error() != null)
-            <p>Ocurrió un error. Volvé a intentar en otro momento.</p>
         @endif
     </main>
 `)
