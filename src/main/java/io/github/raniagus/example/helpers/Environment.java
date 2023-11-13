@@ -13,6 +13,10 @@ public enum Environment {;
     });
   }
 
+  public static String getVariableOrDefault(String key, String defaultValue) {
+    return getVariableOrDefault(key, () -> defaultValue);
+  }
+
   public static String getVariableOrDefault(String key, Supplier<String> defaultValue) {
     var value = System.getenv(key);
     return value != null ? value : defaultValue.get();

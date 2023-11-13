@@ -29,13 +29,17 @@ public class Application {
 
   public static void startDatabaseConnection() {
     if (Environment.isDevelopment()) {
-      WithSimplePersistenceUnit.dispose();
+      WithSimplePersistenceUnit.configure(properties -> properties
+              .set("hibernate.connection.url", Environment.getVariableOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/example"))
+              .set("hibernate.connection.username", Environment.getVariableOrDefault("DB_USERNAME", "postgres"))
+              .set("hibernate.connection.password", Environment.getVariableOrDefault("DB_PASSWORD", "postgres"))
+              .set("hibernate.hbm2ddl.auto", "update"));
     } else {
       WithSimplePersistenceUnit.configure(properties -> properties
-          .set("hibernate.connection.url", Environment.getVariable("DB_URL"))
-          .set("hibernate.connection.username", Environment.getVariable("DB_USERNAME"))
-          .set("hibernate.connection.password", Environment.getVariable("DB_PASSWORD"))
-          .set("hibernate.hbm2ddl.auto", "validate"));
+              .set("hibernate.connection.url", Environment.getVariable("DB_URL"))
+              .set("hibernate.connection.username", Environment.getVariable("DB_USERNAME"))
+              .set("hibernate.connection.password", Environment.getVariable("DB_PASSWORD"))
+              .set("hibernate.hbm2ddl.auto", "validate"));
     }
   }
 
@@ -50,7 +54,7 @@ public class Application {
       controller.addRoutes(app);
     }
     app.after(ctx -> WithSimplePersistenceUnit.dispose());
-    app.start(getPort());
+    app.start(8080);
   }
 
   private static TemplateEngine createTemplateEngine() {
@@ -59,9 +63,5 @@ public class Application {
     } else {
       return TemplateEngine.createPrecompiled(Path.of("jte-classes"), ContentType.Html);
     }
-  }
-
-  private static int getPort() {
-    return Environment.isDevelopment() ? 8080 : 80;
   }
 }
