@@ -6,7 +6,7 @@ services:
       target: web
     container_name: example-web
     ports:
-      - ${PORT:-8080}:80
+      - ${PORT:-8080}:8080
     environment:
       - PRODUCTION=1
       - DB_URL=jdbc:postgresql://db:5432/${DB_NAME:-example}

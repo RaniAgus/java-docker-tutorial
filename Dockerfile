@@ -1,10 +1,10 @@
-FROM maven:3-amazoncorretto-17 AS builder
+FROM maven:3.9-amazoncorretto-17 AS builder
 
 WORKDIR /app
 
 COPY pom.xml .
 
-RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "verify", "clean", "--fail-never"]
+RUN mvn -B -f ./pom.xml dependency:resolve
 
 COPY src ./src
 
@@ -31,6 +31,6 @@ COPY public ./public
 COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
 COPY --from=builder /app/jte-classes ./jte-classes
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["java", "-jar", "application.jar"]
