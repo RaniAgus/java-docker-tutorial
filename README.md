@@ -7,11 +7,11 @@ Ejecutar una aplicación Java en un contenedor Docker es muy sencillo. En este t
 Docker es una plataforma de código abierto que permite a los desarrolladores empaquetar, ejecutar y distribuir 
 aplicaciones dentro de [contenedores](https://www.ibm.com/es-es/topics/containers). 
 
-En este tutorial no me voy a detener a explicar muy en detalle qué es un contenedor (aunque aconsejo fuertemente 
-revisar el [material recomendado](#material-recomendado), sino que luego de un repaso corto sobre los conceptos básicos
-veremos cómo desplegar una aplicación Java utilizando Docker. Para ello, utilicé una aplicación web similar a una
-desarrollada para la materia Diseño de Sistemas en UTN-FRBA. Si estás haciendo el TP Anual te aconsejo utilizar la tuya
-para seguir el tutorial.
+En este tutorial no me voy a detener a explicar muy en detalle qué es un contenedor ni la inmensa cantidad de features
+que provee Docker (aunque aconsejo fuertemente revisar el [material recomendado](#material-recomendado), sino que luego
+de una breve pasada sobre los conceptos básicos pasaremos a la práctica sobre cómo desplegar una aplicación Java
+utilizando Docker. Para ello, utilicé una aplicación web similar a una desarrollada para la materia Diseño de Sistemas
+en UTN-FRBA. Si estás haciendo el TP Anual, te aconsejo utilizar la tuya para seguir el tutorial.
 
 ### Conceptos básicos
 
@@ -382,17 +382,16 @@ WORKDIR /home/appuser
 Existen un montón de formas de desplegar una imagen Docker:
 
 * Podríamos usar un IaaS como [DigitalOcean](https://www.digitalocean.com/) y ejecutar los comandos ahí mismo. Para esto
-  nos puede llegar a ser útil armar un archivo [`compose.yml`](./compose.yml) para poder levantar la aplicación y la base
+  nos puede llegar a ser útil armar un archivo [`compose.yml`](./tutorial-compose.md) para poder levantar la aplicación y la base
   de datos con un solo comando: `docker compose up`[^1]
 
 * Otra alternativa es utilizar algún servicio PaaS como [Render](https://render.com/) que, a partir del `Dockerfile`, se
   encargue de construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno
   correspondientes.
 
-## Extra: servicios de bases de datos
-
-En este tutorial utilizamos una base de datos PostgreSQL que corre en nuestra computadora, pero para desplegar la
-aplicación en producción necesitamos una base de datos que corra en la nube. Algunas alternativas gratuitas son:
+Por otro lado, en este tutorial utilizamos una base de datos PostgreSQL que corre en nuestra computadora, pero para
+desplegar laaplicación en producción necesitamos una base de datos que corra en la nube. Algunas alternativas gratuitas
+recomendables son:
 
 * [CockroachDB](https://www.cockroachlabs.com/) - compatible con PostgreSQL
 * [PlanetScale](https://planetscale.com/) - compatible con MySQL
