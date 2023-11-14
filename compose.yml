@@ -12,6 +12,10 @@ services:
       - DATABASE_URL=jdbc:postgresql://db:5432/${DATABASE_NAME:-example}
       - DATABASE_USERNAME=${DATABASE_USERNAME:-postgres}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
+      - DATABASE_DRIVER=${DATABASE_DRIVER:-org.postgresql.Driver}
+      - DATABASE_DIALECT=${DATABASE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}
+      - DATABASE_SHOW_SQL=${DATABASE_SHOW_SQL:-false}
+      - DATABASE_HBM2DDL_AUTO=${DATABASE_HBM2DDL_AUTO:-validate}
     depends_on:
       db:
         condition: service_healthy
@@ -28,7 +32,7 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-postgres}"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
     volumes:
