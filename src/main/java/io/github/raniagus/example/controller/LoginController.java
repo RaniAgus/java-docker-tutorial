@@ -34,7 +34,9 @@ public enum LoginController implements Controller, AccessManager {
     if (roles.isEmpty()) {
       handler.handle(ctx);
     } else if (usuario == null) {
-      ctx.redirect("/login?origin=" + ctx.path());
+      ctx.redirect("/login?" + HtmlUtil.joinParams(
+          HtmlUtil.encode("origin", ctx.path())
+      ));
     } else if (roles.contains(usuario.getRol())) {
       handler.handle(ctx);
     } else {
@@ -69,7 +71,7 @@ public enum LoginController implements Controller, AccessManager {
             ctx.sessionAttribute("usuario", usuario);
             ctx.redirect(origin);
           }, () -> {
-            ctx.redirect("/login?" + String.join("&",
+            ctx.redirect("/login?" + HtmlUtil.joinParams(
                 HtmlUtil.encode("origin", origin),
                 HtmlUtil.encode("email", email.get()),
                 HtmlUtil.encode("errors", "email,password")
@@ -77,7 +79,7 @@ public enum LoginController implements Controller, AccessManager {
           });
     } catch (ValidationException e) {
       var errors = collectErrors(email, password);
-      ctx.redirect("/login?" + String.join("&",
+      ctx.redirect("/login?" + HtmlUtil.joinParams(
           HtmlUtil.encode("origin", origin),
           HtmlUtil.encode("email", email.errors().isEmpty() ? email.get() : ""),
           HtmlUtil.encode("errors", errors.keySet())
