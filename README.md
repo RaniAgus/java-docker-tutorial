@@ -142,7 +142,8 @@ hacer porque el contenedor se ejecuta en un entorno aislado, por lo que no podr�
 
 ¡Momento! La aplicación tiró una excepción. ¿Qué pasó? ¿Por qué no funciona?
 ```
-org.postgresql.util.PSQLException: Connection to localhost:5432 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
+org.postgresql.util.PSQLException: Connection to localhost:5432 refused.
+Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.
 ```
 El problema es el mismo que el del puerto, pero al revés: nuestra aplicación intenta conectarse a una base de datos
 PostgreSQL que corre en el puerto 5432 del propio contenedor, pero la misma se encuentra en nuestra computadora.
