@@ -1,6 +1,6 @@
 # Desplegando una aplicación Java con Docker
 
-Ejecutar una aplicación Java en un contenedor Docker es muy sencillo. En este tutorial veremos cómo hacerlo.
+Ejecutar una aplicación Java en un contenedor Docker es muy sencillo. En esta guía práctica veremos cómo hacerlo.
 
 ## Introducción
 
@@ -8,7 +8,7 @@ Docker es una plataforma de código abierto que permite a los desarrolladores em
 aplicaciones dentro de [contenedores](https://www.ibm.com/es-es/topics/containers). 
 
 En este tutorial no me voy a detener a explicar muy en detalle qué es un contenedor ni la inmensa cantidad de features
-que provee Docker (aunque aconsejo fuertemente revisar el [material recomendado](#material-recomendado), sino que luego
+que provee Docker (aunque aconsejo fuertemente revisar el [material recomendado](#material-recomendado)), sino que luego
 de una breve pasada sobre los conceptos básicos pasaremos a la práctica sobre cómo desplegar una aplicación Java
 utilizando Docker. Para ello, utilicé una aplicación web similar a una desarrollada para la materia Diseño de Sistemas
 en UTN-FRBA. Si estás haciendo el TP Anual, te aconsejo utilizar la tuya para seguir el tutorial.
