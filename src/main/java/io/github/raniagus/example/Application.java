@@ -16,6 +16,7 @@ import io.javalin.rendering.template.JavalinJte;
 import io.javalin.validation.JavalinValidation;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Set;
 
 public class Application {
   public static final Config config = Config.create();
@@ -39,6 +40,7 @@ public class Application {
 
   public static void startServer(Controller... controllers) {
     JavalinValidation.register(LocalDate.class, LocalDate::parse);
+    JavalinValidation.register(Set.class, s -> Set.of(s.split(",")));
     JavalinRenderer.register(new JavalinJte(createTemplateEngine(), ctx -> config.isDevelopment()), ".jte");
     var app = Javalin.create(config -> {
       config.staticFiles.add("public", Location.EXTERNAL);

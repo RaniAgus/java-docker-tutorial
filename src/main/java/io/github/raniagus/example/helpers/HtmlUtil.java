@@ -2,16 +2,10 @@ package io.github.raniagus.example.helpers;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class HtmlUtil {
-  @SafeVarargs
-  public static String encode(Map.Entry<String, Object>... entries) {
-    return Stream.of(entries)
-        .map(entry -> encode(entry.getKey(), entry.getValue()))
-        .collect(Collectors.joining("&"));
+public enum HtmlUtil {;
+  public static <T extends CharSequence> String encode(String key, Iterable<T> values) {
+    return encode(key, String.join(",", values));
   }
 
   public static String encode(String key, Object value) {
