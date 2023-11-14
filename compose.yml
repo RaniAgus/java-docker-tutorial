@@ -27,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-postgres}
       - PGDATA=/var/lib/postgresql/data/pgdata
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
