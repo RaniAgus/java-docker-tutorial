@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class HtmlUtil {
   public static String encode(String... strings) {
-    return URLEncoder.encode(String.join(" ", strings), StandardCharsets.UTF_8);
+    return URLEncoder.encode(String.join("", strings), StandardCharsets.UTF_8);
   }
 
   @SafeVarargs
