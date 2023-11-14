@@ -7,14 +7,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HtmlUtil {
-  public static String encode(String... strings) {
-    return URLEncoder.encode(String.join("", strings), StandardCharsets.UTF_8);
-  }
-
   @SafeVarargs
   public static String encode(Map.Entry<String, Object>... entries) {
     return Stream.of(entries)
-        .map(e -> encode(e.getKey()) + "=" + encode(e.getValue().toString()))
+        .map(entry -> encode(entry.getKey(), entry.getValue()))
         .collect(Collectors.joining("&"));
+  }
+
+  public static String encode(String key, Object value) {
+    return encode(key) + "=" + encode(value.toString());
+  }
+
+  public static String encode(String... strings) {
+    return URLEncoder.encode(String.join("", strings), StandardCharsets.UTF_8);
   }
 }
