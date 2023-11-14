@@ -44,6 +44,11 @@ public enum LoginController implements Controller, AccessManager {
     var origin = ctx.queryParamAsClass("origin", String.class).getOrDefault("/");
     var error = ctx.queryParam("error");
 
+    if (ctx.sessionAttribute("usuario") != null) {
+      ctx.redirect(origin);
+      return;
+    }
+
     ctx.render("login.jte", Map.of("view", new LoginView(email, origin, error)));
   }
 
