@@ -382,7 +382,7 @@ WORKDIR /home/appuser
 Existen un montón de formas de desplegar una imagen Docker:
 
 * Podríamos usar un IaaS como [DigitalOcean](https://www.digitalocean.com/) y ejecutar los comandos ahí mismo. Para esto
-  nos puede llegar a ser útil armar un archivo [`compose.yml`](./tutorial-compose.md) para poder levantar la aplicación y la base
+  nos puede llegar a ser útil armar un archivo [`compose.yml`](./compose.yml) para poder levantar la aplicación y la base
   de datos con un solo comando: `docker compose up`[^1]
 
 * Otra alternativa es utilizar algún servicio PaaS como [Render](https://render.com/) que, a partir del `Dockerfile`, se
