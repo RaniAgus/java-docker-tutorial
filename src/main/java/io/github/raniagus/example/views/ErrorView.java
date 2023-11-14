@@ -1,4 +1,6 @@
 package io.github.raniagus.example.views;
 
-public record ErrorView (String title, String message) {
-}
+public record ErrorView (
+    String title,
+    String message
+) { }
