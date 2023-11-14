@@ -33,7 +33,8 @@ en UTN-FRBA. Si estás haciendo el TP Anual, te aconsejo utilizar la tuya para s
   Hypervisor, el cual asigna recursos de hardware directamente a cada máquina virtual.
 
 - Al no contar con todos los drivers de un sistema operativo, los contenedores son muy livianos (un "hello world" en
-  Node.js no pesa mucho más que 50MB, mientas que una máquina virtual supera los 400MB).
+  Node.js [no pesa mucho más que 50MB](https://hub.docker.com/_/node/), mientas que una máquina virtual
+  [supera los 400MB](https://bitnami.com/stack/nodejs/virtual-machine)).
 
 - Como crear contenedores es muy barato, ya no resulta inconveniente colocar cada componente del sistema en
   un contenedor distinto. Al estar aislados, distintas versiones de software pueden convivir en un mismo sistema sin
