@@ -266,8 +266,8 @@ construida nuestra aplicación ya podríamos mandar todo eso [a volaaar](https:/
 ¿no?. Para ello, vamos a hacer algo que se conoce como 
 [_multi-stage build_](https://docs.docker.com/build/building/multi-stage/).
 
-Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base, y la segunda será una imagen
-base más liviana que solo tenga el runtime de Java. Yo elegí la más liviana de las 
+Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base para compilar y la segunda
+será una imagen base más liviana que solo tenga el runtime de Java. Yo elegí una de las 
 [imágenes oficiales de Amazon Corretto](https://hub.docker.com/_/amazoncorretto/tags?page=1&name=17), que es la 
 `17-al2023-headless`:
 
@@ -288,9 +288,10 @@ FROM amazoncorretto:17-al2023-headless
 # Pasos de ejecución
 ```
 
-¡Muy importante! Como son dos imágenes distintas, vamos a tener que copiar el artefacto de la imagen base a la imagen
-final. Para esto es necesario darle un nombre a la imagen base y utilizarlo en la sentencia `COPY`. En mi caso, como
-verán arriba, elegí ponerle el nombre `builder`, así que lo que haremos será:
+¡Muy importante! Como se trata dos imágenes distintas, vamos a tener que copiar el artefacto de la imagen base a la
+imagen final. Para esto es necesario darle un nombre a la imagen base y utilizarlo en la sentencia `COPY` a través 
+del flag `--from`. En mi caso, como verán arriba, elegí ponerle el nombre `builder`, así que la instrucción me quedará
+así:
 
 ```dockerfile
 COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
