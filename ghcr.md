@@ -20,3 +20,8 @@ docker pull ghcr.io/<username>/<repo>:<branch>
 ## Desplegando en una VM
 
 WIP
+
+[^2]: https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility#configuring-access-to-packages-for-your-personal-account
+[^3]: https://docs.docker.com/engine/reference/commandline/compose_up/
+[GitHub Container Registry]: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+[GitHub Actions]: https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
