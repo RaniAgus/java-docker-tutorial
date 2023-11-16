@@ -374,8 +374,8 @@ correspondientes. Algunas opciones gratuitas al momento de escribir este tutoria
 - [back4app](https://www.back4app.com/)
 - [Fly.io](https://fly.io/)
 
-Por otro lado, para desplegar la aplicación en la nube necesitamos una base de datos que corra en la nube. Algunas
-alternativas gratuitas son:
+Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también corra
+en la nube. Algunas alternativas gratuitas son:
 
 * [CockroachDB](https://www.cockroachlabs.com/) - PostgreSQL
 * [PlanetScale](https://planetscale.com/) - MySQL
