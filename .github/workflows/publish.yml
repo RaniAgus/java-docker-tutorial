@@ -21,8 +21,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: DigitalOcean App Platform deployment
-        uses: digitalocean/app_action@v1.1.5
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
         with:
-          app_name: java_app
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/${{ github.repository }}:$(echo $GITHUB_SHA | head -c7) .
+  
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+  
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{ secrets.REGISTRY_NAME }}/${{ github.repository }}:$(echo $GITHUB_SHA | head -c7)
+
