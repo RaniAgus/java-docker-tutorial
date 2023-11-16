@@ -4,9 +4,6 @@ version: "3.8"
 # Tienen que estar creados en la VM antes de levantar el compose
 # La forma de crearlos es ejecutando:
 #   printf "valor" | docker secret create nombre_del_secret -
-# Ref:
-#  - https://docs.docker.com/engine/swarm/secrets/
-#  - https://docs.docker.com/compose/use-secrets/
 secrets:
   database_url:
     external: true
