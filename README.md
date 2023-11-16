@@ -1,55 +1,29 @@
 # Desplegando una aplicación Java con Docker
 
-Ejecutar una aplicación Java en un contenedor Docker es muy sencillo. En esta guía práctica veremos cómo hacerlo.
+Ejecutar tu TP de DDS en un contenedor Docker es muy sencillo. En esta guía práctica veremos cómo hacerlo.
 
 ## Introducción
 
 Docker es una plataforma de código abierto que permite a los desarrolladores empaquetar, ejecutar y distribuir 
-aplicaciones dentro de [contenedores](https://www.ibm.com/es-es/topics/containers). 
+aplicaciones dentro de contenedores. 
 
 En este tutorial no me voy a detener a explicar muy en detalle qué es un contenedor ni la inmensa cantidad de features
-que provee Docker (aunque aconsejo fuertemente revisar el [material recomendado](#material-recomendado)), sino que luego
-de una breve pasada sobre los conceptos básicos pasaremos a la práctica sobre cómo desplegar una aplicación Java
-utilizando Docker. Para ello, utilicé una aplicación web similar a una desarrollada para la materia Diseño de Sistemas
-en UTN-FRBA. Si estás haciendo el TP Anual, te aconsejo utilizar la tuya para seguir el tutorial.
+que provee Docker, sino que pasaremos a la práctica sobre cómo desplegar una aplicación Java utilizando Docker.
 
-### Conceptos básicos
+Antes de comenzar, les dejo algunos videos que explican muy bien qué es un contenedor y cuál es la diferencia con una
+máquina virtual. Si bien no son necesarios para seguir el tutorial, es muy recomendable verlos para entender mejor
+cómo funciona Docker:
 
-- **Container**: Es una pieza de software que empaqueta software junto con sus dependencias. Corren como un **proceso**
-  **aislado** gestionado a través de un Container Engine y contienen el software mínimo necesario para correr la
-  aplicación sin drivers.
+- [Containerización explicada](https://www.youtube.com/watch?v=0qotVMX-J5s)
+- [Contenedores vs VM: ¿Cuál es la diferencia?](https://www.youtube.com/watch?v=cjXI-yxqGTI)
 
-- **Container Image**: Así como una [imagen ISO](https://en.wikipedia.org/wiki/Optical_disc_image) es un archivo que
-  almacena una copia exacta de un sistema de archivos (principalmente usado para discos CD-ROM), una imagen de un
-  container es la representación estática del sistema de archivos de nuestra aplicación una vez buildeada.
+> [!NOTE]
+> Posta, mírenlos, duran menos de 10 minutos cada uno y están subtitulados al español.
 
-- **Container Engine**: Es el intermediario entre cada contenedor y el sistema operativo. Tiene todos los drivers
-  necesarios para poder virtualizar cualquier contenedor en el sistema operativo sobre el cual está instalado y asigna
-  los recursos de hardware a demanda.
+## Prerrequisitos
 
-### Ventajas sobre las [máquinas virtuales](https://www.ibm.com/es-es/topics/virtual-machines)
-
-- Al ser virtualización a nivel **procesos**, el Engine puede reasignar recursos de forma dinámica, a diferencia del
-  Hypervisor, el cual asigna recursos de hardware directamente a cada máquina virtual.
-
-- Al no contar con todos los drivers de un sistema operativo, los contenedores son muy livianos (un "hello world" en
-  Node.js [ronda los 50MB](https://hub.docker.com/_/node/tags?page=1&name=alpine), mientas que una máquina virtual
-  [supera los 400MB](https://bitnami.com/stack/nodejs/virtual-machine)).
-
-- Como crear contenedores es muy barato, ya no resulta inconveniente colocar cada componente del sistema en
-  un contenedor distinto. Al estar aislados, distintas versiones de software pueden convivir en un mismo sistema sin
-  problemas de incompatibilidad.
-
-- Podemos asegurar que lo que anda en local funciona igual en el servidor, ya que el Engine está preparado para
-  virtualizar cada contenedor de la misma forma independientemente de la arquitectura.
-
-El hecho de que los contenedores y las máquinas virtuales sean distintas formas de virtualizar no impide que ambas
-estrategias puedan combinarse: una máquina virtual en la nube puede tener instalado un Engine que corra contenedores.
-
-## Pre-requisitos
-
-Obviamente, necesitamos tener instalado Docker en nuestra computadora. Para ello, podemos seguir
-las instrucciones que se encuentran en la [documentación oficial](https://docs.docker.com/get-docker/).
+Obviamente, necesitamos tener instalado Docker en nuestra computadora. Para ello, podemos seguir las instrucciones que
+se encuentran en la [documentación oficial](https://docs.docker.com/get-docker/).
 
 Además, asumo que tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas sus dependencias
 con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html); y que ya contás con una
@@ -175,7 +149,8 @@ el código fuente y volver a construir la imagen?
 
 No, de hecho, es una muy mala práctica hacerlo, ya que significaría que todas las credenciales que utiliza nuestra
 aplicación estarían hardcodeadas en el código fuente. Esto en cualquier ambiente productivo es un problema de seguridad
-muy grave, puesto que cualquier persona que tenga acceso al código fuente podría ver las credenciales de la base de datos.
+muy grave, puesto que cualquier persona que tenga acceso al código fuente podría ver las credenciales de la base de
+datos.
 
 Para evitar esto, vamos a externalizar la configuración de nuestra aplicación utilizando **variables de entorno**. No es
 la única forma de externalizar la configuración, pero es la más sencilla y la que vamos a utilizar en este tutorial.
@@ -265,8 +240,7 @@ java-app             latest         2c20ac795291   About an hour ago   987MB
 
 Esto se debe a que la imagen base no solo tiene el runtime de Java, sino también el JDK completo y Maven. Una vez
 construida nuestra aplicación ya podríamos mandar todo eso [a volaaar](https://www.youtube.com/watch?v=RmuKNpavYbs),
-¿no?. Para ello, vamos a hacer algo que se conoce como 
-[_multi-stage build_](https://docs.docker.com/build/building/multi-stage/).
+¿no?. Para ello, vamos a hacer algo que se conoce como **multi-stage build**[^1].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base para compilar y la segunda
 será una imagen base más liviana que solo tenga el runtime de Java. Yo elegí una de las 
@@ -303,7 +277,11 @@ COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
 > Nótese que a su vez renombré el artefacto a `application.jar`. Esto solo lo hice para que el comando `java -jar` sea
 > independiente del nombre y la versión del artefacto.
 
-Por las dudas, les dejo cómo quedaría el `Dockerfile` completo:
+Por las dudas, les dejo cómo quedaría el `Dockerfile` completo.
+
+<details>
+
+<summary>Hacé click para mostrar el <b>Dockerfile</b></summary>
 
 ```dockerfile
 # ==================== Imagen base ====================
@@ -334,6 +312,8 @@ EXPOSE 8080
 # Ejecutamos la aplicación
 ENTRYPOINT ["java", "-jar", "application.jar"]
 ```
+
+</details>
 
 ¡Buenísimo! Ahora si volvemos a construir la imagen y ejecutarla, veremos que la imagen pesa menos de la mitad:
 
@@ -382,27 +362,31 @@ WORKDIR /home/appuser
 
 ## Desplegando la imagen
 
-Existen un montón de formas de desplegar una imagen Docker:
+Existen un montón de formas de desplegar una imagen Docker. La más sencilla es utilizar algún servicio que, a partir del
+`Dockerfile`, se encargue de construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno
+correspondientes. Algunas opciones gratuitas al momento de escribir este tutorial son:
 
-* Podríamos usar un IaaS como [DigitalOcean](https://www.digitalocean.com/) y ejecutar los comandos ahí mismo. Si también
-  queremos hostear la base de datos en la misma VM, nos puede llegar a ser útil armar un archivo
-  [`compose.yml`](./compose.yml) que se encargue de levantar ambos con un solo comando: `docker compose up`[^1]
+- [Render](https://render.com/)
+- [back4app](https://www.back4app.com/)
+- [Fly.io](https://fly.io/)
 
-* Otra alternativa es utilizar algún servicio PaaS como [Render](https://render.com/) que, a partir del `Dockerfile`, se
-  encargue de construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno
-  correspondientes.
+Por otro lado, para desplegar la aplicación en la nube necesitamos una base de datos que corra en la nube. Algunas
+alternativas gratuitas son:
 
-Por otro lado, en este tutorial utilizamos una base de datos PostgreSQL que corre en nuestra computadora, pero para
-desplegar laaplicación en producción necesitamos una base de datos que corra en la nube. Algunas alternativas gratuitas
-recomendables son:
-
-* [CockroachDB](https://www.cockroachlabs.com/) - compatible con PostgreSQL
-* [PlanetScale](https://planetscale.com/) - compatible con MySQL
+* [CockroachDB](https://www.cockroachlabs.com/) - PostgreSQL
+* [PlanetScale](https://planetscale.com/) - MySQL
 
 ## Material recomendado
 
 - [¿Qué son los contenedores?](https://www.ibm.com/es-es/topics/containers)
-- [¿Qué es la containerización?](https://www.ibm.com/es-es/topics/containerization)
+- [¿Qué es la contenerización?](https://www.ibm.com/es-es/topics/containerization)
+- [¿Qué es la virtualización?](https://www.ibm.com/es-es/topics/virtualization)
 - [¿Qué son las máquinas virtuales (VM)?](https://www.ibm.com/es-es/topics/virtual-machines)
+- [Container-as-a-Service (CaaS)](https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service)
 
-[^1]: https://docs.docker.com/engine/reference/commandline/compose_up/
+[GitHub Container Registry]: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+[GitHub Actions]: https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+
+[^1]: https://docs.docker.com/build/building/multi-stage/
+[^2]: https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility#configuring-access-to-packages-for-your-personal-account
+[^3]: https://docs.docker.com/engine/reference/commandline/compose_up/
