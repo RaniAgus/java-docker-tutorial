@@ -5,7 +5,7 @@ on:
   push:
     branches: ['main']
     paths:
-      - '.github/workflows/release.yml'
+      - '.github/workflows/publish.yml'
       - 'Dockerfile'
       - 'pom.xml'
       - 'src/**'
