@@ -1,0 +1,44 @@
+version: "3.8"
+
+# Acá definimos los secrets que vamos a usar en el compose
+# Tienen que estar creados en la VM antes de levantar el compose
+# La forma de crearlos es ejecutando:
+#   printf "valor" | docker secret create nombre_del_secret -
+# Ref:
+#  - https://docs.docker.com/engine/swarm/secrets/
+#  - https://docs.docker.com/compose/use-secrets/
+secrets:
+  database_url:
+    external: true
+  database_username:
+    external: true
+  database_password:
+    external: true
+
+# Acá definimos los contenedores que se van a levantar con docker compose
+# En este caso tenemos uno solo, pero podríamos tener varios
+services:
+  # Este es el servicio que va a levantar el contenedor con nuestra aplicación
+  web:
+    # La imagen a usar es la que generamos en el paso anterior
+    image: ghcr.io/raniagus/java-docker-tutorial:main
+    # El puerto a exponer es el 80 de la VM
+    ports:
+      - 80:8080
+    # Acá listamos los secrets que definimos antes
+    # Esto hace que se creen archivos en la carpeta /run/secrets del contenedor
+    secrets:
+      - database_url
+      - database_username
+      - database_password
+    # Sobreescribimos el entrypoint para que tome los secrets como variables de entorno
+    entrypoint: ["/bin/sh", "-c", "export DATABASE_URL=$(cat /run/secrets/database_url); export DATABASE_USERNAME=$(cat /run/secrets/database_username); export DATABASE_PASSWORD=$(cat /run/secrets/database_password); source /entrypoint.sh"]
+    # En mi caso también externalicé otras variables de entorno para poder cambiar el RDBMS
+    # sin tener que recompilar la imagen
+    # Como no son secrets, las podemos definir acá
+    environment:
+      - PRODUCTION=true
+      - DATABASE_DRIVER=org.postgresql.Driver
+      - DATABASE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+      - DATABASE_SHOW_SQL=false
+      - DATABASE_HBM2DDL_AUTO=validate
