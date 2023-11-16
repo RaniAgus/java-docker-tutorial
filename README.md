@@ -30,8 +30,8 @@ con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plug
 instalación de alguna base de datos relacional como PostgreSQL o MySQL.
 
 En mi caso voy a utilizar una base de datos PostgreSQL corriendo en el puerto 5432 de mi máquina local. Si estás usando
-alguna otra, asegurate de utilizar el connection string, usuario, contraseña y JDBC driver correctos a la hora de seguir
-el tutorial.
+alguna otra, asegurate de utilizar el connection string, usuario, contraseña, driver y dialect correctos a la hora de
+seguir el tutorial.
 
 ## Eligiendo una imagen base
 
