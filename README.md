@@ -385,6 +385,7 @@ en la nube. Algunas alternativas gratuitas son:
 - [¿Qué es la contenerización?](https://www.ibm.com/es-es/topics/containerization)
 - [¿Qué es la virtualización?](https://www.ibm.com/es-es/topics/virtualization)
 - [¿Qué son las máquinas virtuales (VM)?](https://www.ibm.com/es-es/topics/virtual-machines)
-- [Container-as-a-Service (CaaS)](https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service)
+- [Containers vs. virtual machines](https://www.atlassian.com/microservices/cloud-computing/containers-vs-vms) (en inglés)
+- [Container-as-a-Service (CaaS)](https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service) (en inglés)
 
 [^1]: https://docs.docker.com/build/building/multi-stage/
