@@ -1,6 +1,6 @@
 FROM maven:3.9-amazoncorretto-17 AS builder
 
-WORKDIR /app
+WORKDIR /build
 
 COPY pom.xml .
 
@@ -30,8 +30,8 @@ WORKDIR /home/appuser
 
 COPY public ./public
 
-COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
-COPY --from=builder /app/jte-classes ./jte-classes
+COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
+COPY --from=builder /build/jte-classes ./jte-classes
 
 EXPOSE 8080
 

@@ -257,9 +257,13 @@ Entonces la estructura nos va a quedar algo así:
 ```dockerfile
 FROM maven:3.9-amazoncorretto-17 AS builder
 
+WORKDIR /build
+
 # Pasos de compilación
 
 FROM amazoncorretto:17-al2023-headless
+
+WORKDIR /app
 
 # Pasos de ejecución
 ```
@@ -270,7 +274,7 @@ del flag `--from`. En mi caso, como verán arriba, elegí ponerle el nombre `bui
 así:
 
 ```dockerfile
-COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
+COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 ```
 
 > [!NOTE]
@@ -287,7 +291,7 @@ Por las dudas, les dejo cómo quedaría el `Dockerfile` completo.
 # ==================== Imagen base ====================
 FROM maven:3.9-amazoncorretto-17 AS builder
 
-WORKDIR /app
+WORKDIR /build
 
 # Instalamos las dependencias
 COPY pom.xml .
@@ -304,7 +308,7 @@ WORKDIR /app
 
 # Copiamos los archivos estáticos y el artefacto
 COPY public ./public
-COPY --from=builder /app/target/*-with-dependencies.jar ./application.jar
+COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 
 # Exponemos el puerto a modo de documentación
 EXPOSE 8080
