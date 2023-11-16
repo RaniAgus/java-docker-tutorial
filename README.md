@@ -46,7 +46,7 @@ prácticamente cualquier versión de cualquier tecnología sin necesidad de inst
 En nuestro caso, como vamos a desplegar una aplicación Java 17 construida con Maven, partiremos de una de las
 [imágenes de Maven en Docker Hub para Java 17](https://hub.docker.com/_/maven/tags?page=1&name=17).
 
-Elegí usar la imagen `maven:3.9-amazoncorretto-17` para este tutorial. Esta imagen contiene Maven 3 y Java 17, por lo
+Elegí usar la imagen `maven:3.9-amazoncorretto-17` para este tutorial. La misma contiene Maven 3 y Java 17, por lo
 que cada vez que aparezca un nuevo parche para Maven 3.9 ya no será necesario actualizar el `Dockerfile`. Además,
 [Amazon Corretto](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/downloads-list.html) es una distribución
 gratuita de OpenJDK construida por Amazon, y es la más actualizada que pude encontrar por el momento.
@@ -243,13 +243,12 @@ construida nuestra aplicación ya podríamos mandar todo eso [a volaaar](https:/
 ¿no?. Para ello, vamos a hacer algo que se conoce como **multi-stage build**[^1].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base para compilar y la segunda
-será una imagen base más liviana que solo tenga el runtime de Java. Yo elegí una de las 
-[imágenes oficiales de Amazon Corretto](https://hub.docker.com/_/amazoncorretto/tags?page=1&name=17), que es la 
-`17-al2023-headless`:
+será una imagen liviana que solo tenga el runtime de Java. Yo elegí la `amazoncorretto:17-al2023-headless`, que es
+la imagen oficial más liviana de [Amazon Corretto](https://hub.docker.com/_/amazoncorretto/tags?page=1&name=17):
 
 - `17` indica que la imagen tiene Java 17
 - `al2023` indica que la imagen corre sobre [Amazon Linux 2023](https://hub.docker.com/_/amazonlinux), una
-  distribución como puede ser [Ubuntu](https://hub.docker.com/_/ubuntu) o [Alpine](https://hub.docker.com/_/alpine).
+  distribución alternativa a [Ubuntu](https://hub.docker.com/_/ubuntu) o [Alpine](https://hub.docker.com/_/alpine).
 - `headless` indica que la imagen no permite correr aplicaciones con interfaz gráfica, solo por consola.
 
 Entonces la estructura nos va a quedar algo así:
