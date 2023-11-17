@@ -185,6 +185,16 @@ docker run -p 7000:8080 \
 > Este es un buen momento para externalizar todas las credenciales de la aplicación, incluyendo las credenciales de
 > acceso a APIs externas, credenciales de acceso a servicios de terceros, etc.
 
+También podemos sobreescribir el `ENTRYPOINT` desde afuera. Esto es útil si tenemos más de una main class para
+ejecutar en la misma aplicación:
+```shell
+docker run --entrypoint "java" java-app \
+ -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
+```
+
+El flag `--entrypoint` sirve solo para cambiar el comando a ejecutar. El resto de los parámetros los pasamos al final,
+luego de escribir el nombre de nuestra imagen.
+
 ## Optimizando la construcción de la imagen
 
 Si bien la imagen que construimos funciona, tiene un problema: cada vez que modifiquemos el código fuente y queramos
