@@ -46,15 +46,15 @@ prácticamente cualquier versión de cualquier tecnología sin necesidad de inst
 En nuestro caso, como vamos a desplegar una aplicación Java 17 construida con Maven, partiremos de una de las
 [imágenes de Maven en Docker Hub para Java 17](https://hub.docker.com/_/maven/tags?page=1&name=17).
 
-Elegí usar la imagen `maven:3.9-amazoncorretto-17` para este tutorial. La misma contiene Maven 3 y Java 17, por lo
-que cada vez que aparezca un nuevo parche para Maven 3.9 ya no será necesario actualizar el `Dockerfile`. Además,
-[Amazon Corretto](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/downloads-list.html) es una distribución
-gratuita de OpenJDK construida por Amazon, y es la más actualizada que pude encontrar por el momento.
+Elegí usar la imagen `maven:3.9-eclipse-temurin-17` para este tutorial. La misma contiene Maven 3 y Java 17, por lo
+que cada vez que aparezca un nuevo parche para Maven 3.9 ya no será necesario actualizar el `Dockerfile`.
+[Eclipse Temurin](https://adoptium.net/es/temurin/releases/) es una de las tantas distribuciones
+gratuitas de OpenJDK.
 
 Para incluirla, existe la instrucción `FROM`:
 
 ```dockerfile
-FROM maven:3-amazoncorretto-17
+FROM maven:3-eclipse-temurin-17
 ```
 
 ## Construyendo nuestra primera imagen
@@ -188,7 +188,7 @@ docker run -p 7000:8080 \
 ## Optimizando la construcción de la imagen
 
 Si bien la imagen que construimos funciona, tiene un problema: cada vez que modifiquemos el código fuente y queramos
-volver a construir la imagen, Docker va a volver a descargar toooodas las dependencias al momento de ejecutar
+volver a construir la imagen, Docker va a volver a descargar _toooodas_ las dependencias al momento de ejecutar
 `mvn package` para generar el artefacto de la aplicación, lo cual toma bastante tiempo.
 
 El Docker Engine es muy inteligente y, cada vez que construimos una imagen, intenta utilizar la mayor cantidad de
@@ -199,13 +199,13 @@ Lo que haremos es separar en dos capas la instalación de dependencias y la gene
 editar nuestro `Dockerfile` de la siguiente forma:
 
 ```dockerfile
-FROM maven:3-amazoncorretto-17
+FROM maven:3-eclipse-temurin-17
 
 WORKDIR /app
 
 # Instalamos las dependencias
 COPY pom.xml .
-RUN mvn -B -f ./pom.xml dependency:resolve
+RUN mvn -B dependency:resolve
 
 # Generamos el artefacto
 COPY src ./src
@@ -221,21 +221,21 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "target/example-1.0-SNAPSHOT-jar-with-dependencies.jar"]
 ```
 
-El comando `mvn -B -f ./pom.xml dependency:resolve` instala las dependencias de la aplicación, pero no genera el
-artefacto. De esta forma, si modificamos el código fuente y volvemos a construir la imagen, Docker utilizará la capa
-de la instalación de dependencias que ya existe en el sistema, y solo volverá a ejecutar `mvn package` para construir
-dicho artefacto, ahorrándonos _bastante_ tiempo de compilación.
+El comando `mvn -B dependency:resolve` instala las dependencias de la aplicación, pero no genera el artefacto. Por lo
+tanto, podemos mover el copiado del código fuente a una capa posterior. Entonces, cuando aparezcan cambios en esa capa,
+Docker utilizará la capa anterior con todas las dependencias ya instaladas, ahorrándonos _bastante_ tiempo de
+compilación.
 
 ## Optimizando el tamaño de la imagen
 
-Si bien la imagen que construimos funciona, tiene otro problema: es bastante grande. Si ejecutamos el comando
-`docker images` para ver las imágenes que tenemos en nuestro sistema, veremos que la imagen que construimos pesa
-casi 1 GB:
+Si bien la imagen que construimos funciona, tiene otro problema: ocupa bastante espacio. Si ejecutamos el comando
+`docker images` para ver las imágenes que tenemos en nuestro sistema, veremos que la imagen que construimos supera
+ampliamente los 500MB:
 
 ```
 $ docker images
 REPOSITORY           TAG            IMAGE ID       CREATED             SIZE
-java-app             latest         2c20ac795291   About an hour ago   987MB
+java-app             latest         64bb59d3a485   4 seconds ago       670MB
 ```
 
 Esto se debe a que la imagen base no solo tiene el runtime de Java, sino también el JDK completo y Maven. Una vez
@@ -243,24 +243,26 @@ construida nuestra aplicación ya podríamos mandar todo eso [a volaaar](https:/
 ¿no?. Para ello, vamos a hacer algo que se conoce como **multi-stage build**[^1].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base para compilar y la segunda
-será una imagen liviana que solo tenga el runtime de Java. Yo elegí la `amazoncorretto:17-al2023-headless`, que es
-la imagen oficial más liviana de [Amazon Corretto](https://hub.docker.com/_/amazoncorretto/tags?page=1&name=17):
+será una imagen liviana que solo tenga el runtime de Java. Yo elegí la `eclipse-temurin:17-jre-alpine`, que es
+la imagen oficial más liviana de [Eclipse Temurin](https://hub.docker.com/_/eclipse-temurin/tags?page=1&name=17-jre):
 
-- `17` indica que la imagen tiene Java 17
-- `al2023` indica que la imagen corre sobre [Amazon Linux 2023](https://hub.docker.com/_/amazonlinux), una
-  distribución alternativa a [Ubuntu](https://hub.docker.com/_/ubuntu) o [Alpine](https://hub.docker.com/_/alpine).
-- `headless` indica que la imagen no permite correr aplicaciones con interfaz gráfica, solo por consola.
+- `17` es la versión de Java que tiene la imagen.
+- `jre` es la distribución de Java que tiene la imagen (Java Runtime Environment). A diferencia del JDK (Java
+  Development Kit), no incluye el compilador de Java, lo cual hace que la imagen sea más liviana.
+- `alpine` es una distribución de Linux pensada para contenedores que [solo pesa 5MB](https://hub.docker.com/_/alpine).
+  Al ser muy liviana, no incluye muchas de las cosas que incluiría una distribución de Linux normal como
+  [Ubuntu](https://hub.docker.com/_/ubuntu) o [Debian](https://hub.docker.com/_/debian)
 
 Entonces la estructura nos va a quedar algo así:
 
 ```dockerfile
-FROM maven:3.9-amazoncorretto-17 AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
 # Pasos de compilación
 
-FROM amazoncorretto:17-al2023-headless
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
@@ -288,20 +290,20 @@ Por las dudas, les dejo cómo quedaría el `Dockerfile` completo.
 
 ```dockerfile
 # ==================== Imagen base ====================
-FROM maven:3.9-amazoncorretto-17 AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
 # Instalamos las dependencias
 COPY pom.xml .
-RUN mvn -B -f ./pom.xml dependency:resolve
+RUN mvn -B dependency:resolve
 
 # Generamos el artefacto
 COPY src ./src
 RUN mvn package
 
 # ==================== Imagen final ====================
-FROM amazoncorretto:17-al2023-headless
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
@@ -318,13 +320,14 @@ ENTRYPOINT ["java", "-jar", "application.jar"]
 
 </details>
 
-¡Buenísimo! Ahora si volvemos a construir la imagen y ejecutarla, veremos que la imagen pesa menos de la mitad:
+¡Buenísimo! Ahora si volvemos a construir la imagen y ejecutarla, veremos que la imagen pesa menos de un tercio de lo
+que pesaba antes:
 
 ```
 $ docker build -t java-app .
 $ docker images
-REPOSITORY           TAG            IMAGE ID       CREATED             SIZE
-java-app             latest         3feb61294e34   8 seconds ago       407MB
+REPOSITORY           TAG            IMAGE ID       CREATED         SIZE
+java-app             latest         3f52e7fde2a4   8 minutes ago   218MB
 ```
 
 ## Segurizando la imagen
@@ -337,18 +340,13 @@ Para solucionarlo, lo que se suele hacer es crear un usuario no privilegiado y e
 En la imagen final, vamos a cambiar la línea que dice `WORKDIR /app` por lo siguiente:
 
 ```dockerfile
-# Instalamos el paquete shadow-utils para poder crear usuarios
-RUN yum update && \
-    yum install shadow-utils.x86_64 -y && \
-    yum clean all && \
-    rm -rf /var/cache/yum
-
-# Creamos el usuario appuser
+# Estos argumentos se pueden pisar al momento de construir la imagen con `--build-arg`
 ARG UID=1001
 ARG GID=1001
 
-RUN groupadd -g $GID appuser && \
-    useradd -lm -u $UID -g $GID appuser
+# Creamos el usuario appuser
+RUN addgroup -g $GID appuser && \
+    adduser -u $UID -G appuser -D appuser
 
 # Cambiamos a un usuario no privilegiado
 USER appuser
@@ -357,24 +355,21 @@ USER appuser
 WORKDIR /home/appuser
 ```
 
-> [!NOTE]
-> La imagen base que elegí es una imagen de Amazon Linux, por lo que utilizo `yum` para instalar el paquete
-> `shadow-utils`. Si utilizan otra imagen, puede que no necesiten instalarlo.
-
 ¡Excelente! Ya tenemos nuestra imagen lista para desplegar.
 
-## Desplegando la imagen
+## Desplegando la imagen en un CaaS
 
-Existen un montón de formas de desplegar una imagen Docker. La más sencilla es utilizar algún servicio que, a partir del
-`Dockerfile`, se encargue de construir la imagen y desplegarla en la nube una vez configuradas las variables de entorno
-correspondientes. Algunas opciones gratuitas al momento de escribir este tutorial son:
+Existen un montón de formas de desplegar una imagen Docker. La más sencilla es utilizar un servicio 
+[Container-as-a-Service (CaaS)] se encargue de construir la imagen y desplegarla en la nube simplemente proveyendo el
+repositorio y las variables de entorno correspondientes. Algunas opciones gratuitas al momento de escribir este tutorial
+son:
 
 - [Render](https://render.com/)
 - [back4app](https://www.back4app.com/)
 - [Fly.io](https://fly.io/)
 
-Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también corra
-en la nube. Algunas alternativas gratuitas son:
+Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
+corra en la nube. Algunas alternativas gratuitas son:
 
 * [CockroachDB](https://www.cockroachlabs.com/) - PostgreSQL
 * [PlanetScale](https://planetscale.com/) - MySQL

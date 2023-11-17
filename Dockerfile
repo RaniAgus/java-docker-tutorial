@@ -1,28 +1,23 @@
-FROM maven:3.9-amazoncorretto-17 AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
 COPY pom.xml .
 
-RUN mvn -B -f ./pom.xml dependency:resolve
+RUN mvn -B dependency:resolve
 
 COPY src ./src
 
 RUN mvn package
 
 
-FROM amazoncorretto:17-al2023-headless AS web
-
-RUN yum update && \
-    yum install shadow-utils.x86_64 -y && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+FROM eclipse-temurin:17-jre-alpine AS web
 
 ARG UID=1001
 ARG GID=1001
 
-RUN groupadd -g $GID appuser && \
-    useradd -lm -u $UID -g $GID appuser
+RUN addgroup -g $GID appuser && \
+    adduser -u $UID -G appuser -D appuser
 
 USER appuser
 
