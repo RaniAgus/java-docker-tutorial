@@ -30,4 +30,5 @@ COPY --from=builder /build/jte-classes ./jte-classes
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "application.jar"]
+ENTRYPOINT ["java", "-cp", "application.jar"]
+CMD ["io.github.raniagus.example.Application"]

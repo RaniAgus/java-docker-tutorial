@@ -93,23 +93,39 @@ EXPOSE 8080
 ```
 
 Por último, vamos a indicar cuál es el comando que se debe ejecutar cuando se inicie el contenedor. Para ello,
-utilizaremos la instrucción `ENTRYPOINT`:
+utilizaremos las instrucciones `ENTRYPOINT` y `CMD`:
 
 ```dockerfile
-ENTRYPOINT ["java", "-jar", "target/example-1.0-SNAPSHOT-jar-with-dependencies.jar"]
+ENTRYPOINT ["java", "-cp", "target/example-1.0-SNAPSHOT-jar-with-dependencies.jar"]
+CMD ["io.github.raniagus.example.Application"]
 ```
 
-¡Y listo! Solo falta construir la imagen y ejecutarla. Para ello, utilizaremos los siguientes comandos:
+- `ENTRYPOINT` indica el comando que se debe ejecutar cuando se inicie el contenedor. En este caso, siempre ejecutaremos
+  una clase que se encuentre dentro del artefacto de la aplicación.
+- `CMD` indica los argumentos que se le deben pasar al comando que se ejecuta en `ENTRYPOINT`. En este caso, le pasamos
+  el nombre de la clase que queremos ejecutar.
+
+La diferencia entre ambos es que `ENTRYPOINT` está pensado para indicar el comando principal de la imagen, mientras que
+`CMD` está pensado para indicar argumentos por defecto para dicho comando. `CMD` está pensado para ser sobrescrito al
+momento de ejecutar el contenedor, mientras que `ENTRYPOINT` no. Veremos un ejemplo de esto en el siguiente paso.
+
+## Ejecutando nuestra primera imagen
+
+Solo falta construir la imagen y ejecutarla. Para ello, utilizaremos los siguientes comandos:
 
 ```shell
 docker build -t java-app .
-docker run -p 7000:8080 java-app
+docker run --rm -p 7000:8080 java-app
 ```
 
-El primer comando construye la imagen y le asigna el nombre `java-app`. El segundo comando ejecuta la imagen que
-acabamos de construir y expone el puerto 8080 del contenedor en el puerto 7000 de nuestra computadora. Esto se debe
-hacer porque el contenedor se ejecuta en un entorno aislado, por lo que no podríamos acceder a la aplicación desde
-`localhost:8080` como lo haríamos normalmente.
+- `docker build` construye la imagen y le asigna el tag `java-app` usando el flag `-t`.
+- `docker run` ejecuta la imagen que acabamos de construir:
+  - `--rm` indica que vamos a borrar el **contenedor** (no la imagen) una vez que se detenga. Recordemos que una imagen
+  es solo un FS estático, mientras que un contenedor es una instancia de dicha imagen en ejecución. Sin este flag, una
+  vez el contenedor se detenga el mismo seguiría ocupando espacio en nuestro sistema en un estado "exited".
+  - `-p 7000:8080` expone el puerto 8080 del contenedor en el puerto 7000 de nuestra computadora. Esto se debe
+  hacer porque el contenedor se ejecuta en un entorno aislado, por lo que no podríamos acceder a la aplicación desde
+  `localhost:8080` como lo haríamos normalmente.
 
 > [!NOTE]
 > Puse distintos números de puertos para que puedan identificar cuál es cuál, podríamos haber usado tranquilamente
@@ -142,6 +158,16 @@ datos que corre en nuestra computadora:
 > imágenes, descargarlas de la nube, incluso podemos ejecutar comandos o abrir una consola interactiva dentro de un
 > contenedor en ejecución. ¡Muy útil!
 
+Una cosa más: si queremos cambiar la clase de Java que se ejecuta en el contenedor, podemos sobreescribir el `CMD` desde
+`docker run` al final de todo, por ejemplo:
+
+```shell
+docker run --rm java-app io.github.raniagus.example.bootstrap.Bootstrap
+```
+
+En este caso, la aplicación se ejecutará con la clase `io.github.raniagus.example.bootstrap.Bootstrap` en lugar de
+`io.github.raniagus.example.Application`.
+
 ## Externalizando la configuración
 
 ¡Momento! ¿Esto significa que cada vez que queramos cambiar la conexión a la base de datos vamos a tener que modificar
@@ -170,7 +196,7 @@ Con esto, ya podremos pasarle las credenciales de la base de datos como variable
 contenedor:
 
 ```shell
-docker run -p 7000:8080 \
+docker run --rm -p 7000:8080 \
   -e DATABASE_URL=jdbc:postgresql://host.docker.internal:5432/example \
   -e DATABASE_USERNAME=postgres \
   -e DATABASE_PASSWORD=postgres \
@@ -188,7 +214,7 @@ docker run -p 7000:8080 \
 También podemos sobreescribir el `ENTRYPOINT` desde afuera. Esto es útil si tenemos más de una main class para
 ejecutar en la misma aplicación:
 ```shell
-docker run --entrypoint "java" java-app \
+docker run --rm --entrypoint "java" java-app \
  -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
 ```
 
@@ -206,13 +232,9 @@ capas de imágenes que ya existan en el sistema. Cada instrucción del `Dockerfi
 lo que podemos aprovechar esto para ahorrar tiempo construyendo la misma.
 
 Lo que haremos es separar en dos capas la instalación de dependencias y la generación del artefacto. Para ello, vamos a
-editar nuestro `Dockerfile` de la siguiente forma:
+editar separar nuestros `COPY` y `RUN` de la siguiente forma:
 
 ```dockerfile
-FROM maven:3-eclipse-temurin-17
-
-WORKDIR /app
-
 # Instalamos las dependencias
 COPY pom.xml .
 RUN mvn -B dependency:resolve
@@ -223,12 +245,6 @@ RUN mvn package
 
 # Copiamos los archivos estáticos
 COPY public ./public
-
-# Exponemos el puerto a modo de documentación
-EXPOSE 8080
-
-# Ejecutamos la aplicación
-ENTRYPOINT ["java", "-jar", "target/example-1.0-SNAPSHOT-jar-with-dependencies.jar"]
 ```
 
 El comando `mvn -B dependency:resolve` instala las dependencias de la aplicación, pero no genera el artefacto. Por lo
@@ -270,13 +286,15 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
-# Pasos de compilación
+# Copiamos y compilamos el código fuente
 
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Pasos de ejecución
+# Copiamos el artefacto de la imagen base y los archivos estáticos
+
+# Ejecutamos la aplicación
 ```
 
 ¡Muy importante! Como se trata dos imágenes distintas, vamos a tener que copiar el artefacto de la imagen base a la
@@ -291,44 +309,10 @@ COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 > [!NOTE]
 > Nótese que a su vez renombré el artefacto a `application.jar`. Esto solo lo hice para que el comando `java -jar` sea
 > independiente del nombre y la versión del artefacto.
-
-Por las dudas, les dejo cómo quedaría el `Dockerfile` completo.
-
-<details>
-
-<summary>Hacé click para mostrar el <b>Dockerfile</b></summary>
-
-```dockerfile
-# ==================== Imagen base ====================
-FROM maven:3.9-eclipse-temurin-17 AS builder
-
-WORKDIR /build
-
-# Instalamos las dependencias
-COPY pom.xml .
-RUN mvn -B dependency:resolve
-
-# Generamos el artefacto
-COPY src ./src
-RUN mvn package
-
-# ==================== Imagen final ====================
-FROM eclipse-temurin:17-jre-alpine
-
-WORKDIR /app
-
-# Copiamos los archivos estáticos y el artefacto
-COPY public ./public
-COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
-
-# Exponemos el puerto a modo de documentación
-EXPOSE 8080
-
-# Ejecutamos la aplicación
-ENTRYPOINT ["java", "-jar", "application.jar"]
-```
-
-</details>
+> No se olviden de cambiarlo también en el `ENTRYPOINT`:
+> ```dockerfile
+> ENTRYPOINT ["java", "-cp", "application.jar"]
+> ```
 
 ¡Buenísimo! Ahora si volvemos a construir la imagen y ejecutarla, veremos que la imagen pesa menos de un tercio de lo
 que pesaba antes:
