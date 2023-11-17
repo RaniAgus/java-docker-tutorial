@@ -10,6 +10,7 @@ public class Bootstrap implements Runnable, WithSimplePersistenceUnit {
   private static final Logger log = LoggerFactory.getLogger(Bootstrap.class);
 
   public static void main(String[] args) {
+    log.info("Iniciando reinicio de base de datos...");
     Application.startDatabaseConnection();
     new Bootstrap().run();
   }
