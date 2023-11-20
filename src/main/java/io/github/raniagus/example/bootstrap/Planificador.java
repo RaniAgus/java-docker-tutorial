@@ -25,13 +25,12 @@ public class Planificador {
     }
   }
 
-  public Planificador agregarTarea(Runnable runnable, String cron) {
+  public void agregarTarea(Runnable runnable, String cron) {
     try {
       scheduler.scheduleJob(crearJobDetail(runnable), crearTrigger(cron));
     } catch (SchedulerException e) {
       throw new PlanificadorException("Error al agregar la tarea", e);
     }
-    return this;
   }
 
   public void iniciar() {

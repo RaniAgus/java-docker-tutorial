@@ -28,9 +28,9 @@ public class Application {
     if (config.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
-    startJobs(
-        Map.entry(new Bootstrap(), config.databaseResetCron())
-    );
+    startJobs(Map.of(
+        new Bootstrap(), config.databaseResetCron()
+    ));
     startServer(
         HomeController.INSTANCE,
         LoginController.INSTANCE,
@@ -43,12 +43,9 @@ public class Application {
     WithSimplePersistenceUnit.dispose();
   }
 
-  @SafeVarargs
-  public static void startJobs(Map.Entry<Runnable, String>... jobs) {
+  public static void startJobs(Map<Runnable, String> jobs) {
     var planificador = new Planificador();
-    for (var job : jobs) {
-      planificador = planificador.agregarTarea(job.getKey(), job.getValue());
-    }
+    jobs.forEach(planificador::agregarTarea);
     planificador.iniciar();
   }
 
