@@ -31,7 +31,7 @@ services:
     # Sobreescribimos el entrypoint para que tome los secrets como variables de entorno
     entrypoint: ["/bin/sh", "-c", "export DATABASE_URL=$(cat /run/secrets/database_url); export DATABASE_USERNAME=$(cat /run/secrets/database_username); export DATABASE_PASSWORD=$(cat /run/secrets/database_password); source /entrypoint.sh"]
     # En mi caso también externalicé otras variables de entorno para poder cambiar el RDBMS
-    # sin tener que recompilar la imagen
+    # sin tener que recompilar la imagen y también un cron para resetear la base de datos
     # Como no son secrets, las podemos definir acá
     environment:
       - PRODUCTION=true
@@ -39,3 +39,4 @@ services:
       - DATABASE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
       - DATABASE_SHOW_SQL=false
       - DATABASE_HBM2DDL_AUTO=validate
+      - DATABASE_RESET_CRON=0 0 5 * * ?

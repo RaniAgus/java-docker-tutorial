@@ -355,12 +355,14 @@ WORKDIR /home/appuser
 
 Existen un montón de formas de desplegar una imagen Docker. La más sencilla es utilizar un servicio 
 [Container-as-a-Service (CaaS)] se encargue de construir la imagen y desplegarla en la nube simplemente proveyendo el
-repositorio y las variables de entorno correspondientes. Algunas opciones gratuitas al momento de escribir este tutorial
-son:
+repositorio y las variables de entorno correspondientes. 
+
+Algunas opciones gratuitas al momento de escribir este tutorial son:
 
 - [Render](https://render.com/)
 - [back4app](https://www.back4app.com/)
 - [Fly.io](https://fly.io/)
+- [Google Cloud Run](https://cloud.google.com/run) (requiere tarjeta de crédito)
 
 Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
 corra en la nube. Algunas alternativas gratuitas son:
