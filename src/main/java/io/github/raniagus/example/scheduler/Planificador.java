@@ -1,4 +1,4 @@
-package io.github.raniagus.example.bootstrap;
+package io.github.raniagus.example.scheduler;
 
 import java.util.Map;
 import java.util.UUID;

@@ -10,15 +10,16 @@ public class Bootstrap implements Runnable, WithSimplePersistenceUnit {
   private static final Logger log = LoggerFactory.getLogger(Bootstrap.class);
 
   public static void main(String[] args) {
-    log.info("Iniciando reinicio de base de datos...");
     Application.startDatabaseConnection();
     new Bootstrap().run();
   }
 
   @Override
   public void run() {
-    try (var reader = new CSVReader("data/users.csv", ",")) {
-      var users = reader.parse(UserDto.class)
+    log.info("Iniciando reinicio de base de datos...");
+    try {
+      var users = new CsvReader<>(UserDto.class, "data/users.csv")
+          .readAll().stream()
           .map(UserDto::toEntity)
           .toList();
 

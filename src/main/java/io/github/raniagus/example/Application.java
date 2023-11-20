@@ -5,7 +5,7 @@ import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
-import io.github.raniagus.example.bootstrap.Planificador;
+import io.github.raniagus.example.scheduler.Planificador;
 import io.github.raniagus.example.controller.Controller;
 import io.github.raniagus.example.controller.ErrorController;
 import io.github.raniagus.example.controller.HomeController;
