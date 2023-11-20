@@ -27,7 +27,11 @@ cómo funciona la virtualización con contenedores:
 
 - Tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas sus dependencias
   con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html) con `mvn package`, y
-  ejecutarse utilizando el comando `java -cp`.
+  ejecutarse utilizando el comando `java -cp`, por ejemplo:
+
+```shell
+java -cp target/example-1.0-SNAPSHOT-jar-with-dependencies.jar io.github.raniagus.example.Application
+```
 
 - Ya contás con una instalación de gestión de base de datos relacional como PostgreSQL o MySQL.
 
