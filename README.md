@@ -23,11 +23,11 @@ cómo funciona la virtualización con contenedores:
 ## Prerrequisitos
 
 - Tenés instalado Docker en tu computadora. Para ello, podemos seguir las instrucciones que se encuentran en la
-- [documentación oficial](https://docs.docker.com/get-docker/).
+  [documentación oficial](https://docs.docker.com/get-docker/).
 
 - Tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas sus dependencias
-con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html) con `mvn package`, y
-ejecutarse utilizando el comando `java -cp`.
+  con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html) con `mvn package`, y
+  ejecutarse utilizando el comando `java -cp`.
 
 - Ya contás con una instalación de gestión de base de datos relacional como PostgreSQL o MySQL.
 
