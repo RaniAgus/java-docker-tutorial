@@ -214,8 +214,8 @@ docker run --rm -p 7000:8080 \
 > debemos ir a `Run > Edit Configurations...` y agregar las variables de entorno en la sección `Environment variables`.
 
 > [!NOTE]
-> Este es un buen momento para externalizar todas las credenciales de la aplicación, incluyendo las credenciales de
-> acceso a APIs externas, credenciales de acceso a servicios de terceros, etc.
+> Este es un buen momento para externalizar todas las variables configurables de la aplicación, incluyendo las
+> credenciales de acceso a APIs externas, configuración de cron jobs, etc.
 
 También podemos sobreescribir el `ENTRYPOINT` desde afuera. Esto es útil si tenemos más de una main class para
 ejecutar en la misma aplicación:
