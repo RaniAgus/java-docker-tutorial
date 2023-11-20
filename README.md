@@ -8,11 +8,11 @@ Docker es una plataforma de código abierto que permite a los desarrolladores em
 aplicaciones dentro de contenedores. 
 
 En este tutorial no me voy a detener a explicar muy en detalle qué es un contenedor ni la inmensa cantidad de features
-que provee Docker, sino que pasaremos a la práctica sobre cómo desplegar una aplicación Java utilizando Docker.
+que provee Docker, sino que pasaremos a la práctica sobre cómo desplegar una aplicación Java.
 
 Antes de comenzar, les dejo algunos videos que explican muy bien qué es un contenedor y cuál es la diferencia con una
 máquina virtual. Si bien no son necesarios para seguir el tutorial, es muy recomendable verlos para entender mejor
-cómo funciona Docker:
+cómo funciona la virtualización con contenedores:
 
 - [Containerización explicada](https://www.youtube.com/watch?v=0qotVMX-J5s)
 - [Contenedores vs VM: ¿Cuál es la diferencia?](https://www.youtube.com/watch?v=cjXI-yxqGTI)
@@ -22,12 +22,14 @@ cómo funciona Docker:
 
 ## Prerrequisitos
 
-Obviamente, necesitamos tener instalado Docker en nuestra computadora. Para ello, podemos seguir las instrucciones que
-se encuentran en la [documentación oficial](https://docs.docker.com/get-docker/).
+- Tenés instalado Docker en tu computadora. Para ello, podemos seguir las instrucciones que se encuentran en la
+- [documentación oficial](https://docs.docker.com/get-docker/).
 
-Además, asumo que tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas sus dependencias
-con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html); y que ya contás con una
-instalación de alguna base de datos relacional como PostgreSQL o MySQL.
+- Tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas sus dependencias
+con [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html) con `mvn package`, y
+ejecutarse utilizando el comando `java -cp`.
+
+- Ya contás con una instalación de gestión de base de datos relacional como PostgreSQL o MySQL.
 
 En mi caso voy a utilizar una base de datos PostgreSQL corriendo en el puerto 5432 de mi máquina local. Si estás usando
 alguna otra, asegurate de utilizar el connection string, usuario, contraseña, driver y dialect correctos a la hora de
