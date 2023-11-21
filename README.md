@@ -365,8 +365,9 @@ repositorio y las variables de entorno correspondientes.
 
 Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de más a menos recomendable) son:
 
-- [Fly.io](https://fly.io/) - Tiene una [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podés desplegar
-  una aplicación web manualmente siguiendo [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
+- [Fly.io](https://fly.io/) - Tiene una [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podemos
+  desplegar una aplicación web manualmente siguiendo
+  [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
 
 - [Render](https://render.com/) - Tiene dos formas de desplegar:
   
@@ -382,6 +383,8 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
 
 - [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub para buildear y desplegar
   la imagen cada vez que se pushee a la branch principal.
+
+## Extra: Servicios de base de datos relacional
 
 Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
 corra en la nube. Algunas alternativas gratuitas son:
