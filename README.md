@@ -363,11 +363,21 @@ Existen un montón de formas de desplegar una imagen Docker. La más sencilla es
 Container-as-a-Service (CaaS) que se encargue de construir la imagen y desplegarla en la nube simplemente proveyendo el
 repositorio y las variables de entorno correspondientes. 
 
-Algunas opciones gratuitas al momento de escribir este tutorial son:
+Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de más a menos recomendable) son:
 
-- [Render](https://render.com/)
-- [back4app](https://www.back4app.com/)
-- [Fly.io](https://fly.io/)
+- [Fly.io](https://fly.io/) - Tiene una [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podés desplegar
+  una aplicación web manualmente siguiendo [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
+
+- [Render](https://render.com/) - Tiene dos formas de desplegar:
+  1. A partir de una imagen existente desde un Container Registry; como puede ser el de
+     [Digital Ocean](https://cloud.digitalocean.com/registry), el cual permite hasta 500MB gratuitos de almacenamiento
+     en Docker images.
+  2. Vinculando un repositorio de GitHub para buildear y desplegar la imagen cada vez que se pushee a la branch
+     principal.
+
+- [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub para buildear y desplegar
+  la imagen cada vez que se pushee a la branch principal.
+
 
 Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
 corra en la nube. Algunas alternativas gratuitas son:
