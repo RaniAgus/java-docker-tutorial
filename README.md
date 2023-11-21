@@ -156,12 +156,6 @@ datos que corre en nuestra computadora:
 
 ¡Ahora sí! Si volvemos a construir la imagen y ejecutarla, podremos acceder a la aplicación desde `localhost:7000`.
 
-> [!NOTE]
-> Antes de continuar, siempre está bueno tener un [machete](https://docs.docker.com/get-started/docker_cheatsheet.pdf) a
-> mano con los comandos principales de Docker. Los hay para listar todos los containers en ejecución, detenerlos, listar
-> imágenes, descargarlas de la nube, incluso podemos ejecutar comandos o abrir una consola interactiva dentro de un
-> contenedor en ejecución.
-
 Una cosa más: si queremos cambiar la clase de Java que se ejecuta en el contenedor, podemos sobreescribir el `CMD` al final del
 `docker run`, por ejemplo:
 
@@ -271,8 +265,9 @@ la imagen oficial más liviana de [Eclipse Temurin](https://hub.docker.com/_/ecl
 - `jre` es la distribución de Java que tiene la imagen (Java Runtime Environment). A diferencia del JDK (Java
   Development Kit), no incluye el compilador de Java, lo cual hace que la imagen sea más liviana.
 - `alpine` es una distribución de Linux pensada para contenedores que [solo pesa 5MB](https://hub.docker.com/_/alpine).
-  Al ser muy liviana, no incluye muchas de las cosas que incluiría una distribución de Linux normal como
-  [Ubuntu](https://hub.docker.com/_/ubuntu) o [Debian](https://hub.docker.com/_/debian), pero a cambio nos permite ahorrar mucho espacio de almacenamiento.
+  Al ser mucho más ligera que [Ubuntu](https://hub.docker.com/_/ubuntu) o [Debian](https://hub.docker.com/_/debian),
+  los tiempos de descarga son reducidos, se ahorra espacio de almacenamiento en la nube y la superficie de ataque[^2]
+  es menor al tener menos paquetes instalados.
 
 Entonces la estructura nos va a quedar algo así:
 
@@ -349,8 +344,8 @@ WORKDIR /home/appuser
 ## Desplegando la imagen en un CaaS
 
 Existen un montón de formas de desplegar una imagen Docker. La más sencilla es utilizar un servicio 
-Container-as-a-Service (CaaS) que se encargue de construir la imagen y desplegarla en la nube simplemente proveyendo el
-repositorio y las variables de entorno correspondientes. 
+Container-as-a-Service (CaaS)[^3] que se encargue de construir la imagen y desplegarla en la nube simplemente proveyendo
+el repositorio y las variables de entorno correspondientes. 
 
 > [!NOTE]
 > **Antes de continuar: Servicios de base de datos relacional**
@@ -390,6 +385,8 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
 - [¿Qué es la virtualización?](https://www.ibm.com/es-es/topics/virtualization)
 - [¿Qué son las máquinas virtuales (VM)?](https://www.ibm.com/es-es/topics/virtual-machines)
 - [Containers vs. virtual machines](https://www.atlassian.com/microservices/cloud-computing/containers-vs-vms) (en inglés)
-- [Container-as-a-Service (CaaS)](https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service) (en inglés)
+- [Docker CLI Cheatsheet](https://docs.docker.com/get-started/docker_cheatsheet.pdf) (en inglés)
 
 [^1]: https://docs.docker.com/build/building/multi-stage/
+[^2]: https://www.ibm.com/mx-es/topics/attack-surface
+[^3]: https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service
