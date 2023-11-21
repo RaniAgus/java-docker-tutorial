@@ -365,10 +365,10 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
 - [Render](https://render.com/) - Tiene dos formas de desplegar bajo la opción "New Web Service":
   
   1. A partir de una imagen existente desde un Container Registry como el de [Docker Hub](https://hub.docker.com/), que
-     tiene un plan gratuito. Simplemente generamos un
+     tiene un plan gratuito. Para publicar una imagen, implemente generamos un
      [Access Token](https://docs.docker.com/security/for-developers/access-tokens/), nos autenticamos con `docker login` y
      por último [creamos un repositorio](https://docs.docker.com/get-started/04_sharing_app/) donde publicar la imagen con
-     `docker push`.
+     `docker push`. Luego, desde render, buscamos ese container a partir del mismo repositorio y tag.
 
   2. La otra opción es vinculando un repositorio de GitHub para buildear y desplegar la imagen cada vez que se pushee a
      la branch principal. La desventaja de este método es que requiere autorización de la organización para poder vincular
