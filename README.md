@@ -369,7 +369,7 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
   desplegar una aplicación web manualmente siguiendo
   [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
 
-- [Render](https://render.com/) - Tiene dos formas de desplegar:
+- [Render](https://render.com/) - Tiene dos formas de desplegar bajo la opción "New Web Service":
   
   1. A partir de una imagen existente desde un Container Registry como el de [Docker Hub](https://hub.docker.com/), que
      tiene un plan gratuito. Simplemente generamos un
