@@ -381,8 +381,9 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
      la branch principal. La desventaja de este método es que requiere autorización de la organización para poder vincular
      el repo.
 
-- [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub para buildear y desplegar
-  la imagen cada vez que se pushee a la branch principal.
+- [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub desde
+  [esta página](https://containers.back4app.com/new-container) para buildear y desplegar la imagen cada vez que se pushee
+  a la branch principal. También requiere autorización de la organización para hacerlo.
 
 ## Extra: Servicios de base de datos relacional
 
