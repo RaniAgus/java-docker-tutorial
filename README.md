@@ -376,8 +376,8 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
      principal.
 
 - [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub para buildear y desplegar
-  la imagen cada vez que se pushee a la branch principal.
-
+  la imagen cada vez que se pushee a la branch principal. La desventaja de este método es que requiere autorización de
+  la organización para poder vincular el repo.
 
 Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
 corra en la nube. Algunas alternativas gratuitas son:
