@@ -365,23 +365,23 @@ repositorio y las variables de entorno correspondientes.
 
 Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de más a menos recomendable) son:
 
-1. [Fly.io](https://fly.io/) - Tiene una [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podés desplegar
+- [Fly.io](https://fly.io/) - Tiene una [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podés desplegar
   una aplicación web manualmente siguiendo [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
 
-2. [Render](https://render.com/) - Tiene dos formas de desplegar:
+- [Render](https://render.com/) - Tiene dos formas de desplegar:
   
-- A partir de una imagen existente desde un Container Registry como el de [Docker Hub](https://hub.docker.com/), que es
-  gratuito. Simplemente generamos un [Access Token](https://docs.docker.com/security/for-developers/access-tokens/), nos
-  autenticamos con `docker login` y por último
-  [creamos un repositorio](https://docs.docker.com/get-started/04_sharing_app/) donde publicar la imagen con
-  `docker push`.
+  1. A partir de una imagen existente desde un Container Registry como el de [Docker Hub](https://hub.docker.com/), que
+     es gratuito. Simplemente generamos un [Access Token](https://docs.docker.com/security/for-developers/access-tokens/),
+     nos autenticamos con `docker login` y por último
+     [creamos un repositorio](https://docs.docker.com/get-started/04_sharing_app/) donde publicar la imagen con
+     `docker push`.
 
-- La otra opción es vinculando un repositorio de GitHub para buildear y desplegar la imagen cada vez que se pushee a la
-  branch principal. La desventaja de este método es que requiere autorización de la organización para poder vincular el
-  repo.
+  2. La otra opción es vinculando un repositorio de GitHub para buildear y desplegar la imagen cada vez que se pushee a
+     la branch principal. La desventaja de este método es que requiere autorización de la organización para poder vincular
+     el repo.
 
-3. [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub para buildear y desplegar
-   la imagen cada vez que se pushee a la branch principal.
+- [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub para buildear y desplegar
+  la imagen cada vez que se pushee a la branch principal.
 
 Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
 corra en la nube. Algunas alternativas gratuitas son:
