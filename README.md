@@ -369,9 +369,16 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
   una aplicación web manualmente siguiendo [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
 
 - [Render](https://render.com/) - Tiene dos formas de desplegar:
-  1. A partir de una imagen existente desde un Container Registry; como puede ser el de
-     [Digital Ocean](https://cloud.digitalocean.com/registry), el cual permite hasta 500MB gratuitos de almacenamiento
-     en Docker images.
+  1. A partir de una imagen existente desde un Container Registry como el de [Docker Hub](https://hub.docker.com/), que
+     es gratis. Simplemente creamos un repositorio desde la página, luego generamos un Access Token y, por último,
+     ejecutamos en la consola:
+
+```shell
+docker login -u <username>                 `# Ingresamos el access token generado`
+docker build -t <username>/<repo>:latest . `# Creamos la imagen con el tag "latest"`
+docker push <username>/<repo>:latest       `# Subimos la imagen a DockerHub`
+```
+  
   2. Vinculando un repositorio de GitHub para buildear y desplegar la imagen cada vez que se pushee a la branch
      principal.
 
