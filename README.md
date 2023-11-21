@@ -42,22 +42,21 @@ seguir el tutorial.
 ## Eligiendo una imagen base
 
 Para crear la imagen de nuestra aplicación, es necesario crear un archivo llamado `Dockerfile` en el directorio raíz del
-proyecto. Este archivo contiene las instrucciones para crear la imagen. Este archivo es una especie de script que
-contiene las instrucciones para crear la imagen.
+proyecto. Este archivo contiene las instrucciones necesarias para crear la imagen.
 
 Todo archivo `Dockerfile` comienza con la instrucción `FROM`. Esta instrucción indica la imagen base que utilizaremos
 para crear nuestra imagen. Existen un montón de imágenes base disponibles en [Docker Hub](https://hub.docker.com/) para
 prácticamente cualquier versión de cualquier tecnología sin necesidad de instalarla.
 
-En nuestro caso, como vamos a desplegar una aplicación Java 17 construida con Maven, partiremos de una de las
-[imágenes de Maven en Docker Hub para Java 17](https://hub.docker.com/_/maven/tags?page=1&name=17).
+En nuestro caso, como vamos a desplegar una aplicación Java 17 construida con Maven, partiremos de una de las imágenes del
+[repositorio de Maven](https://hub.docker.com/_/maven/tags?page=1&name=17) en Docker Hub para Java 17.
 
 Elegí usar la imagen `maven:3.9-eclipse-temurin-17` para este tutorial. La misma contiene Maven 3 y Java 17, por lo
 que cada vez que aparezca un nuevo parche para Maven 3.9 ya no será necesario actualizar el `Dockerfile`.
 [Eclipse Temurin](https://adoptium.net/es/temurin/releases/) es una de las tantas distribuciones
 gratuitas de OpenJDK.
 
-Para incluirla, existe la instrucción `FROM`:
+Para incluirla, escribiremos la instrucción `FROM` seguida de `repositorio:tag`:
 
 ```dockerfile
 FROM maven:3-eclipse-temurin-17
@@ -65,16 +64,15 @@ FROM maven:3-eclipse-temurin-17
 
 ## Construyendo nuestra primera imagen
 
-Una vez que tenemos la imagen base, es necesario copiar el código fuente de nuestra aplicación dentro del contenedor.
+Una vez que tenemos la imagen base, es necesario copiar el código fuente de nuestra aplicación dentro de alguna carpeta del contenedor.
 
-En nuestro caso, vamos a copiar el código fuente dentro del directorio `/app`. Para situarnos en dicho directorio,
-usaremos la instrucción `WORKDIR`:
+En nuestro caso, vamos a posicionarnos en el directorio `/app` con la instrucción `WORKDIR`:
 
 ```dockerfile
 WORKDIR /app
 ```
 
-Una vez que estamos en el directorio `/app`, vamos a copiar el código fuente dentro del contenedor con la instrucción
+Luego, vamos a copiar el código fuente con la instrucción
 `COPY`. Es importante **solo copiar los archivos que necesitamos**, y no todo el directorio. En nuestro caso, alcanza
 con copiar el archivo `pom.xml` y los directorios `src` (con el código) y `public` (con los archivos estáticos):
 
@@ -162,10 +160,10 @@ datos que corre en nuestra computadora:
 > Antes de continuar, siempre está bueno tener un [machete](https://docs.docker.com/get-started/docker_cheatsheet.pdf) a
 > mano con los comandos principales de Docker. Los hay para listar todos los containers en ejecución, detenerlos, listar
 > imágenes, descargarlas de la nube, incluso podemos ejecutar comandos o abrir una consola interactiva dentro de un
-> contenedor en ejecución. ¡Muy útil!
+> contenedor en ejecución.
 
-Una cosa más: si queremos cambiar la clase de Java que se ejecuta en el contenedor, podemos sobreescribir el `CMD` desde
-`docker run` al final de todo, por ejemplo:
+Una cosa más: si queremos cambiar la clase de Java que se ejecuta en el contenedor, podemos sobreescribir el `CMD` al final del
+`docker run`, por ejemplo:
 
 ```shell
 docker run --rm java-app io.github.raniagus.example.bootstrap.Bootstrap
@@ -185,7 +183,7 @@ muy grave, puesto que cualquier persona que tenga acceso al código fuente podr�
 datos.
 
 Para evitar esto, vamos a externalizar la configuración de nuestra aplicación utilizando **variables de entorno**. No es
-la única forma de externalizar la configuración, pero es la más sencilla y la que vamos a utilizar en este tutorial.
+la única forma de hacerlo, pero es la más sencilla y la que vamos a utilizar en este tutorial.
 
 Para ello, vamos a modificar el inicio de nuestro `main` de la aplicación para que lea las credenciales de la base de
 datos de las variables de entorno usando el método `System.getenv()`:
@@ -217,20 +215,10 @@ docker run --rm -p 7000:8080 \
 > Este es un buen momento para externalizar todas las variables configurables de la aplicación, incluyendo las
 > credenciales de acceso a APIs externas, configuración de cron jobs, etc.
 
-También podemos sobreescribir el `ENTRYPOINT` desde afuera. Esto es útil si tenemos más de una main class para
-ejecutar en la misma aplicación:
-```shell
-docker run --rm --entrypoint "java" java-app \
- -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
-```
-
-El flag `--entrypoint` sirve solo para cambiar el comando a ejecutar. El resto de los parámetros los pasamos al final,
-luego de escribir el nombre de nuestra imagen.
-
 ## Optimizando la construcción de la imagen
 
 Si bien la imagen que construimos funciona, tiene un problema: cada vez que modifiquemos el código fuente y queramos
-volver a construir la imagen, Docker va a volver a descargar _toooodas_ las dependencias al momento de ejecutar
+volver a construir la imagen, Docker va a volver a descargar _todas_ las dependencias al momento de ejecutar
 `mvn package` para generar el artefacto de la aplicación, lo cual toma bastante tiempo.
 
 El Docker Engine es muy inteligente y, cada vez que construimos una imagen, intenta utilizar la mayor cantidad de
@@ -238,7 +226,7 @@ capas de imágenes que ya existan en el sistema. Cada instrucción del `Dockerfi
 lo que podemos aprovechar esto para ahorrar tiempo construyendo la misma.
 
 Lo que haremos es separar en dos capas la instalación de dependencias y la generación del artefacto. Para ello, vamos a
-editar separar nuestros `COPY` y `RUN` de la siguiente forma:
+editar nuestros `COPY` y `RUN` de la siguiente forma:
 
 ```dockerfile
 # Instalamos las dependencias
@@ -271,7 +259,7 @@ java-app             latest         64bb59d3a485   4 seconds ago       670MB
 ```
 
 Esto se debe a que la imagen base no solo tiene el runtime de Java, sino también el JDK completo y Maven. Una vez
-construida nuestra aplicación ya podríamos mandar todo eso [a volaaar](https://www.youtube.com/watch?v=RmuKNpavYbs),
+construida nuestra aplicación ya podríamos mandar todo eso [a volar](https://www.youtube.com/watch?v=RmuKNpavYbs),
 ¿no?. Para ello, vamos a hacer algo que se conoce como **multi-stage build**[^1].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base para compilar y la segunda
@@ -283,7 +271,7 @@ la imagen oficial más liviana de [Eclipse Temurin](https://hub.docker.com/_/ecl
   Development Kit), no incluye el compilador de Java, lo cual hace que la imagen sea más liviana.
 - `alpine` es una distribución de Linux pensada para contenedores que [solo pesa 5MB](https://hub.docker.com/_/alpine).
   Al ser muy liviana, no incluye muchas de las cosas que incluiría una distribución de Linux normal como
-  [Ubuntu](https://hub.docker.com/_/ubuntu) o [Debian](https://hub.docker.com/_/debian)
+  [Ubuntu](https://hub.docker.com/_/ubuntu) o [Debian](https://hub.docker.com/_/debian), pero a cambio nos permite ahorrar mucho espacio de almacenamiento.
 
 Entonces la estructura nos va a quedar algo así:
 
