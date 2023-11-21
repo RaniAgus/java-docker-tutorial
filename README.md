@@ -372,9 +372,9 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
 - [Render](https://render.com/) - Tiene dos formas de desplegar:
   
   1. A partir de una imagen existente desde un Container Registry como el de [Docker Hub](https://hub.docker.com/), que
-     es gratuito. Simplemente generamos un [Access Token](https://docs.docker.com/security/for-developers/access-tokens/),
-     nos autenticamos con `docker login` y por último
-     [creamos un repositorio](https://docs.docker.com/get-started/04_sharing_app/) donde publicar la imagen con
+     tiene un plan gratuito. Simplemente generamos un
+     [Access Token](https://docs.docker.com/security/for-developers/access-tokens/), nos autenticamos con `docker login` y
+     por último [creamos un repositorio](https://docs.docker.com/get-started/04_sharing_app/) donde publicar la imagen con
      `docker push`.
 
   2. La otra opción es vinculando un repositorio de GitHub para buildear y desplegar la imagen cada vez que se pushee a
