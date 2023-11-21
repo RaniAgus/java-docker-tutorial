@@ -363,6 +363,15 @@ Existen un montón de formas de desplegar una imagen Docker. La más sencilla es
 Container-as-a-Service (CaaS) que se encargue de construir la imagen y desplegarla en la nube simplemente proveyendo el
 repositorio y las variables de entorno correspondientes. 
 
+> [!NOTE]
+> **Antes de continuar: Servicios de base de datos relacional**
+> 
+> Para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
+> corra en la nube. Algunas alternativas gratuitas son:
+> 
+> * [CockroachDB](https://www.cockroachlabs.com/) - PostgreSQL
+> * [PlanetScale](https://planetscale.com/) - MySQL
+
 Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de más a menos recomendable) son:
 
 - [Fly.io](https://fly.io/) - Tiene una [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podemos
@@ -384,14 +393,6 @@ Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de m�
 - [back4app](https://www.back4app.com/) - Solamente permite vincular un repositorio de GitHub desde
   [esta página](https://containers.back4app.com/new-container) para buildear y desplegar la imagen cada vez que se pushee
   a la branch principal. También requiere autorización de la organización para hacerlo.
-
-## Extra: Servicios de base de datos relacional
-
-Por otro lado, para que funcione nuestra aplicación en la nube necesitamos conectarla una base de datos que también
-corra en la nube. Algunas alternativas gratuitas son:
-
-* [CockroachDB](https://www.cockroachlabs.com/) - PostgreSQL
-* [PlanetScale](https://planetscale.com/) - MySQL
 
 ## Material recomendado
 
