@@ -259,8 +259,9 @@ java-app             latest         64bb59d3a485   4 seconds ago       670MB
 ```
 
 Esto se debe a que la imagen base no solo tiene el runtime de Java, sino también el JDK completo y Maven. Una vez
-construida nuestra aplicación ya podríamos mandar todo eso [a volar](https://www.youtube.com/watch?v=RmuKNpavYbs),
-¿no?. Para ello, vamos a hacer algo que se conoce como **multi-stage build**[^1].
+construida nuestra aplicación, ¿no sería mejor mandar todo ese almacenamiento a... 
+[_volaaar_](https://www.youtube.com/watch?v=RmuKNpavYbs)? ¡Se puede! Para ello vamos a hacer algo que se conoce como
+**multi-stage build**[^1].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen base para compilar y la segunda
 será una imagen liviana que solo tenga el runtime de Java. Yo elegí la `eclipse-temurin:17-jre-alpine`, que es
