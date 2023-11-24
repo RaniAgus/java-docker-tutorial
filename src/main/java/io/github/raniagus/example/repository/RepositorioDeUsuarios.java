@@ -3,8 +3,8 @@ package io.github.raniagus.example.repository;
 import io.github.raniagus.example.model.Usuario;
 import java.util.Optional;
 
-public class RepositorioDeUsuarios extends Repositorio<Usuario> {
-  public static final RepositorioDeUsuarios INSTANCE = new RepositorioDeUsuarios();
+public enum RepositorioDeUsuarios implements Repositorio<Usuario> {
+  INSTANCE;
 
   public Optional<Usuario> buscarPorEmail(String email) {
     return entityManager()
@@ -15,7 +15,7 @@ public class RepositorioDeUsuarios extends Repositorio<Usuario> {
   }
 
   @Override
-  protected Class<Usuario> getEntityClass() {
+  public Class<Usuario> getEntityClass() {
     return Usuario.class;
   }
 }
