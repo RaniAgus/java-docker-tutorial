@@ -187,6 +187,9 @@ WithSimplePersistenceUnit.configure(properties -> properties
       .set("hibernate.connection.url", System.getenv("DATABASE_URL"))
       .set("hibernate.connection.username", System.getenv("DATABASE_USERNAME"))
       .set("hibernate.connection.password", System.getenv("DATABASE_PASSWORD"))
+// También podemos proveer valores por defecto de esta forma:
+      .set("hibernate.connection.driver_class", System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"))
+      .set("hibernate.dialect", System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"))
 );
 ```
 
