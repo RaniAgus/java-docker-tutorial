@@ -25,6 +25,7 @@ WORKDIR /home/appuser
 
 COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 COPY --from=builder /build/jte-classes ./jte-classes
+COPY data ./data
 
 EXPOSE 8080
 

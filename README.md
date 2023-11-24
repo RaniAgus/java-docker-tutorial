@@ -98,6 +98,29 @@ COPY pom.xml .
 COPY src ./src
 ```
 
+> [!NOTE]
+> Por otro lado, si nuestra aplicación tiene archivos que no forman parte del
+> código fuente, también es necesario copiarlos al contenedor usando `COPY`.
+>
+> En mi caso, tengo un archivo `data/users.csv` que se utiliza para cargar datos
+> de prueba en la base de datos de esta forma:
+>
+> ```java
+> try (var inputStream = new FileInputStream("data/users.csv")) {
+>  // ...
+> }
+> ```
+> Como `FileInputStream` lee archivos desde el sistema de archivos del
+> contenedor (no desde el classpath)[^1], es necesario copiarlos agregando la
+> siguiente línea:
+>
+> ```dockerfile
+> COPY data ./data
+> ```
+>
+> Esto **no** es necesario hacerlo para los templates o los archivos estáticos
+> de SparkJava/Javalin, ya que por defecto los mismos se buscan en el classpath.
+
 A continuación, toca generar el artefacto de nuestra aplicación. Para ello,
 utilizaremos la instrucción `RUN`:
 
@@ -310,7 +333,7 @@ Esto se debe a que la imagen base no solo tiene el runtime de Java, sino tambié
 el JDK completo y Maven. Una vez construida nuestra aplicación, ¿no sería mejor
 mandar todo ese almacenamiento a...
 [_volaaar_](https://www.youtube.com/watch?v=RmuKNpavYbs)? ¡Se puede! Para ello
-vamos a hacer algo que se conoce como **multi-stage build**[^1].
+vamos a hacer algo que se conoce como **multi-stage build**[^2].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen
 base para compilar y la segunda será una imagen liviana que solo tenga el
@@ -327,7 +350,7 @@ oficial más liviana de
   [Ubuntu](https://hub.docker.com/_/ubuntu) o
   [Debian](https://hub.docker.com/_/debian), los tiempos de descarga son
   reducidos, se ahorra espacio de almacenamiento en la nube y la superficie de
-  ataque[^2] es menor al tener menos paquetes instalados.
+  ataque[^3] es menor al tener menos paquetes instalados.
 
 Entonces la estructura nos va a quedar algo así:
 
@@ -336,13 +359,17 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /build
 
+# Descargamos las dependencias
+
 # Copiamos y compilamos el código fuente
 
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Copiamos el artefacto de la imagen base y los archivos estáticos
+# Copiamos el artefacto desde la imagen base y los archivos estáticos
+
+# Exponemos el puerto
 
 # Ejecutamos la aplicación
 ```
@@ -409,7 +436,7 @@ WORKDIR /home/appuser
 ## Desplegando la imagen en un CaaS
 
 Existen un montón de formas de desplegar una imagen Docker. La más sencilla es
-utilizar un servicio Container-as-a-Service (CaaS)[^3] que se encargue de
+utilizar un servicio Container-as-a-Service (CaaS)[^4] que se encargue de
 construir la imagen y desplegarla en la nube simplemente proveyendo el
 repositorio y las variables de entorno correspondientes.
 
@@ -465,7 +492,8 @@ más a menos recomendable) son:
 - [Docker CLI Cheatsheet](https://docs.docker.com/get-started/docker_cheatsheet.pdf)
   (en inglés)
 
-[^1]: https://docs.docker.com/build/building/multi-stage/
-[^2]: https://www.ibm.com/mx-es/topics/attack-surface
-[^3]:
+[^1]: https://www.baeldung.com/reading-file-in-java
+[^2]: https://docs.docker.com/build/building/multi-stage/
+[^3]: https://www.ibm.com/mx-es/topics/attack-surface
+[^4]:
     https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service
