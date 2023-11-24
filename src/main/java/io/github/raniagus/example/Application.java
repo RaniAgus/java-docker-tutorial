@@ -5,7 +5,6 @@ import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
-import io.github.raniagus.example.scheduler.Planificador;
 import io.github.raniagus.example.controller.Controller;
 import io.github.raniagus.example.controller.ErrorController;
 import io.github.raniagus.example.controller.HomeController;
@@ -17,7 +16,6 @@ import io.javalin.rendering.template.JavalinJte;
 import io.javalin.validation.JavalinValidation;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Set;
 
 public class Application {
@@ -28,9 +26,6 @@ public class Application {
     if (config.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
-    startJobs(Map.of(
-        new Bootstrap(), config.databaseResetCron()
-    ));
     startServer(
         HomeController.INSTANCE,
         LoginController.INSTANCE,
@@ -41,12 +36,6 @@ public class Application {
   public static void startDatabaseConnection() {
     WithSimplePersistenceUnit.configure(properties -> properties.putAll(config.getHibernateProperties()));
     WithSimplePersistenceUnit.dispose();
-  }
-
-  public static void startJobs(Map<Runnable, String> jobs) {
-    var planificador = new Planificador();
-    jobs.forEach(planificador::agregarTarea);
-    planificador.iniciar();
   }
 
   @SuppressWarnings("java:S2095")

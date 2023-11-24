@@ -16,7 +16,6 @@ services:
       - DATABASE_DIALECT=${DATABASE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}
       - DATABASE_SHOW_SQL=${DATABASE_SHOW_SQL:-false}
       - DATABASE_HBM2DDL_AUTO=${DATABASE_HBM2DDL_AUTO:-validate}
-      - DATABASE_RESET_CRON=${DATABASE_RESET_CRON:-0 0/2 * * * ?}
     depends_on:
       db:
         condition: service_healthy
