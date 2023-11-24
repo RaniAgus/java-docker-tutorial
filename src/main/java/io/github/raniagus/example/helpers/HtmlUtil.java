@@ -4,8 +4,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public enum HtmlUtil {;
-  public static String joinParams(String... pairs) {
-    return String.join("&", pairs);
+  public static String joinParams(String path, String... pairs) {
+    return path + "?" + String.join("&", pairs);
   }
 
   public static <T extends CharSequence> String encode(String key, Iterable<T> values) {

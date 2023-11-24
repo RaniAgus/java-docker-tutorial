@@ -21,21 +21,21 @@ public enum LoginController implements Controller, AccessManager {
 
   @Override
   public void addRoutes(Javalin app) {
-    app.get("/login", this::renderLogin);
-    app.post("/login", this::login);
-    app.post("/logout", this::logout);
+    app.get(ROUTE_LOGIN, this::renderLogin);
+    app.post(ROUTE_LOGIN, this::performLogin);
+    app.post(ROUTE_LOGOUT, this::performLogout);
   }
 
   @Override
   public void manage(@NotNull Handler handler,
                      @NotNull Context ctx,
                      @NotNull Set<? extends RouteRole> roles) throws Exception {
-    Usuario usuario = ctx.sessionAttribute("usuario");
+    Usuario usuario = ctx.sessionAttribute(SESSION_USER);
     if (roles.isEmpty()) {
       handler.handle(ctx);
     } else if (usuario == null) {
-      ctx.redirect("/login?" + HtmlUtil.joinParams(
-          HtmlUtil.encode("origin", ctx.path())
+      ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
+          HtmlUtil.encode(ORIGIN, ctx.path())
       ));
     } else if (roles.contains(usuario.getRol())) {
       handler.handle(ctx);
@@ -45,11 +45,11 @@ public enum LoginController implements Controller, AccessManager {
   }
 
   public void renderLogin(Context ctx) {
-    var email = ctx.queryParamAsClass("email", String.class).getOrDefault("");
-    var origin = ctx.queryParamAsClass("origin", String.class).getOrDefault("/");
-    var errors = ctx.queryParamAsClass("errors", Set.class).getOrDefault(Set.of());
+    var email = ctx.queryParamAsClass(EMAIL, String.class).getOrDefault("");
+    var origin = ctx.queryParamAsClass(ORIGIN, String.class).getOrDefault(ROUTE_ROOT);
+    var errors = ctx.queryParamAsClass(ERRORS, Set.class).getOrDefault(Set.of());
 
-    if (ctx.sessionAttribute("usuario") != null) {
+    if (ctx.sessionAttribute(SESSION_USER) != null) {
       ctx.redirect(origin);
       return;
     }
@@ -57,38 +57,38 @@ public enum LoginController implements Controller, AccessManager {
     ctx.render("login.jte", Map.of("view", new LoginView(email, origin, errors)));
   }
 
-  public void login(Context ctx) {
-    var email = ctx.formParamAsClass("email", String.class)
+  public void performLogin(Context ctx) {
+    var email = ctx.formParamAsClass(EMAIL, String.class)
         .check(s -> s.matches(".+@.+\\..+"), "INVALID_EMAIL");
-    var password = ctx.formParamAsClass("password", String.class)
+    var password = ctx.formParamAsClass(PASSWORD, String.class)
         .check(s -> s.length() >= 8, "INVALID_PASSWORD");
-    var origin = ctx.formParamAsClass("origin", String.class).getOrDefault("/");
+    var origin = ctx.formParamAsClass(ORIGIN, String.class).getOrDefault(ROUTE_ROOT);
 
     try {
       RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
           .filter(u -> u.getPassword().matches(password.get()))
           .ifPresentOrElse(usuario -> {
-            ctx.sessionAttribute("usuario", usuario);
+            ctx.sessionAttribute(SESSION_USER, usuario);
             ctx.redirect(origin);
-          }, () -> {
-            ctx.redirect("/login?" + HtmlUtil.joinParams(
-                HtmlUtil.encode("origin", origin),
-                HtmlUtil.encode("email", email.get()),
-                HtmlUtil.encode("errors", "email,password")
-            ));
-          });
+          }, () ->
+            ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
+                HtmlUtil.encode(ORIGIN, origin),
+                HtmlUtil.encode(EMAIL, email.get()),
+                HtmlUtil.encode(ERRORS, String.join(",", EMAIL, PASSWORD))
+            ))
+          );
     } catch (ValidationException e) {
       var errors = collectErrors(email, password);
-      ctx.redirect("/login?" + HtmlUtil.joinParams(
-          HtmlUtil.encode("origin", origin),
-          HtmlUtil.encode("email", email.errors().isEmpty() ? email.get() : ""),
-          HtmlUtil.encode("errors", errors.keySet())
+      ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
+          HtmlUtil.encode(ORIGIN, origin),
+          HtmlUtil.encode(EMAIL, email.errors().isEmpty() ? email.get() : ""),
+          HtmlUtil.encode(ERRORS, errors.keySet())
       ));
     }
   }
 
-  public void logout(Context ctx) {
-    ctx.consumeSessionAttribute("usuario");
-    ctx.redirect("/");
+  public void performLogout(Context ctx) {
+    ctx.consumeSessionAttribute(SESSION_USER);
+    ctx.redirect(ROUTE_ROOT);
   }
 }

@@ -16,7 +16,7 @@ public enum HomeController implements Controller {
   }
 
   public void renderHome(Context ctx) {
-    Usuario usuario = ctx.sessionAttribute("usuario");
+    Usuario usuario = ctx.sessionAttribute(SESSION_USER);
     ctx.render("home.jte", Map.of(
         "view", new HomeView(usuario.getNombre(), usuario.getApellido())
     ));
