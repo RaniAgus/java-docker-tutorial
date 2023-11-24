@@ -90,13 +90,12 @@ WORKDIR /app
 
 Luego, vamos a copiar el código fuente con la instrucción `COPY`. Es importante
 **solo copiar los archivos que necesitamos**, y no todo el directorio. En
-nuestro caso, alcanza con copiar el archivo `pom.xml` y los directorios `src`
-(con el código) y `public` (con los archivos estáticos):
+nuestro caso, alcanza con copiar el archivo `pom.xml` y el directorio `src`
+con el código:
 
 ```dockerfile
 COPY pom.xml .
 COPY src ./src
-COPY public ./public
 ```
 
 A continuación, toca generar el artefacto de nuestra aplicación. Para ello,
@@ -278,21 +277,21 @@ la siguiente forma:
 ```dockerfile
 # Instalamos las dependencias
 COPY pom.xml .
-RUN mvn -B dependency:resolve
+RUN mvn -B dependency:resolve -B dependency:resolve-plugins
 
 # Generamos el artefacto
 COPY src ./src
-RUN mvn package
-
-# Copiamos los archivos estáticos
-COPY public ./public
+RUN mvn package -o
 ```
 
-El comando `mvn -B dependency:resolve` instala las dependencias de la
-aplicación, pero no genera el artefacto. Por lo tanto, podemos mover el copiado
-del código fuente a una capa posterior. Entonces, cuando aparezcan cambios en
-esa capa, Docker utilizará la capa anterior con todas las dependencias ya
-instaladas, ahorrándonos _bastante_ tiempo de compilación.
+Los flags `-B dependency:resolve` y `-B dependency:resolve-plugins` instalan
+solamente las dependencias y los plugins definidos en el `pom.xml` sin construir
+la aplicación, por lo que podemos mover el copiado del resto del código fuente a
+una capa posterior.
+
+Entonces, cuando aparezcan cambios en esa capa, Docker utilizará la anterior con
+todas las dependencias ya instaladas, ahorrándonos _bastante_ tiempo de
+compilación.
 
 ## Optimizando el tamaño de la imagen
 
@@ -395,8 +394,8 @@ ARG UID=1001
 ARG GID=1001
 
 # Creamos el usuario appuser
-RUN addgroup -g $GID appuser && \
-    adduser -u $UID -G appuser -D appuser
+RUN addgroup -g "$GID" appuser && \
+    adduser -u "$UID" -G appuser -D appuser
 
 # Cambiamos a un usuario no privilegiado
 USER appuser

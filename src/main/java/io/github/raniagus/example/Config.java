@@ -57,7 +57,7 @@ public record Config (
     );
   }
 
-  public Properties toHibernateProperties() {
+  public Properties getHibernateProperties() {
     var properties = new Properties();
     properties.setProperty("hibernate.connection.url", databaseUrl);
     properties.setProperty("hibernate.connection.username", databaseUsername);

@@ -4,11 +4,11 @@ WORKDIR /build
 
 COPY pom.xml .
 
-RUN mvn -B dependency:resolve
+RUN mvn -B dependency:resolve -B dependency:resolve-plugins
 
 COPY src ./src
 
-RUN mvn package
+RUN mvn package -o
 
 
 FROM eclipse-temurin:17-jre-alpine AS web
@@ -16,14 +16,12 @@ FROM eclipse-temurin:17-jre-alpine AS web
 ARG UID=1001
 ARG GID=1001
 
-RUN addgroup -g $GID appuser && \
-    adduser -u $UID -G appuser -D appuser
+RUN addgroup -g "$GID" appuser && \
+    adduser -u "$UID" -G appuser -D appuser
 
 USER appuser
 
 WORKDIR /home/appuser
-
-COPY public ./public
 
 COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 COPY --from=builder /build/jte-classes ./jte-classes

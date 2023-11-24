@@ -39,7 +39,7 @@ public class Application {
   }
 
   public static void startDatabaseConnection() {
-    WithSimplePersistenceUnit.configure(properties -> properties.putAll(config.toHibernateProperties()));
+    WithSimplePersistenceUnit.configure(properties -> properties.putAll(config.getHibernateProperties()));
     WithSimplePersistenceUnit.dispose();
   }
 
@@ -49,12 +49,13 @@ public class Application {
     planificador.iniciar();
   }
 
+  @SuppressWarnings("java:S2095")
   public static void startServer(Controller... controllers) {
     JavalinValidation.register(LocalDate.class, LocalDate::parse);
     JavalinValidation.register(Set.class, s -> Set.of(s.split(",")));
     JavalinRenderer.register(new JavalinJte(createTemplateEngine(), ctx -> config.isDevelopment()), ".jte");
     var app = Javalin.create(config -> {
-      config.staticFiles.add("public", Location.EXTERNAL);
+      config.staticFiles.add("public", Location.CLASSPATH);
       config.accessManager(LoginController.INSTANCE);
     });
     for (var controller : controllers) {
