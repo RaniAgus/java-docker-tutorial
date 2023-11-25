@@ -11,9 +11,15 @@ COPY src ./src
 RUN mvn package -o
 
 
-FROM eclipse-temurin:17-jre-alpine AS cron
+FROM eclipse-temurin:17-jre-alpine
+
+ADD "https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64" /usr/local/bin/supercronic
+
+RUN echo "7dadd4ac827e7bd60b386414dfefc898ae5b6c63 /usr/local/bin/supercronic" | sha1sum -c - \
+    && chmod +x /usr/local/bin/supercronic
 
 ARG UID=1001
+
 ARG GID=1001
 
 RUN addgroup -g "$GID" appuser && \
@@ -24,10 +30,9 @@ USER appuser
 WORKDIR /home/appuser
 
 COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
+
 COPY data ./data
 
-USER root
+COPY crontab .
 
-COPY cron/entrypoint.sh /entrypoint.sh
-
-ENTRYPOINT ["sh", "/entrypoint.sh"]
+ENTRYPOINT ["supercronic", "-passthrough-logs", "crontab"]

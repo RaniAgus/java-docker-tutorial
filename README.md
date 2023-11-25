@@ -102,16 +102,17 @@ COPY src ./src
 > Por otro lado, si nuestra aplicación tiene archivos que no forman parte del
 > código fuente, también es necesario copiarlos al contenedor usando `COPY`.
 >
-> En mi caso, tengo un archivo `data/users.csv` que se utiliza para cargar datos
-> de prueba en la base de datos de esta forma:
+> Supongamos que tengo una carpeta `data` con varios archivos, por ejemplo, un
+> `weak_passwords.txt` con una lista de contraseñas que no deberían utilizarse
+> que mi aplicación lo lee de la siguiente forma:
 >
 > ```java
-> try (var inputStream = new FileInputStream("data/users.csv")) {
+> try (var inputStream = new FileInputStream("data/weak_passwords.txt")) {
 >  // ...
 > }
 > ```
 > Como `FileInputStream` lee archivos desde el sistema de archivos del
-> contenedor (no desde el classpath)[^1], es necesario copiarlos agregando la
+> contenedor (no desde el classpath)[^1], voy a necesitar copiarlos agregando la
 > siguiente línea:
 >
 > ```dockerfile
@@ -278,7 +279,7 @@ docker run --rm -p 7000:8080 \
 > [!NOTE]
 > Este es un buen momento para externalizar todas las variables
 > configurables de la aplicación, incluyendo las credenciales de acceso a APIs
-> externas, configuración de cron jobs, etc.
+> externas, etc.
 
 ## Optimizando la construcción de la imagen
 
@@ -431,7 +432,7 @@ USER appuser
 WORKDIR /home/appuser
 ```
 
-¡Excelente! Ya tenemos nuestra imagen lista para desplegar.
+¡Excelente! Ya tenemos nuestra primera imagen lista para desplegar.
 
 ## Desplegando la imagen en un CaaS
 
@@ -481,6 +482,93 @@ más a menos recomendable) son:
   desplegar la imagen cada vez que se pushee a la branch principal. También
   requiere autorización de la organización para hacerlo.
 
+## Creando un contenedor que ejecute cron jobs
+
+> Esta sección está fuertemente inspirada en esta guía:
+> [Crontab with Supercronic](https://fly.io/docs/app-guides/supercronic/)
+
+Por último, toca crear un contenedor que ejecute los cron jobs de nuestro
+sistema. Para esto, no vamos a poder usar `crontab` porque dentro de un
+contenedor no es posible[^5] pasarle variables de entorno al job.
+
+Por suerte, existe otra herramienta, llamada
+[`supercronic`](https://github.com/aptible/supercronic), que nos va a venir como
+anillo al dedo para ejecutar cron jobs de la misma forma que lo haríamos con
+`crontab`.
+
+Antes que nada, tengamos listo nuestro _archivo_ `crontab` con los jobs a
+ejecutar. En mi caso, voy a hacer uno que inserte datos de prueba en la base de
+datos cada un minuto:
+
+```
+* * * * * java -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
+```
+
+¿Ya estamos? Bueno, ahora sigue duplicar el `Dockerfile` que ya tenemos armado
+para la aplicación web en un nuevo archivo `cron.Dockerfile`, al cual le vamos a
+cambiar un par de cosas.
+
+1. Primero, inmediatamente luego del último `FROM`, vamos a incluir un par de
+   líneas para descargar e instalar `supercronic`:
+
+```dockerfile
+FROM eclipse-temurin:17-jre-alpine
+
+ADD "https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64" /usr/local/bin/supercronic
+
+RUN echo "7dadd4ac827e7bd60b386414dfefc898ae5b6c63 /usr/local/bin/supercronic" | sha1sum -c - \
+    && chmod +x /usr/local/bin/supercronic
+```
+
+- `ADD` es una instrucción que nos permite descargar contenido externo e
+  incluirlo directamente dentro del container. Yo descargué la última versión de
+  `supercronic` al momento de hacer el tutorial, pero por las dudas pasate por
+  [aptible/supercronic](https://github.com/aptible/supercronic/releases) para
+  corroborar si hay una versión más nueva.
+
+- Luego, ejecuto `sha1sum` para verificar la integridad del archivo, o sea, que
+  el ejecutable que descargué no esté corrupto o dañado. Este paso es opcional,
+  pero es una buena práctica hacerlo.
+
+- Por último, le damos permisos de ejecución al binario descargado usando
+  `chmod +x`.
+
+Bien, una vez hecho esto, lo único que queda es, al final del Dockerfile:
+
+2. Quitar el `EXPOSE 8080`, ya que no va a haber ningún servicio escuchando en
+   ese puerto.
+
+3. Copiar el archivo `crontab` que tenemos armado:
+
+```
+COPY crontab .
+```
+
+4. Cambiar el `ENTRYPOINT` y `CMD` para que el proceso principal ejecute
+   `supercronic` al iniciar, pasándole el archivo `crontab` como argumento y el
+   flag `-passthrough-logs` para que los logs de los jobs se muestren en la
+   consola de una forma más legible:
+
+```dockerfile
+ENTRYPOINT ["supercronic", "-passthrough-logs", "crontab"]
+```
+
+Ahora sí, buildeamos con el flag `-f` para que se use el nuevo `cron.Dockerfile`,
+ejecutamos, y _¡voilá!_
+
+```shell
+docker build -f cron.Dockerfile -t java-cron .
+
+docker run --rm -it \
+  -e DATABASE_URL=jdbc:postgresql://host.docker.internal:5432/example \
+  -e DATABASE_USERNAME=postgres \
+  -e DATABASE_PASSWORD=postgres \
+  java-cron
+```
+
+Ya tenemos nuestra aplicación web y nuestro cron job corriendo en contenedores
+de Docker :rocket: :rocket:
+
 ## Material recomendado
 
 - [¿Qué son los contenedores?](https://www.ibm.com/es-es/topics/containers)
@@ -497,3 +585,6 @@ más a menos recomendable) son:
 [^3]: https://www.ibm.com/mx-es/topics/attack-surface
 [^4]:
     https://www.atlassian.com/microservices/cloud-computing/containers-as-a-service
+[^5]:
+    O, al menos, no encontré ninguna forma de hacerlo sin ejecutar el contenedor
+    como `root`, lo cual es lo que queremos evitar.

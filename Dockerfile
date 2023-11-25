@@ -11,9 +11,10 @@ COPY src ./src
 RUN mvn package -o
 
 
-FROM eclipse-temurin:17-jre-alpine AS web
+FROM eclipse-temurin:17-jre-alpine
 
 ARG UID=1001
+
 ARG GID=1001
 
 RUN addgroup -g "$GID" appuser && \
@@ -24,7 +25,10 @@ USER appuser
 WORKDIR /home/appuser
 
 COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
+
 COPY --from=builder /build/jte-classes ./jte-classes
+
+COPY data ./data
 
 EXPOSE 8080
 

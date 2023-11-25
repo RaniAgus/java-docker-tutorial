@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: web
     container_name: example-web
     ports:
       - ${PORT:-8080}:8080
@@ -23,11 +22,8 @@ services:
   cron:
     build:
       context: .
-      dockerfile: cron/Dockerfile
-      target: cron
+      dockerfile: cron.Dockerfile
     container_name: example-cron
-    ports:
-      - ${PORT:-8080}:8080
     environment:
       - PRODUCTION=true
       - DATABASE_URL=jdbc:postgresql://db:5432/${DATABASE_NAME:-example}
@@ -37,7 +33,6 @@ services:
       - DATABASE_DIALECT=${DATABASE_DIALECT:-org.hibernate.dialect.PostgreSQLDialect}
       - DATABASE_SHOW_SQL=${DATABASE_SHOW_SQL:-false}
       - DATABASE_HBM2DDL_AUTO=${DATABASE_HBM2DDL_AUTO:-validate}
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-* * * * *}
     depends_on:
       db:
         condition: service_healthy
