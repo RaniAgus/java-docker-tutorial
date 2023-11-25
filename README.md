@@ -498,10 +498,12 @@ anillo al dedo para ejecutar cron jobs de la misma forma que lo haríamos con
 
 Antes que nada, tengamos listo nuestro _archivo_ `crontab` con los jobs a
 ejecutar. En mi caso, voy a hacer uno que inserte datos de prueba en la base de
-datos cada un minuto:
+datos cada 5 minutos y otro que imprima un texto simple cada 15 segundos:
 
 ```
-* * * * * java -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
+*/5 * * * * java -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
+
+*/15 * * * * * * echo "Hello from supercronic!"
 ```
 
 ¿Ya estamos? Bueno, ahora sigue duplicar el `Dockerfile` que ya tenemos armado
@@ -528,7 +530,9 @@ RUN echo "7dadd4ac827e7bd60b386414dfefc898ae5b6c63 /usr/local/bin/supercronic" |
 
 - Luego, ejecuto `sha1sum` para verificar la integridad del archivo, o sea, que
   el ejecutable que descargué no esté corrupto o dañado. Este paso es opcional,
-  pero es una buena práctica hacerlo.
+  pero es una buena práctica hacerlo. Ojo que el hash que puse es el de la
+  versión que descargué yo, si descargás una versión más nueva vas a tener que
+  copiar el nuevo de la página de releases.
 
 - Por último, le damos permisos de ejecución al binario descargado usando
   `chmod +x`.
@@ -540,7 +544,7 @@ Bien, una vez hecho esto, lo único que queda es, al final del Dockerfile:
 
 3. Copiar el archivo `crontab` que tenemos armado:
 
-```
+```dockerfile
 COPY crontab .
 ```
 
@@ -566,8 +570,8 @@ docker run --rm -it \
   java-cron
 ```
 
-Ya tenemos nuestra aplicación web y nuestro cron job corriendo en contenedores
-de Docker :rocket: :rocket:
+Ya tenemos nuestra aplicación web y nuestros cron jobs corriendo en contenedores
+de Docker :rocket:
 
 ## Material recomendado
 
