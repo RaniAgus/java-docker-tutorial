@@ -210,6 +210,14 @@ datos que corre en nuestra computadora:
 <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://host.docker.internal:5432/example"/>
 ```
 
+> [!NOTE]
+> Si estás en Linux, además deberás agregar el flag
+> `--add-host=host.docker.internal:host-gateway` a `docker run` para que
+> el contenedor encuentre el puerto:
+> ```shell
+> docker run --rm --add-host=host.docker.internal:host-gateway java-app
+> ```
+
 > [!WARNING]
 > Según tengo entendido, el nombre correcto para MacOS es
 > `docker.for.mac.host.internal`. Sin embargo, no tengo forma de probarlo porque
@@ -226,11 +234,6 @@ ejemplo:
 ```shell
 docker run --rm java-app io.github.raniagus.example.bootstrap.Bootstrap
 ```
-
-> [!NOTE]
-> Si estás en Linux, además deberás agregar el flag
-> `--add-host=host.docker.internal:host-gateway` después de `--rm` para que
-> el contenedor encuentre el puerto.
 
 En este caso, la aplicación se ejecutará con la clase
 `io.github.raniagus.example.bootstrap.Bootstrap` en lugar de
