@@ -39,11 +39,11 @@ mejor cómo funciona la virtualización con contenedores:
 java -cp target/example-1.0-SNAPSHOT-jar-with-dependencies.jar io.github.raniagus.example.Application
 ```
 
-- Ya contás con una instalación de gestión de base de datos relacional como
-  PostgreSQL o MySQL.
-
-- Estás usando la última versión de
+- Usar la última versión de
   [flbulgarelli/jpa-extras](https://github.com/flbulgarelli/jpa-extras).
+
+- Contar con una instalación de gestión de base de datos relacional como
+  PostgreSQL o MySQL en ejecución.
 
 En mi caso voy a utilizar una base de datos PostgreSQL corriendo en el puerto
 5432 de mi máquina local. Si estás usando alguna otra, asegurate de utilizar el
