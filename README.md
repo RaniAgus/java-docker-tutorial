@@ -229,8 +229,8 @@ docker run --rm java-app io.github.raniagus.example.bootstrap.Bootstrap
 
 > [!NOTE]
 > Si estás en Linux, además deberás agregar el flag
-> `--add-host=host.docker.internal:host-gateway` después de `--rm` para incluir
-> la IP de la gateway del host en el archivo `/etc/hosts` del contenedor.
+> `--add-host=host.docker.internal:host-gateway` después de `--rm` para que
+> el contenedor encuentre el puerto.
 
 En este caso, la aplicación se ejecutará con la clase
 `io.github.raniagus.example.bootstrap.Bootstrap` en lugar de
