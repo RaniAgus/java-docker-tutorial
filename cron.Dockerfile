@@ -13,9 +13,12 @@ RUN mvn package -o
 
 FROM eclipse-temurin:17-jre-alpine
 
-ADD "https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64" /usr/local/bin/supercronic
+ARG SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64"
+ARG SUPERCRONIC_SHA1SUM="7dadd4ac827e7bd60b386414dfefc898ae5b6c63"
 
-RUN echo "7dadd4ac827e7bd60b386414dfefc898ae5b6c63 /usr/local/bin/supercronic" | sha1sum -c - \
+ADD "${SUPERCRONIC_URL}" /usr/local/bin/supercronic
+
+RUN echo "${SUPERCRONIC_SHA1SUM} /usr/local/bin/supercronic" | sha1sum -c - \
     && chmod +x /usr/local/bin/supercronic
 
 ARG UID=1001

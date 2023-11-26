@@ -26,12 +26,12 @@ mejor cómo funciona la virtualización con contenedores:
 
 ## Prerrequisitos
 
-- Tenés instalado Docker en tu computadora. Para ello, podemos seguir las
+- Tener instalado Docker en tu computadora. Para ello, podemos seguir las
   instrucciones que se encuentran en la
   [documentación oficial](https://docs.docker.com/get-docker/).
 
-- Tu aplicación ya puede compilarse a un artefacto (un .jar) que incluya todas
-  sus dependencias con
+- Tener una aplicación que ya pueda compilarse a un artefacto (un .jar) que 
+  incluya todas sus dependencias con
   [Maven Assembly Plugin](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html)
   con `mvn package`, y ejecutarse utilizando el comando `java -cp`, por ejemplo:
 
@@ -41,6 +41,9 @@ java -cp target/example-1.0-SNAPSHOT-jar-with-dependencies.jar io.github.raniagu
 
 - Ya contás con una instalación de gestión de base de datos relacional como
   PostgreSQL o MySQL.
+
+- Estás usando la última versión de
+  [flbulgarelli/jpa-extras](https://github.com/flbulgarelli/jpa-extras).
 
 En mi caso voy a utilizar una base de datos PostgreSQL corriendo en el puerto
 5432 de mi máquina local. Si estás usando alguna otra, asegurate de utilizar el
@@ -224,6 +227,11 @@ ejemplo:
 docker run --rm java-app io.github.raniagus.example.bootstrap.Bootstrap
 ```
 
+> [!NOTE]
+> Si estás en Linux, además deberás agregar el flag
+> `--add-host=host.docker.internal:host-gateway` después de `--rm` para incluir
+> la IP de la gateway del host en el archivo `/etc/hosts` del contenedor.
+
 En este caso, la aplicación se ejecutará con la clase
 `io.github.raniagus.example.bootstrap.Bootstrap` en lugar de
 `io.github.raniagus.example.Application`.
@@ -249,14 +257,20 @@ que lea las credenciales de la base de datos de las variables de entorno usando
 el método `System.getenv()`:
 
 ```java
-WithSimplePersistenceUnit.configure(properties -> properties
-      .set("hibernate.connection.url", System.getenv("DATABASE_URL"))
-      .set("hibernate.connection.username", System.getenv("DATABASE_USERNAME"))
-      .set("hibernate.connection.password", System.getenv("DATABASE_PASSWORD"))
-// También podemos proveer valores por defecto de esta forma:
-      .set("hibernate.connection.driver_class", System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"))
-      .set("hibernate.dialect", System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"))
-);
+import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
+
+public static void main(String[] args) {
+    WithSimplePersistenceUnit.configure(properties -> properties
+        .set("hibernate.connection.url", System.getenv("DATABASE_URL"))
+        .set("hibernate.connection.username", System.getenv("DATABASE_USERNAME"))
+        .set("hibernate.connection.password", System.getenv("DATABASE_PASSWORD"))
+        // También podemos proveer valores por defecto de esta forma:
+        .set("hibernate.connection.driver_class", System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"))
+        .set("hibernate.dialect", System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"))
+    );
+
+  // ...
+}
 ```
 
 Con esto, ya podremos pasarle las credenciales de la base de datos como
@@ -312,6 +326,11 @@ Los flags `-B dependency:resolve` y `-B dependency:resolve-plugins` instalan
 solamente las dependencias y los plugins definidos en el `pom.xml` sin construir
 la aplicación, por lo que podemos mover el copiado del resto del código fuente a
 una capa posterior.
+
+El flag `-o` de `mvn package` indica que se debe construir la aplicación en
+modo _offline_, o sea, sin descargar ninguna dependencia. Este flag es opcional,
+solo me sirve para demostrar que las dependencias ya se descargaron en la capa
+anterior.
 
 Entonces, cuando aparezcan cambios en esa capa, Docker utilizará la anterior con
 todas las dependencias ya instaladas, ahorrándonos _bastante_ tiempo de
@@ -513,49 +532,49 @@ cambiar un par de cosas.
 1. Primero, inmediatamente luego del último `FROM`, vamos a incluir un par de
    líneas para descargar e instalar `supercronic`:
 
-```dockerfile
-FROM eclipse-temurin:17-jre-alpine
+    ```dockerfile
+    FROM eclipse-temurin:17-jre-alpine
+    
+    ARG SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64"
+    ARG SUPERCRONIC_SHA1SUM="7dadd4ac827e7bd60b386414dfefc898ae5b6c63"
+    
+    ADD "${SUPERCRONIC_URL}" /usr/local/bin/supercronic
+    
+    RUN echo "${SUPERCRONIC_SHA1SUM} /usr/local/bin/supercronic" | sha1sum -c - \
+        && chmod +x /usr/local/bin/supercronic
+    ```
 
-ADD "https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64" /usr/local/bin/supercronic
+   - `ADD` es una instrucción que nos permite descargar contenido externo e
+     incluirlo directamente dentro del container. Yo descargué la última versión
+     de `supercronic` al momento de hacer el tutorial, pero por las dudas pasate
+     por [las releases](https://github.com/aptible/supercronic/releases) para
+     actualizar el arg `SUPERCRONIC_URL` con el link a la última versión.
 
-RUN echo "7dadd4ac827e7bd60b386414dfefc898ae5b6c63 /usr/local/bin/supercronic" | sha1sum -c - \
-    && chmod +x /usr/local/bin/supercronic
-```
+   - Luego, ejecuto `sha1sum` para verificar la integridad del archivo, o sea,
+     digamos, que el ejecutable que descargué no esté corrupto o dañado. Este 
+     paso es opcional, pero es una buena práctica hacerlo. Ojo que el hash
+     `SUPERCRONIC_SHA1SUM` también va a cambiar si actualizás el link.
 
-- `ADD` es una instrucción que nos permite descargar contenido externo e
-  incluirlo directamente dentro del container. Yo descargué la última versión de
-  `supercronic` al momento de hacer el tutorial, pero por las dudas pasate por
-  [aptible/supercronic](https://github.com/aptible/supercronic/releases) para
-  corroborar si hay una versión más nueva.
-
-- Luego, ejecuto `sha1sum` para verificar la integridad del archivo, o sea, que
-  el ejecutable que descargué no esté corrupto o dañado. Este paso es opcional,
-  pero es una buena práctica hacerlo. Ojo que el hash que puse es el de la
-  versión que descargué yo, si descargás una versión más nueva vas a tener que
-  copiar el nuevo de la página de releases.
-
-- Por último, le damos permisos de ejecución al binario descargado usando
-  `chmod +x`.
-
-Bien, una vez hecho esto, lo único que queda es, al final del Dockerfile:
+   - Por último, le damos permisos de ejecución al binario descargado usando
+     `chmod +x`.
 
 2. Quitar el `EXPOSE 8080`, ya que no va a haber ningún servicio escuchando en
    ese puerto.
 
-3. Copiar el archivo `crontab` que tenemos armado:
+3. Antes del `ENTRYPOINT`, copiar el archivo `crontab` que tenemos armado:
 
-```dockerfile
-COPY crontab .
-```
+    ```dockerfile
+    COPY crontab .
+    ```
 
 4. Cambiar el `ENTRYPOINT` y `CMD` para que el proceso principal ejecute
    `supercronic` al iniciar, pasándole el archivo `crontab` como argumento y el
    flag `-passthrough-logs` para que los logs de los jobs se muestren en la
    consola de una forma más legible:
 
-```dockerfile
-ENTRYPOINT ["supercronic", "-passthrough-logs", "crontab"]
-```
+    ```dockerfile
+    ENTRYPOINT ["supercronic", "-passthrough-logs", "crontab"]
+    ```
 
 Ahora sí, buildeamos con el flag `-f` para que se use el nuevo `cron.Dockerfile`,
 ejecutamos, y _¡voilá!_
