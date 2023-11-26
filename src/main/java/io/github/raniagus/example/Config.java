@@ -24,7 +24,7 @@ public record Config (
   }
 
   public static Config create() {
-    return System.getenv().containsKey("PRODUCTION") ? createProd() : createDev();
+    return Objects.equals(System.getProperty("user.name"), "appuser") ? createProd() : createDev();
   }
 
   private static Config createProd() {
@@ -33,10 +33,10 @@ public record Config (
         System.getenv("DATABASE_URL"),
         System.getenv("DATABASE_USERNAME"),
         System.getenv("DATABASE_PASSWORD"),
-        System.getenv("DATABASE_DRIVER"),
-        System.getenv("DATABASE_DIALECT"),
-        System.getenv("DATABASE_SHOW_SQL"),
-        System.getenv("DATABASE_HBM2DDL_AUTO")
+        System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
+        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
+        System.getenv().getOrDefault("DATABASE_SHOW_SQL", "false"),
+        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "validate")
     );
   }
 

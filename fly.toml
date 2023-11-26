@@ -13,7 +13,6 @@ primary_region = "scl"
   DATABASE_DRIVER = "org.postgresql.Driver"
   DATABASE_HBM2DDL_AUTO = "validate"
   DATABASE_SHOW_SQL = "false"
-  PRODUCTION = "true"
 
 [http_service]
   internal_port = 8080
