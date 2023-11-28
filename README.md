@@ -554,9 +554,9 @@ cambiar un par de cosas.
      actualizar el arg `SUPERCRONIC_URL` con el link a la última versión.
 
    - Luego, ejecuto `sha1sum` para verificar la integridad del archivo, o sea,
-     digamos, que el ejecutable que descargué no esté corrupto o dañado. Este 
-     paso es opcional, pero es una buena práctica hacerlo. Ojo que el hash
-     `SUPERCRONIC_SHA1SUM` también va a cambiar si actualizás el link.
+     digamos, asegurarme que el ejecutable que descargué no esté corrupto o
+     dañado. Este paso es opcional, pero es una buena práctica hacerlo. Ojo que
+     el hash `SUPERCRONIC_SHA1SUM` también va a cambiar si actualizás el link.
 
    - Por último, le damos permisos de ejecución al binario descargado usando
      `chmod +x`.
