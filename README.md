@@ -535,25 +535,15 @@ cambiar un par de cosas.
     ```dockerfile
     FROM eclipse-temurin:17-jre-alpine
     
-    ARG SUPERCRONIC_URL="https://github.com/aptible/supercronic/releases/download/v0.2.27/supercronic-linux-amd64"
-    ARG SUPERCRONIC_SHA1SUM="7dadd4ac827e7bd60b386414dfefc898ae5b6c63"
+    ADD "https://github.com/aptible/supercronic/releases/latest/download/supercronic-linux-amd64" /usr/local/bin/supercronic
     
-    ADD "${SUPERCRONIC_URL}" /usr/local/bin/supercronic
-    
-    RUN echo "${SUPERCRONIC_SHA1SUM} /usr/local/bin/supercronic" | sha1sum -c - \
-        && chmod +x /usr/local/bin/supercronic
+    RUN chmod +x /usr/local/bin/supercronic
     ```
 
    - `ADD` es una instrucción que nos permite descargar contenido externo e
-     incluirlo directamente dentro del container. Yo descargué la última versión
-     de `supercronic` al momento de hacer el tutorial, pero por las dudas pasate
-     por [las releases](https://github.com/aptible/supercronic/releases) para
-     actualizar el arg `SUPERCRONIC_URL` con el link a la última versión.
-
-   - Luego, ejecuto `sha1sum` para verificar la integridad del archivo, o sea,
-     digamos, asegurarme que el ejecutable que descargué no esté corrupto o
-     dañado. Este paso es opcional, pero es una buena práctica hacerlo. Ojo que
-     el hash `SUPERCRONIC_SHA1SUM` también va a cambiar si actualizás el link.
+     incluirlo directamente dentro del container. En este caso, nos descargamos
+     la última versión de `supercronic` para `linux-amd64` desde las
+     [releases en GitHub](https://github.com/aptible/supercronic/releases).
 
    - Por último, le damos permisos de ejecución al binario descargado usando
      `chmod +x`.
