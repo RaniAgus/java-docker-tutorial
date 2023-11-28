@@ -545,8 +545,7 @@ cambiar un par de cosas.
      la última versión de `supercronic` para `linux-amd64` desde las
      [releases en GitHub](https://github.com/aptible/supercronic/releases).
 
-   - Por último, le damos permisos de ejecución al binario descargado usando
-     `chmod +x`.
+   - `chmod +x` permite otorgarle permisos de ejecución al binario descargado.
 
 2. Quitar el `EXPOSE 8080`, ya que no va a haber ningún servicio escuchando en
    ese puerto.
