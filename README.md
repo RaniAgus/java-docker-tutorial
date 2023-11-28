@@ -506,9 +506,6 @@ más a menos recomendable) son:
 
 ## Creando un contenedor que ejecute cron jobs
 
-> Esta sección está fuertemente inspirada en esta guía:
-> [Crontab with Supercronic](https://fly.io/docs/app-guides/supercronic/)
-
 Por último, toca crear un contenedor que ejecute los cron jobs de nuestro
 sistema. Para esto, no vamos a poder usar `crontab` porque dentro de un
 contenedor no es posible[^5] pasarle variables de entorno al job.
