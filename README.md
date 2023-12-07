@@ -24,6 +24,9 @@ mejor cómo funciona la virtualización con contenedores:
 > Posta, mírenlos, duran menos de 10 minutos cada uno y están
 > subtitulados al español.
 
+En caso de encontrarte con algún problema al seguir esta guía, pegale un
+vistazo a la sección de [Troubleshooting](#Troubleshooting).
+
 ## Prerrequisitos
 
 - Tener instalado Docker en tu computadora. Para ello, podemos seguir las
@@ -100,30 +103,6 @@ con el código:
 COPY pom.xml .
 COPY src ./src
 ```
-
-> [!NOTE]
-> Por otro lado, si nuestra aplicación tiene archivos que no forman parte del
-> código fuente, también es necesario copiarlos al contenedor usando `COPY`.
->
-> Supongamos que tengo una carpeta `data` con varios archivos, por ejemplo, un
-> `weak_passwords.txt` con una lista de contraseñas que no deberían utilizarse
-> que mi aplicación lo lee de la siguiente forma:
->
-> ```java
-> try (var inputStream = new FileInputStream("data/weak_passwords.txt")) {
->  // ...
-> }
-> ```
-> Como `FileInputStream` lee archivos desde el sistema de archivos del
-> contenedor (no desde el classpath)[^1], voy a necesitar copiarlos agregando la
-> siguiente línea:
->
-> ```dockerfile
-> COPY data ./data
-> ```
->
-> Esto **no** es necesario hacerlo para los templates o los archivos estáticos
-> de SparkJava/Javalin, ya que por defecto los mismos se buscan en el classpath.
 
 A continuación, toca generar el artefacto de nuestra aplicación. Para ello,
 utilizaremos la instrucción `RUN`:
@@ -580,6 +559,62 @@ docker run --rm -it \
 
 Ya tenemos nuestra aplicación web y nuestros cron jobs corriendo en contenedores
 de Docker :rocket:
+
+
+## Troubleshooting
+
+Acá voy a ir dejando problemas comunes al seguir la guía. En caso de que te
+encuentres con algo que no hayas podido resolver desde acá, te invito a crear un
+PR (o, al menos, un issue) describiendo cómo lo pudiste resolver.
+
+<details>
+<summary><h3>Java no encuentra el archivo dentro del contenedor</h3></summary>
+
+En Java tenemos muchas formas de abrir un archivo[^1], pero hay solo dos
+formas de resolver una ruta relativa:
+
+1. Desde el **classpath**, o sea, los archivos que empaqueta Maven leyendo la
+   carpeta `src/main/resources`. Esto es lo que hace Hibernate para encontrar el
+   archivo `META-INF/persistence.xml`, o Spark/Javalin para encontrar los
+   templates.
+
+En este caso no hace falta hacer nada extra porque el `.jar` generado ya
+contiene todos esos archivos listos para ser leídos.
+
+<b>IMPORTANTE:</b> Si la ruta que le estás pasando al lector de archivos empieza
+con `src/main/resources`, muy probablemente no estés usando un lector desde el
+classpath, sino que estarás usando uno que lee...
+
+2. Desde el **sistema operativo**, es decir, a partir de la ruta en la que el IDE
+corre nuestra aplicación, o la carpeta desde la que Docker corre nuestro `.jar`.
+En este caso vamos a necesitar copiar los archivos desde el repo hacia el
+contenedor usando `COPY`.
+
+Por ejemplo, supongamos que tengo una carpeta data con un `weak_passwords.txt` y
+mi aplicación lo lee de la siguiente forma:
+
+```java
+try (var inputStream = new FileInputStream("data/weak_passwords.txt")) {
+ // ...
+}
+```
+Como `FileInputStream` lee archivos desde el sistema operativo, voy a necesitar
+copiarlos agregando la siguiente línea:
+
+```dockerfile
+COPY data ./data
+```
+
+Por eso antes mencionaba que si tu ruta empieza con `src/main/resources` muy
+probablemente te encuentres acá: porque el IDE puede encontrar el archivo ya que
+se encuentra en el mismo sistema operativo, pero en el contenedor eventualmente
+vamos a descartar dichos archivos y quedarnos solo con el `.jar`.
+
+Como alternativa a esto, quizás sea conveniente cambiar tu lector de archivos por
+uno que lea desde el classpath, para así quitar la parte que dice
+`src/main/resources`.
+
+</details>
 
 ## Material recomendado
 
