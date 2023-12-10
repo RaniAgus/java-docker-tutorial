@@ -5,10 +5,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.github.raniagus.example.model.Rol;
 import io.github.raniagus.example.model.Usuario;
 
-@JsonPropertyOrder({"id", "first_name", "last_name", "email", "password", "is_admin"})
+@JsonPropertyOrder({"first_name", "last_name", "email", "password", "is_admin"})
 public class UserDto {
-  @JsonProperty("id")
-  private String id;
   @JsonProperty("first_name")
   private String firstName;
   @JsonProperty("last_name")
