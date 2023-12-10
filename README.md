@@ -297,17 +297,19 @@ la siguiente forma:
 ```dockerfile
 # Instalamos las dependencias
 COPY pom.xml .
-RUN mvn -B dependency:resolve -B dependency:resolve-plugins
+RUN mvn -B dependency:go-offline
 
 # Generamos el artefacto
 COPY src ./src
 RUN mvn package -o
 ```
 
-Los flags `-B dependency:resolve` y `-B dependency:resolve-plugins` instalan
-solamente las dependencias y los plugins definidos en el `pom.xml` sin construir
-la aplicación, por lo que podemos mover el copiado del resto del código fuente a
-una capa posterior.
+El flag `-B dependency:go-offline` es una opción del
+[Maven Dependency Plugin](https://maven.apache.org/plugins/maven-dependency-plugin/index.html)
+que permite instalar todo lo necesario para construir la aplicación de forma
+offline (es decir, todas las dependencias y plugins definidos en el `pom.xml`).
+Por lo tanto, podremos mover el copiado del resto del código fuente a una capa
+posterior.
 
 El flag `-o` de `mvn package` indica que se debe construir la aplicación en
 modo _offline_, o sea, sin descargar ninguna dependencia. Este flag es opcional,

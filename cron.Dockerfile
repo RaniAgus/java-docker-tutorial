@@ -4,7 +4,7 @@ WORKDIR /build
 
 COPY pom.xml .
 
-RUN mvn -B dependency:resolve -B dependency:resolve-plugins
+RUN mvn -B dependency:go-offline
 
 COPY src ./src
 
