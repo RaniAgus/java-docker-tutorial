@@ -6,16 +6,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.Objects;
 
 public class CsvReader<T> implements AutoCloseable {
   private final CsvMapper mapper;
   private final Class<T> clazz;
   private final InputStream inputStream;
 
-  public CsvReader(Class<T> clazz, InputStream inputStream) {
+  public CsvReader(Class<T> clazz, String path) {
     this.mapper = new CsvMapper();
     this.clazz = clazz;
-    this.inputStream = inputStream;
+    this.inputStream = Objects.requireNonNull(
+        getClass().getResourceAsStream(path),
+        "No se encontró el archivo %s".formatted(path)
+    );
   }
 
   @SuppressWarnings("unchecked")

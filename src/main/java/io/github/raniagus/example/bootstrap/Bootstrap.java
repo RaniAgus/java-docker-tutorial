@@ -6,10 +6,6 @@ import io.github.raniagus.example.repository.RepositorioDeUsuarios;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.file.Paths;
-
 public class Bootstrap implements Runnable, WithSimplePersistenceUnit {
   private static final Logger log = LoggerFactory.getLogger(Bootstrap.class);
 
@@ -21,9 +17,7 @@ public class Bootstrap implements Runnable, WithSimplePersistenceUnit {
   @Override
   public void run() {
     log.info("Iniciando reinicio de base de datos...");
-    var path = Paths.get("data", "users.csv").toAbsolutePath().toString();
-
-    try (var reader = new CsvReader<>(UserDto.class, new FileInputStream(path))){
+    try (var reader = new CsvReader<>(UserDto.class, "/data/users.csv")){
       var users = reader.readAll().stream().map(UserDto::toEntity).toList();
 
       withTransaction(() -> {
@@ -32,8 +26,6 @@ public class Bootstrap implements Runnable, WithSimplePersistenceUnit {
       });
 
       users.forEach(user -> log.info("Usuario insertado: {}", user));
-    } catch (FileNotFoundException e) {
-      log.error("No se pudo encontrar el archivo {}", path, e);
     }
   }
 }

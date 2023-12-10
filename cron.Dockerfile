@@ -34,8 +34,6 @@ WORKDIR /home/appuser
 
 COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 
-COPY data ./data
-
 COPY crontab .
 
 ENTRYPOINT ["supercronic", "-passthrough-logs", "crontab"]
