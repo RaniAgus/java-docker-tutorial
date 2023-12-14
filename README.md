@@ -224,19 +224,20 @@ En este caso, la aplicación se ejecutará con la clase
 base de datos vamos a tener que modificar el código fuente y volver a construir
 la imagen?
 
-No, de hecho, es una muy mala práctica hacerlo, ya que significaría que todas
-las credenciales que utiliza nuestra aplicación estarían hardcodeadas en el
-código fuente. Esto en cualquier ambiente productivo es un problema de seguridad
-muy grave, puesto que cualquier persona que tenga acceso al código fuente podría
-ver las credenciales de la base de datos.
+Esto es una muy mala práctica, ya que significaría que todas las credenciales que
+utiliza nuestra aplicación estarían hardcodeadas en el código fuente. En un
+ambiente productivo es un problema de seguridad muy grave, puesto que cualquier
+persona que tenga acceso al código fuente podría ver las credenciales de la base
+de datos.
 
 Para evitar esto, vamos a externalizar la configuración de nuestra aplicación
 utilizando **variables de entorno**. No es la única forma de hacerlo, pero es la
-más sencilla y la que vamos a utilizar en este tutorial.
+más sencilla ya que no requiere de instalar nada extra, solo un par de cambios
+en el código.
 
-Para ello, vamos a modificar el inicio de nuestro `main` de la aplicación para
-que lea las credenciales de la base de datos de las variables de entorno usando
-el método `System.getenv()`:
+Vamos a modificar el inicio de nuestro `main` de la aplicación para que lea las
+credenciales de la base de datos de las variables de entorno usando la función
+`System.getenv()`:
 
 ```java
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
@@ -267,15 +268,15 @@ docker run --rm -p 7000:8080 \
 ```
 
 > [!NOTE]
-> Desde IntelliJ podemos pasar variables de entorno a la aplicación
-> desde la configuración de ejecución. Para ello, debemos ir a
-> `Run > Edit Configurations...` y agregar las variables de entorno en la
-> sección `Environment variables`.
+> Desde IntelliJ podemos pasar variables de entorno a la aplicación desde la
+> configuración de ejecución. Para ello, debemos ir a
+> `Run > Edit Configurations...` y agregar las variables de entorno en la sección
+> `Environment variables`.
 
 > [!NOTE]
 > Este es un buen momento para externalizar todas las variables
 > configurables de la aplicación, incluyendo las credenciales de acceso a APIs
-> externas, etc.
+> externas, SMTP, etc.
 
 ## Optimizando la construcción de la imagen
 
@@ -316,7 +317,7 @@ modo _offline_, o sea, sin descargar ninguna dependencia. Este flag es opcional,
 solo me sirve para demostrar que las dependencias ya se descargaron en la capa
 anterior.
 
-Entonces, cuando aparezcan cambios en el código (pero no en el `pom.xml`),
+Entonces, cuando aparezcan cambios en el código (pero no en el `pom.xml`)
 Docker reutilizará las capas anteriores a `COPY src ./src` para construir la
 imagen, por lo que contaremos con todas las dependencias ya descargadas,
 ahorrándonos _bastante_ tiempo a la hora de correr `mvn package`.
@@ -338,7 +339,7 @@ Esto se debe a que la imagen base no solo tiene el runtime de Java, sino tambié
 el JDK completo y Maven. Una vez construida nuestra aplicación, ¿no sería mejor
 mandar todo ese almacenamiento a...
 [_volaaar_](https://www.youtube.com/watch?v=RmuKNpavYbs)? ¡Se puede! Para ello
-vamos a hacer algo que se conoce como **multi-stage build**[^2].
+vamos a construir la imagen en varias etapas[^2].
 
 Nuestro `Dockerfile` va a tener dos sentencias `FROM`. La primera será la imagen
 base para compilar y la segunda será una imagen liviana que solo tenga el
@@ -350,7 +351,7 @@ oficial más liviana de
 - `jre` es la distribución de Java que tiene la imagen (Java Runtime
   Environment). A diferencia del JDK (Java Development Kit), no incluye el
   compilador de Java, lo cual hace que la imagen sea más liviana.
-- `alpine` es una distribución de Linux pensada para contenedores que
+- `alpine` es una distribución de Linux diseñada para contenedores que
   [solo pesa 5MB](https://hub.docker.com/_/alpine). Al ser mucho más ligera que
   [Ubuntu](https://hub.docker.com/_/ubuntu) o
   [Debian](https://hub.docker.com/_/debian), los tiempos de descarga son
@@ -391,8 +392,9 @@ COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 
 > [!NOTE]
 > Nótese que a su vez renombré el artefacto a `application.jar`. Esto
-> solo lo hice para que el comando `java -jar` sea independiente del nombre y la
-> versión del artefacto. No se olviden de cambiarlo también en el `ENTRYPOINT`:
+> solo lo hice para que todos los pasos descritos en el `Dockerfile` sean
+> independientes del nombre y la versión del artefacto. No se olviden de
+> cambiar el nombre en el `ENTRYPOINT`:
 >
 > ```dockerfile
 > ENTRYPOINT ["java", "-cp", "application.jar"]
@@ -429,10 +431,10 @@ ARG GID=1001
 RUN addgroup -g "$GID" appuser && \
     adduser -u "$UID" -G appuser -D appuser
 
-# Cambiamos a un usuario no privilegiado
+# Usamos el usuario no privilegiado que creamos
 USER appuser
 
-# Cambiamos el directorio de trabajo al home del usuario
+# Usamos el home del usuario como directorio de trabajo
 WORKDIR /home/appuser
 ```
 
@@ -492,8 +494,8 @@ Por último, toca crear un contenedor que ejecute los cron jobs de nuestro
 sistema. Para esto, no vamos a poder usar `crontab` porque dentro de un
 contenedor no es posible[^5] pasarle variables de entorno al job.
 
-Por suerte, existe otra herramienta, llamada
-[`supercronic`](https://github.com/aptible/supercronic), que nos va a venir como
+Por suerte, existe otra herramienta llamada
+[`supercronic`](https://github.com/aptible/supercronic) que nos va a venir como
 anillo al dedo para ejecutar cron jobs de la misma forma que lo haríamos con
 `crontab`.
 
@@ -506,13 +508,15 @@ datos cada 5 minutos y otro que imprima un texto simple cada 15 segundos:
 
 */15 * * * * * * echo "Hello from supercronic!"
 ```
+_Nótese que la sintaxis para definir jobs es una versión extendida a la de
+[crontab](https://crontab.guru/)._
 
 ¿Ya estamos? Bueno, ahora sigue duplicar el `Dockerfile` que ya tenemos armado
 para la aplicación web en un nuevo archivo `cron.Dockerfile`, al cual le vamos a
 cambiar un par de cosas.
 
-1. Primero, inmediatamente luego del último `FROM`, vamos a incluir un par de
-   líneas para descargar e instalar `supercronic`:
+1. Incluimos un par de líneas inmediatamente luego del último `FROM` para
+   descargar e instalar `supercronic`:
 
     ```dockerfile
     FROM eclipse-temurin:17-jre-alpine
@@ -529,16 +533,16 @@ cambiar un par de cosas.
 
    - `chmod +x` permite otorgarle permisos de ejecución al binario descargado.
 
-2. Quitar el `EXPOSE 8080`, ya que no va a haber ningún servicio escuchando en
+2. Quitamos el `EXPOSE 8080`, ya que no va a haber ningún servicio escuchando en
    ese puerto.
 
-3. Antes del `ENTRYPOINT`, copiar el archivo `crontab` que tenemos armado:
+3. Antes del `ENTRYPOINT`, copiamos el archivo `crontab` que tenemos armado:
 
     ```dockerfile
     COPY crontab .
     ```
 
-4. Cambiar el `ENTRYPOINT` y `CMD` para que el proceso principal ejecute
+4. Cambiamos el `ENTRYPOINT` y `CMD` para que el proceso principal ejecute
    `supercronic` al iniciar, pasándole el archivo `crontab` como argumento y el
    flag `-passthrough-logs` para que los logs de los jobs se muestren en la
    consola de una forma más legible:
@@ -548,7 +552,7 @@ cambiar un par de cosas.
     ```
 
 Ahora sí, buildeamos con el flag `-f` para que se use el nuevo `cron.Dockerfile`,
-ejecutamos, y _¡voilá!_
+ejecutamos, y _¡voilà!_
 
 ```shell
 docker build -f cron.Dockerfile -t java-cron .
