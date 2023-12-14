@@ -1,3 +1,0 @@
-*/5 * * * * java -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
-
-*/15 * * * * * * echo "Hello from supercronic!"
