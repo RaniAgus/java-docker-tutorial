@@ -316,9 +316,10 @@ modo _offline_, o sea, sin descargar ninguna dependencia. Este flag es opcional,
 solo me sirve para demostrar que las dependencias ya se descargaron en la capa
 anterior.
 
-Entonces, cuando aparezcan cambios en el código, Docker reutilizará las capas
-anteriores a `COPY src ./src` para construir la imagen, contando así con todas
-las dependencias ya instaladas, ahorrándonos _bastante_ tiempo de build.
+Entonces, cuando aparezcan cambios en el código (pero no en el `pom.xml`),
+Docker reutilizará las capas anteriores a `COPY src ./src` para construir la
+imagen, por lo que contaremos con todas las dependencias ya descargadas,
+ahorrándonos _bastante_ tiempo a la hora de correr `mvn package`.
 
 ## Optimizando el tamaño de la imagen
 
