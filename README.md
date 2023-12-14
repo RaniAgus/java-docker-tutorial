@@ -548,7 +548,8 @@ cambiar un par de cosas.
    consola de una forma más legible:
 
     ```dockerfile
-    ENTRYPOINT ["supercronic", "-passthrough-logs", "crontab"]
+    ENTRYPOINT ["supercronic"]
+    CMD ["-passthrough-logs", "crontab"]
     ```
 
 Ahora sí, buildeamos con el flag `-f` para que se use el nuevo `cron.Dockerfile`,
