@@ -71,15 +71,14 @@ Maven, partiremos de una de las imágenes del
 Docker Hub para Java 17.
 
 Elegí usar la imagen `maven:3.9-eclipse-temurin-17` para este tutorial. La misma
-contiene Maven 3 y Java 17, por lo que cada vez que aparezca un nuevo parche
-para Maven 3.9 ya no será necesario actualizar el `Dockerfile`.
+contiene Maven 3.9 y Java 17. Por otro lado,
 [Eclipse Temurin](https://adoptium.net/es/temurin/releases/) es una de las
 tantas distribuciones gratuitas de OpenJDK.
 
 Para incluirla, escribiremos la instrucción `FROM` seguida de `repositorio:tag`:
 
 ```dockerfile
-FROM maven:3-eclipse-temurin-17
+FROM maven:3.9-eclipse-temurin-17
 ```
 
 ## Construyendo nuestra primera imagen
@@ -95,7 +94,7 @@ WORKDIR /app
 ```
 
 Luego, vamos a copiar el código fuente con la instrucción `COPY`. Es importante
-**solo copiar los archivos que necesitamos**, y no todo el directorio. En
+**solo copiar los archivos que necesitamos**, y no todo el repositorio. En
 nuestro caso, alcanza con copiar el archivo `pom.xml` y el directorio `src`
 con el código:
 
@@ -189,16 +188,15 @@ datos que corre en nuestra computadora:
 <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://host.docker.internal:5432/example"/>
 ```
 
-> [!NOTE]
+> [!WARNING]
 > Si estás en Linux, además deberás agregar el flag
 > `--add-host=host.docker.internal:host-gateway` a `docker run` para que
 > el contenedor encuentre el puerto:
 > ```shell
 > docker run --rm --add-host=host.docker.internal:host-gateway java-app
 > ```
-
-> [!WARNING]
-> Según tengo entendido, el nombre correcto para MacOS es
+>
+> Si estás en MacOS, según tengo entendido, el nombre correcto es
 > `docker.for.mac.host.internal`. Sin embargo, no tengo forma de probarlo porque
 > no tengo una Mac. Si alguien puede probarlo y confirmar que funciona, ¡se
 > agradece!
