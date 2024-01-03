@@ -26,7 +26,7 @@ public class Application {
     if (config.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
-    startServer(createTemplateEngine());
+    startServer();
   }
 
   public static void startDatabaseConnection() {
@@ -35,8 +35,9 @@ public class Application {
   }
 
   @SuppressWarnings("java:S2095")
-  public static void startServer(TemplateEngine templateEngine) {
+  public static void startServer() {
     var app = Javalin.create(config -> {
+      var templateEngine = createTemplateEngine();
       config.fileRenderer((filePath, model, ctx) -> {
         var output = new StringOutput();
         templateEngine.render(filePath, model.get("view"), output);
