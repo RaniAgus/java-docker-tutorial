@@ -1,60 +1,52 @@
 package io.github.raniagus.example.controller;
 
-import static io.javalin.validation.JavalinValidation.collectErrors;
-
+import io.github.raniagus.example.exception.UserNotAuthorizedException;
+import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.helpers.HtmlUtil;
 import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.repository.RepositorioDeUsuarios;
 import io.github.raniagus.example.views.LoginView;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.Handler;
-import io.javalin.security.AccessManager;
-import io.javalin.security.RouteRole;
+import io.javalin.validation.Validation;
 import io.javalin.validation.ValidationException;
-import java.util.Map;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 
-public enum LoginController implements Controller, AccessManager {
+public enum LoginController implements Controller {
   INSTANCE;
 
   @Override
   public void addRoutes(Javalin app) {
+    app.beforeMatched(this::handleSession);
     app.get(ROUTE_LOGIN, this::renderLogin);
     app.post(ROUTE_LOGIN, this::performLogin);
     app.post(ROUTE_LOGOUT, this::performLogout);
   }
 
-  @Override
-  public void manage(@NotNull Handler handler,
-                     @NotNull Context ctx,
-                     @NotNull Set<? extends RouteRole> roles) throws Exception {
+  public void handleSession(Context ctx) {
+    if (ctx.routeRoles().isEmpty()) {
+      return;
+    }
+
     Usuario usuario = ctx.sessionAttribute(SESSION_USER);
-    if (roles.isEmpty()) {
-      handler.handle(ctx);
-    } else if (usuario == null) {
-      ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
-          HtmlUtil.encode(ORIGIN, ctx.path())
-      ));
-    } else if (roles.contains(usuario.getRol())) {
-      handler.handle(ctx);
-    } else {
-      ctx.status(404);
+    if (usuario == null) {
+      throw new ShouldLoginException();
+    } else if (!ctx.routeRoles().contains(usuario.getRol())) {
+      throw new UserNotAuthorizedException();
     }
   }
 
   public void renderLogin(Context ctx) {
     var email = ctx.queryParamAsClass(EMAIL, String.class).getOrDefault("");
     var origin = ctx.queryParamAsClass(ORIGIN, String.class).getOrDefault(ROUTE_ROOT);
-    var errors = ctx.queryParamAsClass(ERRORS, Set.class).getOrDefault(Set.of());
+    var errors = ctx.queryParamAsClass(ERRORS, String.class).getOrDefault("");
 
     if (ctx.sessionAttribute(SESSION_USER) != null) {
       ctx.redirect(origin);
       return;
     }
 
-    ctx.render("login.jte", Map.of("view", new LoginView(email, origin, errors)));
+    render(ctx, new LoginView(email, origin, errors.isEmpty() ? Set.of() : Set.of(errors.split(","))));
   }
 
   public void performLogin(Context ctx) {
@@ -78,7 +70,7 @@ public enum LoginController implements Controller, AccessManager {
             ))
           );
     } catch (ValidationException e) {
-      var errors = collectErrors(email, password);
+      var errors = Validation.collectErrors(email, password);
       ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
           HtmlUtil.encode(ORIGIN, origin),
           HtmlUtil.encode(EMAIL, email.errors().isEmpty() ? email.get() : ""),

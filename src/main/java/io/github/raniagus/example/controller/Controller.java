@@ -1,6 +1,9 @@
 package io.github.raniagus.example.controller;
 
+import io.github.raniagus.example.views.View;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
+import java.util.Map;
 
 public interface Controller {
   // Routes
@@ -18,4 +21,8 @@ public interface Controller {
   String ERRORS = "errors";
 
   void addRoutes(Javalin app);
+
+  default void render(Context ctx, View view) {
+    ctx.render(view.getFilePath(), Map.of("view", view));
+  }
 }

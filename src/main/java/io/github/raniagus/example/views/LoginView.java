@@ -5,5 +5,10 @@ import java.util.Set;
 public record LoginView(
     String email,
     String origin,
-    Set<?> errors
-) { }
+    Set<String> errors
+) implements View {
+  @Override
+  public String getFilePath() {
+    return "login.jte";
+  }
+}

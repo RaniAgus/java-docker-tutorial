@@ -2,6 +2,7 @@ package io.github.raniagus.example;
 
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
+import gg.jte.output.StringOutput;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
@@ -11,12 +12,8 @@ import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
-import io.javalin.rendering.JavalinRenderer;
-import io.javalin.rendering.template.JavalinJte;
-import io.javalin.validation.JavalinValidation;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Set;
 
 public class Application {
   public static final Config config = Config.create();
@@ -40,12 +37,15 @@ public class Application {
 
   @SuppressWarnings("java:S2095")
   public static void startServer(Controller... controllers) {
-    JavalinValidation.register(LocalDate.class, LocalDate::parse);
-    JavalinValidation.register(Set.class, s -> Set.of(s.split(",")));
-    JavalinRenderer.register(new JavalinJte(createTemplateEngine(), ctx -> config.isDevelopment()), ".jte");
+    var templateEngine = createTemplateEngine();
     var app = Javalin.create(config -> {
+      config.fileRenderer((filePath, model, ctx) -> {
+        var output = new StringOutput();
+        templateEngine.render(filePath, model.get("view"), output);
+        return output.toString();
+      });
       config.staticFiles.add("public", Location.CLASSPATH);
-      config.accessManager(LoginController.INSTANCE);
+      config.validation.register(LocalDate.class, LocalDate::parse);
     });
     for (var controller : controllers) {
       controller.addRoutes(app);
@@ -56,19 +56,9 @@ public class Application {
 
   private static TemplateEngine createTemplateEngine() {
     if (config.isDevelopment()) {
-      return TemplateEngine.create(new DirectoryCodeResolver(dirPath("src", "main", "jte")), ContentType.Html);
+      return TemplateEngine.create(new DirectoryCodeResolver(Path.of("src", "main", "jte")), ContentType.Html);
     } else {
-      return TemplateEngine.createPrecompiled(dirPath("jte-classes"), ContentType.Html);
+      return TemplateEngine.createPrecompiled(Path.of("jte-classes"), ContentType.Html);
     }
-  }
-
-  private static Path dirPath(String first, String... more) {
-    var path = Path.of(first, more);
-    if (!path.toFile().isDirectory()) {
-      throw new IllegalStateException(
-          String.join("/", first, String.join("/", more)) + " directory does not exist"
-      );
-    }
-    return path;
   }
 }

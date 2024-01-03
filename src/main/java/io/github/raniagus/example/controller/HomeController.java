@@ -5,7 +5,6 @@ import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.views.HomeView;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.util.Map;
 
 public enum HomeController implements Controller {
   INSTANCE;
@@ -17,8 +16,6 @@ public enum HomeController implements Controller {
 
   public void renderHome(Context ctx) {
     Usuario usuario = ctx.sessionAttribute(SESSION_USER);
-    ctx.render("home.jte", Map.of(
-        "view", new HomeView(usuario.getNombre(), usuario.getApellido())
-    ));
+    render(ctx, new HomeView(usuario.getNombre(), usuario.getApellido()));
   }
 }
