@@ -7,9 +7,6 @@ import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
 import io.github.raniagus.example.controller.Controller;
-import io.github.raniagus.example.controller.ErrorController;
-import io.github.raniagus.example.controller.HomeController;
-import io.github.raniagus.example.controller.LoginController;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import java.nio.file.Path;
@@ -23,11 +20,7 @@ public class Application {
     if (config.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
-    startServer(
-        HomeController.INSTANCE,
-        LoginController.INSTANCE,
-        ErrorController.INSTANCE
-    );
+    startServer(createTemplateEngine());
   }
 
   public static void startDatabaseConnection() {
@@ -36,8 +29,7 @@ public class Application {
   }
 
   @SuppressWarnings("java:S2095")
-  public static void startServer(Controller... controllers) {
-    var templateEngine = createTemplateEngine();
+  public static void startServer(TemplateEngine templateEngine) {
     var app = Javalin.create(config -> {
       config.fileRenderer((filePath, model, ctx) -> {
         var output = new StringOutput();
@@ -47,9 +39,7 @@ public class Application {
       config.staticFiles.add("public", Location.CLASSPATH);
       config.validation.register(LocalDate.class, LocalDate::parse);
     });
-    for (var controller : controllers) {
-      controller.addRoutes(app);
-    }
+    Controller.addRoutes(app);
     app.after(ctx -> WithSimplePersistenceUnit.dispose());
     app.start(8080);
   }
