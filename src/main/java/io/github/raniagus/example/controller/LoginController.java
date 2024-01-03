@@ -1,5 +1,8 @@
 package io.github.raniagus.example.controller;
 
+import io.github.raniagus.example.constants.Params;
+import io.github.raniagus.example.constants.Routes;
+import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.helpers.HtmlUtil;
@@ -11,7 +14,7 @@ import io.javalin.validation.Validation;
 import io.javalin.validation.ValidationException;
 import java.util.Set;
 
-public enum LoginController implements Controller {
+public enum LoginController {
   INSTANCE;
 
   public void handleSession(Context ctx) {
@@ -19,7 +22,7 @@ public enum LoginController implements Controller {
       return;
     }
 
-    Usuario usuario = ctx.sessionAttribute(SESSION_USER);
+    Usuario usuario = ctx.sessionAttribute(Session.USER);
     if (usuario == null) {
       throw new ShouldLoginException();
     } else if (!ctx.routeRoles().contains(usuario.getRol())) {
@@ -28,11 +31,11 @@ public enum LoginController implements Controller {
   }
 
   public void renderLogin(Context ctx) {
-    var email = ctx.queryParamAsClass(EMAIL, String.class).getOrDefault("");
-    var origin = ctx.queryParamAsClass(ORIGIN, String.class).getOrDefault(ROUTE_HOME);
-    var errors = ctx.queryParamAsClass(ERRORS, String.class).getOrDefault("");
+    var email = ctx.queryParamAsClass(Params.EMAIL, String.class).getOrDefault("");
+    var origin = ctx.queryParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
+    var errors = ctx.queryParamAsClass(Params.ERRORS, String.class).getOrDefault("");
 
-    if (ctx.sessionAttribute(SESSION_USER) != null) {
+    if (ctx.sessionAttribute(Session.USER) != null) {
       ctx.redirect(origin);
       return;
     }
@@ -41,37 +44,37 @@ public enum LoginController implements Controller {
   }
 
   public void performLogin(Context ctx) {
-    var email = ctx.formParamAsClass(EMAIL, String.class)
+    var email = ctx.formParamAsClass(Params.EMAIL, String.class)
         .check(s -> s.matches(".+@.+\\..+"), "INVALID_EMAIL");
-    var password = ctx.formParamAsClass(PASSWORD, String.class)
+    var password = ctx.formParamAsClass(Params.PASSWORD, String.class)
         .check(s -> s.length() >= 8, "INVALID_PASSWORD");
-    var origin = ctx.formParamAsClass(ORIGIN, String.class).getOrDefault(ROUTE_HOME);
+    var origin = ctx.formParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
 
     try {
       RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
           .filter(u -> u.getPassword().matches(password.get()))
           .ifPresentOrElse(usuario -> {
-            ctx.sessionAttribute(SESSION_USER, usuario);
+            ctx.sessionAttribute(Session.USER, usuario);
             ctx.redirect(origin);
           }, () ->
-            ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
-                HtmlUtil.encode(ORIGIN, origin),
-                HtmlUtil.encode(EMAIL, email.get()),
-                HtmlUtil.encode(ERRORS, String.join(",", EMAIL, PASSWORD))
+            ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
+                HtmlUtil.encode(Params.ORIGIN, origin),
+                HtmlUtil.encode(Params.EMAIL, email.get()),
+                HtmlUtil.encode(Params.ERRORS, String.join(",", Params.EMAIL, Params.PASSWORD))
             ))
           );
     } catch (ValidationException e) {
       var errors = Validation.collectErrors(email, password);
-      ctx.redirect(HtmlUtil.joinParams(ROUTE_LOGIN,
-          HtmlUtil.encode(ORIGIN, origin),
-          HtmlUtil.encode(EMAIL, email.errors().isEmpty() ? email.get() : ""),
-          HtmlUtil.encode(ERRORS, errors.keySet())
+      ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
+          HtmlUtil.encode(Params.ORIGIN, origin),
+          HtmlUtil.encode(Params.EMAIL, email.errors().isEmpty() ? email.get() : ""),
+          HtmlUtil.encode(Params.ERRORS, errors.keySet())
       ));
     }
   }
 
   public void performLogout(Context ctx) {
-    ctx.consumeSessionAttribute(SESSION_USER);
-    ctx.redirect(ROUTE_HOME);
+    ctx.consumeSessionAttribute(Session.USER);
+    ctx.redirect(Routes.HOME);
   }
 }

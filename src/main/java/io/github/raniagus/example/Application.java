@@ -6,7 +6,13 @@ import gg.jte.output.StringOutput;
 import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
-import io.github.raniagus.example.controller.Controller;
+import io.github.raniagus.example.constants.Routes;
+import io.github.raniagus.example.controller.ErrorController;
+import io.github.raniagus.example.controller.HomeController;
+import io.github.raniagus.example.controller.LoginController;
+import io.github.raniagus.example.exception.ShouldLoginException;
+import io.github.raniagus.example.exception.UserNotAuthorizedException;
+import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import java.nio.file.Path;
@@ -39,7 +45,22 @@ public class Application {
       config.staticFiles.add("public", Location.CLASSPATH);
       config.validation.register(LocalDate.class, LocalDate::parse);
     });
-    Controller.addRoutes(app);
+
+    app.beforeMatched(LoginController.INSTANCE::handleSession);
+
+    app.get(Routes.HOME, HomeController.INSTANCE::renderHome, Rol.USER, Rol.ADMIN);
+    app.get(Routes.LOGIN, LoginController.INSTANCE::renderLogin);
+    app.post(Routes.LOGIN, LoginController.INSTANCE::performLogin);
+    app.post(Routes.LOGOUT, LoginController.INSTANCE::performLogout);
+
+    app.exception(ShouldLoginException.class, (e, ctx) -> ErrorController.INSTANCE.handleShouldLogin(ctx));
+    app.exception(UserNotAuthorizedException.class, (e, ctx) -> ErrorController.INSTANCE.handleNotFound(ctx));
+
+    app.error(404, ErrorController.INSTANCE::handleNotFound);
+    app.error(500, ErrorController.INSTANCE::handleError);
+
+    app.after(ctx -> WithSimplePersistenceUnit.dispose());
+
     app.start(8080);
   }
 
