@@ -40,7 +40,6 @@ public class Application {
       config.validation.register(LocalDate.class, LocalDate::parse);
     });
     Controller.addRoutes(app);
-    app.after(ctx -> WithSimplePersistenceUnit.dispose());
     app.start(8080);
   }
 
