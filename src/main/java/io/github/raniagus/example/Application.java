@@ -1,6 +1,5 @@
 package io.github.raniagus.example;
 
-import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
 import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.controller.ErrorController;
@@ -9,6 +8,7 @@ import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.helpers.MustachePlugin;
+import io.github.raniagus.example.helpers.JavalinJpaExtras;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
@@ -18,16 +18,10 @@ public class Application {
   public static final Config config = Config.create();
 
   public static void main(String[] args) {
-    startDatabaseConnection();
+    startServer();
     if (config.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
-    startServer();
-  }
-
-  public static void startDatabaseConnection() {
-    WithSimplePersistenceUnit.configure(properties -> properties.putAll(config.getHibernateProperties()));
-    WithSimplePersistenceUnit.dispose();
   }
 
   @SuppressWarnings("java:S2095")
@@ -37,6 +31,9 @@ public class Application {
         mustacheConfig.templatePath = "./templates/";
         mustacheConfig.templateExtension = ".mustache";
       }));
+      javalinConfig.registerPlugin(new JavalinJpaExtras(properties ->
+          properties.putAll(config.getHibernateProperties())
+      ));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
         staticFilesConfig.directory = "public";
@@ -57,8 +54,6 @@ public class Application {
 
     app.error(404, ErrorController.INSTANCE::handleNotFound);
     app.error(500, ErrorController.INSTANCE::handleError);
-
-    app.after(ctx -> WithSimplePersistenceUnit.dispose());
 
     app.start(8080);
   }

@@ -1,17 +1,23 @@
 package io.github.raniagus.example.bootstrap;
 
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
-import io.github.raniagus.example.Application;
+import io.github.raniagus.example.Config;
 import io.github.raniagus.example.repository.RepositorioDeUsuarios;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Bootstrap implements Runnable, WithSimplePersistenceUnit {
+  public static final Config config = Config.create();
   private static final Logger log = LoggerFactory.getLogger(Bootstrap.class);
 
   public static void main(String[] args) {
-    Application.startDatabaseConnection();
+    startDatabaseConnection();
     new Bootstrap().run();
+  }
+
+  public static void startDatabaseConnection() {
+    WithSimplePersistenceUnit.configure(properties -> properties.putAll(config.getHibernateProperties()));
+    WithSimplePersistenceUnit.dispose();
   }
 
   @Override
