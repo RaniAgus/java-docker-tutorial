@@ -1,0 +1,40 @@
+name: Create and publish a Docker image
+
+# Configures this workflow to run every time a change is pushed to the branch called `main`.
+on:
+  push:
+    branches: ['latest']
+    paths:
+      - '.github/workflows/publish.yml'
+      - 'Dockerfile'
+      - 'pom.xml'
+      - 'src/**'
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ${{ github.event.repository.name }}
+
+# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Build container image
+        run: docker build -t registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/$(echo $IMAGE_NAME | tr '-' '_'):$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push registry.digitalocean.com/${{ secrets.REGISTRY_NAME }}/$(echo $IMAGE_NAME | tr '-' '_'):$(echo $GITHUB_SHA | head -c7)
