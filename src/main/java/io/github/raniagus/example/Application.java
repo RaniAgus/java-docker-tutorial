@@ -36,15 +36,15 @@ public class Application {
 
   @SuppressWarnings("java:S2095")
   public static void startServer() {
-    var app = Javalin.create(config -> {
+    var app = Javalin.create(javalinConfig -> {
       var templateEngine = createTemplateEngine();
-      config.fileRenderer((filePath, model, ctx) -> {
+      javalinConfig.fileRenderer((filePath, model, ctx) -> {
         var output = new StringOutput();
         templateEngine.render(filePath, model.get("view"), output);
         return output.toString();
       });
-      config.staticFiles.add("public", Location.CLASSPATH);
-      config.validation.register(LocalDate.class, LocalDate::parse);
+      javalinConfig.staticFiles.add("public", Location.CLASSPATH);
+      javalinConfig.validation.register(LocalDate.class, LocalDate::parse);
     });
 
     app.beforeMatched(LoginController.INSTANCE::handleSession);
