@@ -1,13 +1,13 @@
 package io.github.raniagus.example;
 
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
-import io.github.raniagus.example.bootstrap.Bootstrap;
 import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.controller.ErrorController;
 import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
+import io.github.raniagus.example.helpers.Database;
 import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
@@ -19,9 +19,6 @@ public class Application {
 
   public static void main(String[] args) {
     startDatabaseConnection();
-    if (config.databaseHbm2ddlAuto().equals("create-drop")) {
-      new Bootstrap().run();
-    }
     startServer();
   }
 
@@ -36,6 +33,11 @@ public class Application {
       javalinConfig.registerPlugin(new MustachePlugin(mustacheConfig -> {
         mustacheConfig.templatePath = "./templates/";
         mustacheConfig.templateExtension = ".mustache";
+      }));
+      javalinConfig.registerPlugin(new Database(dbConfig -> {
+        dbConfig.username = config.databaseUsername();
+        dbConfig.password = config.databasePassword();
+        dbConfig.url = config.databaseUrl();
       }));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
