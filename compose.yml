@@ -42,10 +42,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
-volumes:
-  postgres-data:
-    name: example-data
-    external: true
