@@ -1,5 +1,6 @@
 package io.github.raniagus.example.views;
 
+import io.github.raniagus.example.constants.Params;
 import java.util.Set;
 
 public record LoginView(
@@ -7,8 +8,12 @@ public record LoginView(
     String origin,
     Set<String> errors
 ) implements View {
+  public boolean hasEmail() {
+    return !email.isBlank() || hasEmailError();
+  }
+
   public boolean hasEmailError() {
-    return errors.contains("email");
+    return errors.contains(Params.EMAIL);
   }
 
   public boolean shouldFocusEmail() {
@@ -16,11 +21,11 @@ public record LoginView(
   }
 
   public boolean hasPasswordError() {
-    return errors.contains("password");
+    return errors.contains(Params.PASSWORD);
   }
 
   public boolean shouldFocusPassword() {
-    return hasPasswordError();
+    return !shouldFocusEmail() && hasPasswordError();
   }
 
   public boolean hasErrors() {

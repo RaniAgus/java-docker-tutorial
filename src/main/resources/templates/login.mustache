@@ -6,17 +6,17 @@
 
             <form action="/login" method="post">
                 <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Email" value="{{email}}"
-                       aria-invalid="{{hasEmailError}}"
-                autofocus="{{shouldFocusEmail}}"
-                required>
+                <input type="email" name="email" id="email" placeholder="Email"
+                       value="{{email}}"
+                       {{#hasEmail}} aria-invalid="{{hasEmailError}}" {{/hasEmail}}
+                       {{#shouldFocusEmail}} autofocus {{/shouldFocusEmail}}
+                       required>
 
                 <label for="password">Contraseña</label>
                 <input type="password" name="password" id="password" placeholder="Contraseña"
-                       aria-invalid="{{hasPasswordError}}"
-                aria-required="true"
-                autofocus="{{shouldFocusPassword}}"
-                required>
+                       {{#hasPasswordError}} aria-invalid="true" {{/hasPasswordError}}
+                       {{#shouldFocusPassword}} autofocus {{/shouldFocusPassword}}
+                       required>
 
                 <input type="hidden" name="origin" value="{{origin}}">
 

@@ -61,8 +61,16 @@ public enum LoginController {
       RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
           .filter(u -> u.getPassword().matches(password.get()))
           .ifPresentOrElse(usuario -> {
-            ctx.sessionAttribute(Session.USER, usuario);
-            ctx.redirect(origin);
+            if (usuario.getPassword().matches(password.get())) {
+              ctx.sessionAttribute(Session.USER, usuario);
+              ctx.redirect(origin);
+            } else {
+              ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
+                  HtmlUtil.encode(Params.ORIGIN, origin),
+                  HtmlUtil.encode(Params.EMAIL, email.get()),
+                  HtmlUtil.encode(Params.ERRORS, Params.PASSWORD)
+              ));
+            }
           }, () ->
             ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
                 HtmlUtil.encode(Params.ORIGIN, origin),
