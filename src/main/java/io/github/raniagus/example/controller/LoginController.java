@@ -59,7 +59,6 @@ public enum LoginController {
 
     try {
       RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
-          .filter(u -> u.getPassword().matches(password.get()))
           .ifPresentOrElse(usuario -> {
             if (usuario.getPassword().matches(password.get())) {
               ctx.sessionAttribute(Session.USER, usuario);
