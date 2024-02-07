@@ -6,7 +6,7 @@ import java.util.Set;
 
 public record LoginView(
     String emailValue,
-    String origin,
+    String originValue,
     Set<String> errors
 ) implements View {
   public Input email() {
@@ -15,6 +15,10 @@ public record LoginView(
 
   public Input password() {
     return new Input(Params.PASSWORD, "", errors.contains(Params.PASSWORD));
+  }
+
+  public Input origin() {
+    return new Input(Params.ORIGIN, originValue, false);
   }
 
   public boolean hasErrors() {
