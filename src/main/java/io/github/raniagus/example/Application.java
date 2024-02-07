@@ -8,10 +8,11 @@ import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
-import io.github.raniagus.example.helpers.MustachePlugin;
+import io.github.raniagus.example.helpers.JtePlugin;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
+import java.nio.file.Path;
 import java.time.LocalDate;
 
 public class Application {
@@ -33,9 +34,10 @@ public class Application {
   @SuppressWarnings("java:S2095")
   public static void startServer() {
     var app = Javalin.create(javalinConfig -> {
-      javalinConfig.registerPlugin(new MustachePlugin(mustacheConfig -> {
-        mustacheConfig.templatePath = "./templates/";
-        mustacheConfig.templateExtension = ".mustache";
+      javalinConfig.registerPlugin(new JtePlugin(jteConfig -> {
+        jteConfig.isDev = config.isDevelopment();
+        jteConfig.templateDir = Path.of("src", "main", "jte");
+        jteConfig.precompiledClassDir = Path.of("jte-classes");
       }));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";

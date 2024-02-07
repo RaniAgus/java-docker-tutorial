@@ -1,3 +1,6 @@
+@param String title
+@param gg.jte.Content body
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,11 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <link rel="stylesheet" href="/public/styles.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <title>{{$title}}{{/title}}</title>
+    <title>${title}</title>
 </head>
 <body>
-{{#view}}
-{{$body}}{{/body}}
-{{/view}}
+${body}
 </body>
 </html>
