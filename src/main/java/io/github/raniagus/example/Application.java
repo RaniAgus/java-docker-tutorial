@@ -37,7 +37,11 @@ public class Application {
         mustacheConfig.templatePath = "./templates/";
         mustacheConfig.templateExtension = ".mustache";
       }));
-      javalinConfig.staticFiles.add("public", Location.CLASSPATH);
+      javalinConfig.staticFiles.add(staticFilesConfig -> {
+        staticFilesConfig.hostedPath = "/public";
+        staticFilesConfig.directory = "public";
+        staticFilesConfig.location = Location.CLASSPATH;
+      });
       javalinConfig.validation.register(LocalDate.class, LocalDate::parse);
     });
 
