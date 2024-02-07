@@ -28,7 +28,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:12-alpine
+    image: postgres:15
     container_name: example-db
     ports:
       - 5432:5432
