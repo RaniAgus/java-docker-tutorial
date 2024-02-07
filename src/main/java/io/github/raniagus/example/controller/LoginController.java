@@ -6,6 +6,7 @@ import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.helpers.HtmlUtil;
+import io.github.raniagus.example.helpers.JavalinMustache;
 import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.repository.RepositorioDeUsuarios;
 import io.github.raniagus.example.views.LoginView;
@@ -40,7 +41,13 @@ public enum LoginController {
       return;
     }
 
-    new LoginView(email, origin, errors.isEmpty() ? Set.of() : Set.of(errors.split(","))).render(ctx);
+    ctx.with(JavalinMustache.class).render(
+        new LoginView(
+            email,
+            origin,
+            errors.isBlank() ? Set.of() : Set.of(errors.split(",", -1))
+        )
+    );
   }
 
   public void performLogin(Context ctx) {

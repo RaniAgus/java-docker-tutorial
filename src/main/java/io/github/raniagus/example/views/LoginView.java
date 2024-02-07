@@ -7,8 +7,28 @@ public record LoginView(
     String origin,
     Set<String> errors
 ) implements View {
+  public boolean hasEmailError() {
+    return errors.contains("email");
+  }
+
+  public boolean shouldFocusEmail() {
+    return hasEmailError() || email.isBlank();
+  }
+
+  public boolean hasPasswordError() {
+    return errors.contains("password");
+  }
+
+  public boolean shouldFocusPassword() {
+    return hasPasswordError();
+  }
+
+  public boolean hasErrors() {
+    return !errors.isEmpty();
+  }
+
   @Override
-  public String getFilePath() {
-    return "login.jte";
+  public String filePath() {
+    return "login";
   }
 }

@@ -1,0 +1,31 @@
+{{<base}}
+    {{$title}}Login{{/title}}
+    {{$body}}
+        <main class="container">
+            <h1>Iniciar sefsdfsdfdssión</h1>
+
+            <form action="/login" method="post">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" placeholder="Email" value="{{email}}"
+                       aria-invalid="{{hasEmailError}}"
+                autofocus="{{shouldFocusEmail}}"
+                required>
+
+                <label for="password">Contraseña</label>
+                <input type="password" name="password" id="password" placeholder="Contraseña"
+                       aria-invalid="{{hasPasswordError}}"
+                aria-required="true"
+                autofocus="{{shouldFocusPassword}}"
+                required>
+
+                <input type="hidden" name="origin" value="{{origin}}">
+
+                <button type="submit">Login</button>
+            </form>
+
+            {{#hasErrors}}
+                <p>Usuario o contraseña incorrectos.</p>
+            {{/hasErrors}}
+        </main>
+    {{/body}}
+{{/base}}

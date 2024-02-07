@@ -5,7 +5,7 @@ public record ErrorView(
     String message
 ) implements View {
   @Override
-  public String getFilePath() {
-    return "error.jte";
+  public String filePath() {
+    return "error";
   }
 }

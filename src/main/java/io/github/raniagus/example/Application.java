@@ -1,9 +1,5 @@
 package io.github.raniagus.example;
 
-import gg.jte.ContentType;
-import gg.jte.TemplateEngine;
-import gg.jte.output.StringOutput;
-import gg.jte.resolve.DirectoryCodeResolver;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
 import io.github.raniagus.example.constants.Routes;
@@ -12,10 +8,10 @@ import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
+import io.github.raniagus.example.helpers.JavalinMustache;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
-import java.nio.file.Path;
 import java.time.LocalDate;
 
 public class Application {
@@ -37,12 +33,10 @@ public class Application {
   @SuppressWarnings("java:S2095")
   public static void startServer() {
     var app = Javalin.create(javalinConfig -> {
-      var templateEngine = createTemplateEngine();
-      javalinConfig.fileRenderer((filePath, model, ctx) -> {
-        var output = new StringOutput();
-        templateEngine.render(filePath, model.get("view"), output);
-        return output.toString();
-      });
+      javalinConfig.registerPlugin(new JavalinMustache(mustacheConfig -> {
+        mustacheConfig.templatePath = "./templates/";
+        mustacheConfig.templateExtension = ".mustache";
+      }));
       javalinConfig.staticFiles.add("public", Location.CLASSPATH);
       javalinConfig.validation.register(LocalDate.class, LocalDate::parse);
     });
@@ -63,13 +57,5 @@ public class Application {
     app.after(ctx -> WithSimplePersistenceUnit.dispose());
 
     app.start(8080);
-  }
-
-  private static TemplateEngine createTemplateEngine() {
-    if (config.isDevelopment()) {
-      return TemplateEngine.create(new DirectoryCodeResolver(Path.of("src", "main", "jte")), ContentType.Html);
-    } else {
-      return TemplateEngine.createPrecompiled(Path.of("jte-classes"), ContentType.Html);
-    }
   }
 }

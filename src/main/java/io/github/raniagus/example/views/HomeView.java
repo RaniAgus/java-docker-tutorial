@@ -5,7 +5,7 @@ public record HomeView(
     String apellido
 ) implements View {
   @Override
-  public String getFilePath() {
-    return "home.jte";
+  public String filePath() {
+    return "home";
   }
 }
