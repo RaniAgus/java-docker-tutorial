@@ -14,8 +14,8 @@ public class JavalinMustache extends ContextPlugin<JavalinMustache.Config, Javal
   private final MustacheFactory mustacheFactory = new DefaultMustacheFactory(pluginConfig.templatePath);
 
   public static class Config {
-    public String templatePath;
-    public String templateExtension;
+    public String templatePath = "./";
+    public String templateExtension = ".mustache";
   }
 
   public JavalinMustache(Consumer<Config> userConfig) {
