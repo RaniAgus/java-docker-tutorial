@@ -23,12 +23,14 @@ public enum LoginController {
       return;
     }
 
-    Usuario usuario = ctx.sessionAttribute(Session.USER);
+    Usuario usuario = ctx.sessionAttribute(Session.USUARIO);
     if (usuario == null) {
       throw new ShouldLoginException();
     } else if (!ctx.routeRoles().contains(usuario.getRol())) {
       throw new UserNotAuthorizedException();
     }
+
+    ctx.with(JavalinMustache.class).put(Session.USUARIO, usuario);
   }
 
   public void renderLogin(Context ctx) {
@@ -36,7 +38,7 @@ public enum LoginController {
     var origin = ctx.queryParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
     var errors = ctx.queryParamAsClass(Params.ERRORS, String.class).getOrDefault("");
 
-    if (ctx.sessionAttribute(Session.USER) != null) {
+    if (ctx.sessionAttribute(Session.USUARIO) != null) {
       ctx.redirect(origin);
       return;
     }
@@ -61,7 +63,7 @@ public enum LoginController {
       RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
           .ifPresentOrElse(usuario -> {
             if (usuario.getPassword().matches(password.get())) {
-              ctx.sessionAttribute(Session.USER, usuario);
+              ctx.sessionAttribute(Session.USUARIO, usuario);
               ctx.redirect(origin);
             } else {
               ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
@@ -88,7 +90,7 @@ public enum LoginController {
   }
 
   public void performLogout(Context ctx) {
-    ctx.consumeSessionAttribute(Session.USER);
+    ctx.consumeSessionAttribute(Session.USUARIO);
     ctx.redirect(Routes.HOME);
   }
 }
