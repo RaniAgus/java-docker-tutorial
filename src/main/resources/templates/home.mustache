@@ -3,9 +3,9 @@
     {{$body}}
         <main class="container">
             <section x-data="{ count: 0 }">
-                {{#usuario}}
+                {{#ctx.usuario}}
                     <h1>¡Hola, {{nombre}} {{apellido}}! 👋🏻</h1>
-                {{/usuario}}
+                {{/ctx.usuario}}
                 <p>
                     Contar ovejas es un ejercicio mental muy usado para ayudarse a uno mismo a dormir.
                     ¿Funciona? Ni idea, intentémoslo.
