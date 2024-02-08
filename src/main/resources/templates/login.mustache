@@ -6,25 +6,25 @@
 
             <form action="/login" method="post">
                 {{#email}}
-                <label for="email">Email</label>
-                <input type="email" name="{{name}}" id="email"
-                       placeholder="Email" value="{{value}}"
-                       {{#touched}} aria-invalid="{{invalid}}" {{/touched}}
-                       {{#autofocus}} autofocus {{/autofocus}}
-                       required>
+                    <label for="email">Email</label>
+                    <input type="email" name="{{name}}" id="email"
+                           placeholder="Email" value="{{value}}"
+                           {{#touched}} aria-invalid="{{invalid}}" {{/touched}}
+                           {{#autofocus}} autofocus {{/autofocus}}
+                           required>
                 {{/email}}
 
                 {{#password}}
-                <label for="password">Contraseña</label>
-                <input type="password" name="{{name}}" id="password"
-                       placeholder="Contraseña"
-                       {{#touched}} aria-invalid="{{invalid}}" {{/touched}}
-                       {{#autofocus}} autofocus {{/autofocus}}
-                       required>
+                    <label for="password">Contraseña</label>
+                    <input type="password" name="{{name}}" id="password"
+                           placeholder="Contraseña"
+                           {{#touched}} aria-invalid="{{invalid}}" {{/touched}}
+                           {{#autofocus}} autofocus {{/autofocus}}
+                           required>
                 {{/password}}
 
                 {{#origin}}
-                <input type="hidden" name="{{name}}" value="{{value}}">
+                    <input type="hidden" name="{{name}}" value="{{value}}">
                 {{/origin}}
 
                 <button type="submit">Login</button>
