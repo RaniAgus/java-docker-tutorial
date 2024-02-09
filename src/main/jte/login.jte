@@ -1,6 +1,8 @@
 @import io.github.raniagus.example.constants.Params
 @param io.github.raniagus.example.views.LoginView view
 
+!{var hasEmailError = view.errors().contains(Params.EMAIL);}
+
 @template.base(
     title = "Login",
     body = @`
@@ -11,8 +13,8 @@
                 <label for="email">Email</label>
                 <input type="email" name="${Params.EMAIL}" id="email"
                        placeholder="Email" value="${view.email()}"
-                       aria-invalid="${view.email().isBlank() ? null : Boolean.toString(view.errors().contains(Params.EMAIL))}"
-                       autofocus="${view.email().isBlank() || view.errors().contains(Params.EMAIL)}"
+                       aria-invalid="${view.email().isBlank() ? null : Boolean.toString(hasEmailError)}"
+                       autofocus="${view.email().isBlank() || hasEmailError}"
                        required>
 
                 <label for="password">Contraseña</label>
