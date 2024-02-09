@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.eclipse.jetty.io.RuntimeIOException;
 import org.jetbrains.annotations.NotNull;
 
 public class JavalinMustache extends ContextPlugin<JavalinMustache.Config, JavalinMustache.Renderer> {
@@ -43,14 +44,11 @@ public class JavalinMustache extends ContextPlugin<JavalinMustache.Config, Javal
     }
 
     public void render(View view) {
-      try {
-        var writer = new StringWriter();
-        mustacheFactory.compile(view.filePath() + pluginConfig.templateExtension)
-            .execute(writer, Map.of("ctx", values, "view", view))
-            .close();
+      var mustache = mustacheFactory.compile(view.filePath() + pluginConfig.templateExtension);
+      try (var writer = mustache.execute(new StringWriter(), Map.of("ctx", values, "view", view))) {
         ctx.html(writer.toString());
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeIOException(e);
       }
     }
   }
