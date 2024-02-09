@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import org.eclipse.jetty.io.RuntimeIOException;
 import org.jetbrains.annotations.NotNull;
 
-public class JavalinMustache extends ContextPlugin<JavalinMustache.Config, JavalinMustache.Renderer> {
+public class MustachePlugin extends ContextPlugin<MustachePlugin.Config, MustachePlugin.Renderer> {
   private final MustacheFactory mustacheFactory = new DefaultMustacheFactory(pluginConfig.templatePath);
 
   public static class Config {
@@ -21,7 +21,7 @@ public class JavalinMustache extends ContextPlugin<JavalinMustache.Config, Javal
     public String templateExtension = ".mustache";
   }
 
-  public JavalinMustache(Consumer<Config> userConfig) {
+  public MustachePlugin(Consumer<Config> userConfig) {
     super(userConfig, new Config());
   }
 

@@ -8,7 +8,7 @@ import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
-import io.github.raniagus.example.helpers.JavalinMustache;
+import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
@@ -33,7 +33,7 @@ public class Application {
   @SuppressWarnings("java:S2095")
   public static void startServer() {
     var app = Javalin.create(javalinConfig -> {
-      javalinConfig.registerPlugin(new JavalinMustache(mustacheConfig -> {
+      javalinConfig.registerPlugin(new MustachePlugin(mustacheConfig -> {
         mustacheConfig.templatePath = "./templates/";
         mustacheConfig.templateExtension = ".mustache";
       }));

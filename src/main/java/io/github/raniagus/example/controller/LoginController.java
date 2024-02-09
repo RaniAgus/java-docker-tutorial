@@ -6,7 +6,7 @@ import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.helpers.HtmlUtil;
-import io.github.raniagus.example.helpers.JavalinMustache;
+import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.repository.RepositorioDeUsuarios;
 import io.github.raniagus.example.views.LoginView;
@@ -30,7 +30,7 @@ public enum LoginController {
       throw new UserNotAuthorizedException();
     }
 
-    ctx.with(JavalinMustache.class).setValue("usuario", usuario);
+    ctx.with(MustachePlugin.class).setValue("usuario", usuario);
   }
 
   public void renderLogin(Context ctx) {
@@ -43,7 +43,7 @@ public enum LoginController {
       return;
     }
 
-    ctx.with(JavalinMustache.class).render(
+    ctx.with(MustachePlugin.class).render(
         new LoginView(
             email,
             origin,
