@@ -1,22 +1,25 @@
 package io.github.raniagus.example.model;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
 @Embeddable
 public class Password {
-  private String hashedValue;
-  private String salt;
+  @Column(name = "password")
+  private String password;
+  @Column(name = "password_salt")
+  private String passwordSalt;
 
   public Password(String value) {
-    this.salt = RandomStringUtils.random(16);
-    this.hashedValue = DigestUtils.sha256Hex(value + salt);
+    this.passwordSalt = RandomStringUtils.random(16);
+    this.password = DigestUtils.sha256Hex(value + passwordSalt);
   }
 
   protected Password() {}
 
   public boolean matches(String value) {
-    return hashedValue.equals(DigestUtils.sha256Hex(value + salt));
+    return password.equals(DigestUtils.sha256Hex(value + passwordSalt));
   }
 }

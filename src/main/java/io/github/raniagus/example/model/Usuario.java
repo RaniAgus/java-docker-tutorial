@@ -7,7 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "users")
+@Table(name = "usuarios")
 public class Usuario extends Persistible {
   private String nombre;
   private String apellido;
