@@ -13,6 +13,7 @@ import io.github.raniagus.example.views.LoginView;
 import io.javalin.http.Context;
 import io.javalin.validation.Validation;
 import io.javalin.validation.ValidationException;
+import java.util.Map;
 import java.util.Set;
 
 public enum LoginController {
@@ -66,25 +67,25 @@ public enum LoginController {
               ctx.sessionAttribute(Session.USUARIO, usuario);
               ctx.redirect(origin);
             } else {
-              ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
-                  URLUtil.encode(Params.ORIGIN, origin),
-                  URLUtil.encode(Params.EMAIL, email.get()),
-                  URLUtil.encode(Params.ERRORS, Params.PASSWORD)
+              ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
+                  Map.entry(Params.ORIGIN, origin),
+                  Map.entry(Params.EMAIL, email.get()),
+                  Map.entry(Params.ERRORS, Params.PASSWORD)
               ));
             }
           }, () ->
-            ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
-                URLUtil.encode(Params.ORIGIN, origin),
-                URLUtil.encode(Params.EMAIL, email.get()),
-                URLUtil.encode(Params.ERRORS, String.join(",", Params.EMAIL, Params.PASSWORD))
+            ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
+                Map.entry(Params.ORIGIN, origin),
+                Map.entry(Params.EMAIL, email.get()),
+                Map.entry(Params.ERRORS, String.join(",", Params.EMAIL, Params.PASSWORD))
             ))
           );
     } catch (ValidationException e) {
       var errors = Validation.collectErrors(email, password);
-      ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
-          URLUtil.encode(Params.ORIGIN, origin),
-          URLUtil.encode(Params.EMAIL, email.errors().isEmpty() ? email.get() : ""),
-          URLUtil.encode(Params.ERRORS, errors.keySet())
+      ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
+          Map.entry(Params.ORIGIN, origin),
+          Map.entry(Params.EMAIL, email.errors().isEmpty() ? email.get() : ""),
+          Map.entry(Params.ERRORS, String.join(",", errors.keySet()))
       ));
     }
   }

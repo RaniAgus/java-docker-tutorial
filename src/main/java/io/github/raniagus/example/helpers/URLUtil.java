@@ -1,20 +1,18 @@
 package io.github.raniagus.example.helpers;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum URLUtil {;
-  public static String joinParams(String path, URLEncodedEntry... entries) {
-    return path + Stream.of(entries)
-        .map(URLEncodedEntry::toString)
+  @SafeVarargs
+  public static String pathWithParams(String path, Map.Entry<String, String>... queryParams) {
+    return path + Stream.of(queryParams)
+        .map(e -> "%s=%s".formatted(
+            URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8),
+            URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8)))
         .collect(Collectors.joining("&", "?", ""));
-  }
-
-  public static <T extends CharSequence> URLEncodedEntry encode(String key, Iterable<T> values) {
-    return new URLEncodedEntry(key, String.join(",", values));
-  }
-
-  public static URLEncodedEntry encode(String key, Object value) {
-    return new URLEncodedEntry(key, value.toString());
   }
 }

@@ -6,13 +6,14 @@ import io.github.raniagus.example.helpers.URLUtil;
 import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.views.ErrorView;
 import io.javalin.http.Context;
+import java.util.Map;
 
 public enum ErrorController {
   INSTANCE;
 
   public void handleShouldLogin(Context ctx) {
-    ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
-        URLUtil.encode(Params.ORIGIN, ctx.path())
+    ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
+        Map.entry(Params.ORIGIN, ctx.path())
     ));
   }
 
