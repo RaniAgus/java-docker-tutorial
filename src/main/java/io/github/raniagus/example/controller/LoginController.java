@@ -30,7 +30,7 @@ public enum LoginController {
       throw new UserNotAuthorizedException();
     }
 
-    ctx.attribute("usuario", usuario);
+    ctx.with(JavalinMustache.class).setValue("usuario", usuario);
   }
 
   public void renderLogin(Context ctx) {

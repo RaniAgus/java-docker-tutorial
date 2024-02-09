@@ -7,6 +7,7 @@ import io.javalin.http.Context;
 import io.javalin.plugin.ContextPlugin;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
@@ -25,21 +26,27 @@ public class JavalinMustache extends ContextPlugin<JavalinMustache.Config, Javal
 
   @Override
   public Renderer createExtension(@NotNull Context ctx) {
-    return new Renderer(ctx);
+    return ctx.attributeOrCompute(getClass().getCanonicalName(), Renderer::new);
   }
 
   public class Renderer {
     private final Context ctx;
+    private final Map<String, Object> values = new HashMap<>();
 
     public Renderer(Context ctx) {
       this.ctx = ctx;
+    }
+
+    public Renderer setValue(String key, Object value) {
+      values.put(key, value);
+      return this;
     }
 
     public void render(View view) {
       try {
         var writer = new StringWriter();
         mustacheFactory.compile(view.filePath() + pluginConfig.templateExtension)
-            .execute(writer, Map.of("ctx", ctx.attributeMap(), "view", view))
+            .execute(writer, Map.of("ctx", values, "view", view))
             .close();
         ctx.html(writer.toString());
       } catch (IOException e) {
