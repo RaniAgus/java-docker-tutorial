@@ -12,11 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
-public class Database extends ContextPlugin<Database.Config, DSLContext> {
+public class DBContext extends ContextPlugin<DBContext.Config, DSLContext> {
   private final Connection connection;
   private final ThreadLocal<DSLContext> dslContext = new ThreadLocal<>();
 
-  public Database(Consumer<Config> userConfig) {
+  public DBContext(Consumer<Config> userConfig) {
     super(userConfig, new Config());
     try {
       connection = DriverManager.getConnection(

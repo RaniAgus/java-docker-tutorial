@@ -5,11 +5,14 @@ import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
+import io.github.raniagus.example.helpers.DBContext;
 import io.github.raniagus.example.helpers.HtmlUtil;
 import io.github.raniagus.example.helpers.MustachePlugin;
-import io.github.raniagus.example.model.Usuario;
-import io.github.raniagus.example.repository.RepositorioDeUsuarios;
+import io.github.raniagus.example.helpers.Password;
+import io.github.raniagus.example.model.JavalinRoles;
 import io.github.raniagus.example.views.LoginView;
+import io.github.raniagus.generated.Tables;
+import io.github.raniagus.generated.tables.records.UsuariosRecord;
 import io.javalin.http.Context;
 import io.javalin.validation.Validation;
 import io.javalin.validation.ValidationException;
@@ -23,10 +26,10 @@ public enum LoginController {
       return;
     }
 
-    Usuario usuario = ctx.sessionAttribute(Session.USUARIO);
+    UsuariosRecord usuario = ctx.sessionAttribute(Session.USUARIO);
     if (usuario == null) {
       throw new ShouldLoginException();
-    } else if (!ctx.routeRoles().contains(usuario.getRol())) {
+    } else if (!ctx.routeRoles().contains(JavalinRoles.from(usuario.getRol()))) {
       throw new UserNotAuthorizedException();
     }
 
@@ -60,9 +63,14 @@ public enum LoginController {
     var origin = ctx.formParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
 
     try {
-      RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
+      ctx.with(DBContext.class)
+          .select()
+          .from(Tables.USUARIOS)
+          .where(Tables.USUARIOS.EMAIL.eq(email.get()))
+          .fetchOptional()
           .ifPresentOrElse(usuario -> {
-            if (usuario.getPassword().matches(password.get())) {
+            var pw = new Password(password.get(), usuario.getValue(Tables.USUARIOS.PASSWORD_SALT));
+            if (pw.matches(password.get())) {
               ctx.sessionAttribute(Session.USUARIO, usuario);
               ctx.redirect(origin);
             } else {

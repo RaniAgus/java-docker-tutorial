@@ -1,39 +1,17 @@
-CREATE TABLE language (
-  id              BIGINT        NOT NULL PRIMARY KEY,
-  cd              CHAR(2)       NOT NULL,
-  description     VARCHAR(50)
-);
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE author (
-  id              BIGINT        NOT NULL PRIMARY KEY,
-  first_name      VARCHAR(50),
-  last_name       VARCHAR(50)   NOT NULL,
-  date_of_birth   DATE,
-  year_of_birth   BIGINT,
-  distinguished   BOOL
-);
+DROP TYPE IF EXISTS rol;
 
-CREATE TABLE book (
-  id              BIGINT        NOT NULL PRIMARY KEY,
-  author_id       BIGINT        NOT NULL,
-  title           VARCHAR(400)  NOT NULL,
-  published_in    BIGINT        NOT NULL,
-  language_id     BIGINT        NOT NULL,
+CREATE TYPE rol AS ENUM ('ADMIN', 'USER');
 
-  CONSTRAINT fk_book_author     FOREIGN KEY (author_id)   REFERENCES author(id),
-  CONSTRAINT fk_book_language   FOREIGN KEY (language_id) REFERENCES language(id)
-);
+DROP TABLE IF EXISTS users;
 
-CREATE TABLE book_store (
-  name            VARCHAR(400)  NOT NULL UNIQUE
-);
-
-CREATE TABLE book_to_book_store (
-  name            VARCHAR(400)  NOT NULL,
-  book_id         INTEGER       NOT NULL,
-  stock           INTEGER,
-
-  PRIMARY KEY(name, book_id),
-  CONSTRAINT fk_b2bs_book_store FOREIGN KEY (name)        REFERENCES book_store (name) ON DELETE CASCADE,
-  CONSTRAINT fk_b2bs_book       FOREIGN KEY (book_id)     REFERENCES book (id)         ON DELETE CASCADE
+CREATE TABLE usuarios (
+    id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nombre        varchar(255),
+    apellido      varchar(255),
+    email         varchar(255),
+    password      varchar(255),
+    password_salt varchar(255),
+    rol           rol
 );
