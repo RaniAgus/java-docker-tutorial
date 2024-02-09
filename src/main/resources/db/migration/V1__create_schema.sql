@@ -4,7 +4,7 @@ DROP TYPE IF EXISTS rol;
 
 CREATE TYPE rol AS ENUM ('ADMIN', 'USER');
 
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE usuarios (
     id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
