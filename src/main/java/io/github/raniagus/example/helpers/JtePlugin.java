@@ -42,7 +42,6 @@ public class JtePlugin extends ContextPlugin<JtePlugin.Config, JtePlugin.Rendere
       this.ctx = ctx;
     }
 
-
     public Renderer setValue(String key, Object value) {
       values.put(key, value);
       return this;
