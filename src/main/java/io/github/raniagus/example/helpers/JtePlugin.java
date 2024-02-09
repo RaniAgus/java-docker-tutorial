@@ -14,15 +14,15 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 public class JtePlugin extends ContextPlugin<JtePlugin.Config, JtePlugin.Renderer> {
-  public final TemplateEngine templateEngine = pluginConfig.isDev ?
-      TemplateEngine.create(new DirectoryCodeResolver(pluginConfig.templateDir), ContentType.Html)
-      : TemplateEngine.createPrecompiled(pluginConfig.precompiledClassDir, ContentType.Html);
+  public final TemplateEngine templateEngine =
+      pluginConfig.usePrecompiledTemplates ?
+        TemplateEngine.createPrecompiled(pluginConfig.templateLocation, ContentType.Html)
+      : TemplateEngine.create(new DirectoryCodeResolver(pluginConfig.templateLocation), ContentType.Html);
 
   public static class Config {
-    public boolean isDev;
-    public Path templateDir;
-    public Path precompiledClassDir;
-    public String templateExtension = ".jte";
+    public boolean usePrecompiledTemplates = false;
+    public Path templateLocation;
+    public String templateSuffix = ".jte";
   }
 
   public JtePlugin(Consumer<Config> userConfig) {
@@ -50,7 +50,7 @@ public class JtePlugin extends ContextPlugin<JtePlugin.Config, JtePlugin.Rendere
     public void render(View view) {
       setValue("view", view);
       var output = new StringOutput();
-      templateEngine.render(view.filePath() + pluginConfig.templateExtension, values, output);
+      templateEngine.render(view.filePath() + pluginConfig.templateSuffix, values, output);
       ctx.html(output.toString());
     }
   }

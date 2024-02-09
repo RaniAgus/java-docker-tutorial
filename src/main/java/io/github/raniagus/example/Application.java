@@ -35,9 +35,12 @@ public class Application {
   public static void startServer() {
     var app = Javalin.create(javalinConfig -> {
       javalinConfig.registerPlugin(new JtePlugin(jteConfig -> {
-        jteConfig.isDev = config.isDevelopment();
-        jteConfig.templateDir = Path.of("src", "main", "jte");
-        jteConfig.precompiledClassDir = Path.of("jte-classes");
+        if (config.developmentMode()) {
+          jteConfig.templateLocation = Path.of("src", "main", "jte");
+        } else {
+          jteConfig.templateLocation = Path.of("jte-classes");
+          jteConfig.usePrecompiledTemplates = true;
+        }
       }));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
