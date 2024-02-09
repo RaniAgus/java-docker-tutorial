@@ -2,8 +2,8 @@ package io.github.raniagus.example.bootstrap;
 
 import io.github.raniagus.example.Application;
 import io.github.raniagus.example.helpers.Password;
+import io.github.raniagus.example.model.JavalinRoles;
 import io.github.raniagus.generated.Tables;
-import io.github.raniagus.generated.enums.Rol;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -44,7 +44,7 @@ public class Bootstrap implements TransactionalRunnable {
             .set(Tables.USUARIOS.EMAIL, usuario.email())
             .set(Tables.USUARIOS.PASSWORD, password.getHashedValue())
             .set(Tables.USUARIOS.PASSWORD_SALT, password.getSalt())
-            .set(Tables.USUARIOS.ROL, usuario.isAdmin() ? Rol.ADMIN : Rol.USER)
+            .set(Tables.USUARIOS.ROL, (usuario.isAdmin() ? JavalinRoles.ADMIN : JavalinRoles.USER).toString())
             .execute();
         log.info("Usuario creado: {}", usuario.email());
       }

@@ -29,7 +29,7 @@ public enum LoginController {
     UsuariosRecord usuario = ctx.sessionAttribute(Session.USUARIO);
     if (usuario == null) {
       throw new ShouldLoginException();
-    } else if (!ctx.routeRoles().contains(JavalinRoles.from(usuario.getRol()))) {
+    } else if (!ctx.routeRoles().contains(JavalinRoles.valueOf(usuario.getRol()))) {
       throw new UserNotAuthorizedException();
     }
 

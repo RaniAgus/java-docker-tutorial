@@ -1,9 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-DROP TYPE IF EXISTS rol;
-
-CREATE TYPE rol AS ENUM ('ADMIN', 'USER');
-
 DROP TABLE IF EXISTS usuarios;
 
 CREATE TABLE usuarios (
@@ -13,5 +9,5 @@ CREATE TABLE usuarios (
     email         varchar(255),
     password      varchar(255),
     password_salt varchar(255),
-    rol           rol
+    rol           varchar(255) CHECK ( rol IN ('ADMIN', 'USER') ) DEFAULT 'USER'
 );
