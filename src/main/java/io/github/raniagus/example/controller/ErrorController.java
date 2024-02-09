@@ -2,7 +2,7 @@ package io.github.raniagus.example.controller;
 
 import io.github.raniagus.example.constants.Params;
 import io.github.raniagus.example.constants.Routes;
-import io.github.raniagus.example.helpers.HtmlUtil;
+import io.github.raniagus.example.helpers.URLUtil;
 import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.views.ErrorView;
 import io.javalin.http.Context;
@@ -11,8 +11,8 @@ public enum ErrorController {
   INSTANCE;
 
   public void handleShouldLogin(Context ctx) {
-    ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
-        HtmlUtil.encode(Params.ORIGIN, ctx.path())
+    ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
+        URLUtil.encode(Params.ORIGIN, ctx.path())
     ));
   }
 

@@ -5,7 +5,7 @@ import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
-import io.github.raniagus.example.helpers.HtmlUtil;
+import io.github.raniagus.example.helpers.URLUtil;
 import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.repository.RepositorioDeUsuarios;
@@ -66,25 +66,25 @@ public enum LoginController {
               ctx.sessionAttribute(Session.USUARIO, usuario);
               ctx.redirect(origin);
             } else {
-              ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
-                  HtmlUtil.encode(Params.ORIGIN, origin),
-                  HtmlUtil.encode(Params.EMAIL, email.get()),
-                  HtmlUtil.encode(Params.ERRORS, Params.PASSWORD)
+              ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
+                  URLUtil.encode(Params.ORIGIN, origin),
+                  URLUtil.encode(Params.EMAIL, email.get()),
+                  URLUtil.encode(Params.ERRORS, Params.PASSWORD)
               ));
             }
           }, () ->
-            ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
-                HtmlUtil.encode(Params.ORIGIN, origin),
-                HtmlUtil.encode(Params.EMAIL, email.get()),
-                HtmlUtil.encode(Params.ERRORS, String.join(",", Params.EMAIL, Params.PASSWORD))
+            ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
+                URLUtil.encode(Params.ORIGIN, origin),
+                URLUtil.encode(Params.EMAIL, email.get()),
+                URLUtil.encode(Params.ERRORS, String.join(",", Params.EMAIL, Params.PASSWORD))
             ))
           );
     } catch (ValidationException e) {
       var errors = Validation.collectErrors(email, password);
-      ctx.redirect(HtmlUtil.joinParams(Routes.LOGIN,
-          HtmlUtil.encode(Params.ORIGIN, origin),
-          HtmlUtil.encode(Params.EMAIL, email.errors().isEmpty() ? email.get() : ""),
-          HtmlUtil.encode(Params.ERRORS, errors.keySet())
+      ctx.redirect(URLUtil.joinParams(Routes.LOGIN,
+          URLUtil.encode(Params.ORIGIN, origin),
+          URLUtil.encode(Params.EMAIL, email.errors().isEmpty() ? email.get() : ""),
+          URLUtil.encode(Params.ERRORS, errors.keySet())
       ));
     }
   }

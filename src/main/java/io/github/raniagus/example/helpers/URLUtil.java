@@ -3,10 +3,10 @@ package io.github.raniagus.example.helpers;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum HtmlUtil {;
+public enum URLUtil {;
   public static String joinParams(String path, URLEncodedEntry... entries) {
     return path + Stream.of(entries)
-        .map(Object::toString)
+        .map(URLEncodedEntry::toString)
         .collect(Collectors.joining("&", "?", ""));
   }
 
