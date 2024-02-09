@@ -67,10 +67,10 @@ public enum LoginController {
           .select()
           .from(Tables.USUARIOS)
           .where(Tables.USUARIOS.EMAIL.eq(email.get()))
-          .fetchOptional()
+          .fetchOptionalInto(UsuariosRecord.class)
           .ifPresentOrElse(usuario -> {
-            var pw = new Password(password.get(), usuario.getValue(Tables.USUARIOS.PASSWORD_SALT));
-            if (pw.matches(password.get())) {
+            var pw = new Password(password.get(), usuario.getPasswordSalt());
+            if (pw.matches(usuario.getPassword())) {
               ctx.sessionAttribute(Session.USUARIO, usuario);
               ctx.redirect(origin);
             } else {
