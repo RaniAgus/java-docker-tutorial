@@ -1,10 +1,9 @@
 package io.github.raniagus.example.jpa;
 
 import java.util.Optional;
-import java.util.UUID;
 import javax.persistence.EntityManager;
 
-public abstract class Repository<T extends Persistible> {
+public abstract class Repository<T extends Persistible<K>, K> {
   private final EntityManager entityManager;
 
   public Repository(EntityManager entityManager) {
@@ -15,11 +14,11 @@ public abstract class Repository<T extends Persistible> {
     return entityManager;
   }
 
-  public boolean exists(UUID id) {
+  public boolean exists(K id) {
     return id != null && findById(id).isPresent();
   }
 
-  public Optional<T> findById(UUID id) {
+  public Optional<T> findById(K id) {
     return entityManager()
         .createQuery("from %s where id = :id".formatted(getEntityClass().getSimpleName()), getEntityClass())
         .setParameter("id", id)

@@ -10,7 +10,7 @@ public class JpaContext {
     this.entityManager = entityManager;
   }
 
-  public <T extends Repository<?>> T getRepository(Class<T> clazz) {
+  public <T extends Repository<?, ?>> T getRepository(Class<T> clazz) {
     try {
       return clazz.getConstructor(EntityManager.class).newInstance(entityManager);
     } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
