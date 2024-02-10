@@ -53,9 +53,9 @@
         </dependency>
         <!-- Database -->
         <dependency>
-            <groupId>io.github.flbulgarelli</groupId>
-            <artifactId>jpa-extras</artifactId>
-            <version>[1.0.0-rc1,)</version>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.4.4.Final</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

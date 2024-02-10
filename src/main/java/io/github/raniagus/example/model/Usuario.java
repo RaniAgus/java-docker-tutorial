@@ -1,22 +1,21 @@
 package io.github.raniagus.example.model;
 
 import io.github.raniagus.example.jpa.Persistible;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.util.UUID;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "usuarios")
 public class Usuario implements Persistible<UUID> {
   @Id
-  @GeneratedValue(generator = "UUID")
-  @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
   private String nombre;
   private String apellido;

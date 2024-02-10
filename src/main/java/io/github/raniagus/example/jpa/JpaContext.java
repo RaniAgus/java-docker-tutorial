@@ -1,9 +1,10 @@
 package io.github.raniagus.example.jpa;
 
+import jakarta.persistence.EntityManager;
 import java.lang.reflect.InvocationTargetException;
-import javax.persistence.EntityManager;
+import java.util.function.Supplier;
 
-public class JpaContext {
+public class JpaContext implements AutoCloseable {
   private final EntityManager entityManager;
 
   public JpaContext(EntityManager entityManager) {
@@ -18,10 +19,49 @@ public class JpaContext {
     }
   }
 
-  public void dispose() {
-    if (entityManager.getTransaction().isActive()) {
-      entityManager.getTransaction().rollback();
+  public <A> A withTransaction(Supplier<A> action) {
+    beginTransaction();
+    try {
+      A result = action.get();
+      commitTransaction();
+      return result;
+    } catch (Throwable e) {
+      rollbackTransaction();
+      throw e;
     }
+  }
+
+  public void withTransaction(Runnable action) {
+    withTransaction(() -> {
+      action.run();
+      return null;
+    });
+  }
+
+  public void beginTransaction() {
+    var tx = entityManager.getTransaction();
+    if (!tx.isActive()) {
+      tx.begin();
+    }
+  }
+
+  public void commitTransaction() {
+    var tx = entityManager.getTransaction();
+    if (tx.isActive()) {
+      tx.commit();
+    }
+  }
+
+  public void rollbackTransaction() {
+    var tx = entityManager.getTransaction();
+    if (tx.isActive()) {
+      tx.rollback();
+    }
+  }
+
+  @Override
+  public void close() {
+    rollbackTransaction();
     entityManager.close();
   }
 }

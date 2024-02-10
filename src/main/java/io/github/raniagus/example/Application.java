@@ -32,7 +32,7 @@ public class Application {
         mustacheConfig.templateExtension = ".mustache";
       }));
       javalinConfig.registerPlugin(new JpaPlugin(jpaConfig ->
-          jpaConfig.properties = config.getHibernateProperties()
+          jpaConfig.properties.putAll(config.getHibernateProperties())
       ));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";

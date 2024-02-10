@@ -1,7 +1,7 @@
 package io.github.raniagus.example.jpa;
 
+import jakarta.persistence.EntityManager;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 
 public abstract class Repository<T extends Persistible<K>, K> {
   private final EntityManager entityManager;
@@ -10,16 +10,12 @@ public abstract class Repository<T extends Persistible<K>, K> {
     this.entityManager = entityManager;
   }
 
-  public EntityManager entityManager() {
-    return entityManager;
-  }
-
   public boolean exists(K id) {
     return id != null && findById(id).isPresent();
   }
 
   public Optional<T> findById(K id) {
-    return entityManager()
+    return entityManager
         .createQuery("from %s where id = :id".formatted(getEntityClass().getSimpleName()), getEntityClass())
         .setParameter("id", id)
         .getResultList().stream()
@@ -32,11 +28,11 @@ public abstract class Repository<T extends Persistible<K>, K> {
           "Ya existe un %s con id %s".formatted(getEntityClass().getSimpleName(), persistible.getId())
       );
     }
-    entityManager().persist(persistible);
+    entityManager.persist(persistible);
   }
 
   public void deleteAll() {
-    entityManager()
+    entityManager
         .createQuery("delete from %s".formatted(getEntityClass().getSimpleName()))
         .executeUpdate();
   }

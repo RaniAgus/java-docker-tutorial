@@ -1,13 +1,12 @@
 package io.github.raniagus.example.jpa;
 
-import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.Context;
 import io.javalin.plugin.ContextPlugin;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.Properties;
 import java.util.function.Consumer;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.jetbrains.annotations.NotNull;
 
 public class JpaPlugin extends ContextPlugin<JpaPlugin.Config, JpaContext> {
@@ -15,8 +14,8 @@ public class JpaPlugin extends ContextPlugin<JpaPlugin.Config, JpaContext> {
       pluginConfig.persistenceUnitName, pluginConfig.properties);
 
   public static class Config {
-    public String persistenceUnitName = WithSimplePersistenceUnit.SIMPLE_PERSISTENCE_UNIT_NAME;
-    public Properties properties = new Properties();
+    public String persistenceUnitName = "simple-persistence-unit";
+    public final Properties properties = new Properties();
   }
 
   public JpaPlugin(Consumer<Config> configurer) {
@@ -28,16 +27,17 @@ public class JpaPlugin extends ContextPlugin<JpaPlugin.Config, JpaContext> {
     config.router.mount(router -> router.after(ctx -> {
       JpaContext jpaContext = ctx.attribute(pluginConfig.persistenceUnitName);
       if (jpaContext != null) {
-        jpaContext.dispose();
+        jpaContext.close();
       }
     }));
   }
 
+  public JpaContext createExtension() {
+    return new JpaContext(entityManagerFactory.createEntityManager());
+  }
+
   @Override
   public JpaContext createExtension(@NotNull Context context) {
-    return context.attributeOrCompute(
-        pluginConfig.persistenceUnitName,
-        ctx -> new JpaContext(entityManagerFactory.createEntityManager())
-    );
+    return context.attributeOrCompute(pluginConfig.persistenceUnitName, ctx -> createExtension());
   }
 }
