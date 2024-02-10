@@ -2,16 +2,24 @@ package io.github.raniagus.example.jpa;
 
 import jakarta.persistence.EntityManager;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
-public class JpaContext implements AutoCloseable {
+public class EntityManagerExtension {
   private final EntityManager entityManager;
+  private final Map<Class<? extends Repository<?, ?>>, Object> repositoryCache = new HashMap<>();
 
-  public JpaContext(EntityManager entityManager) {
+  public EntityManagerExtension(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 
+  @SuppressWarnings("unchecked")
   public <T extends Repository<?, ?>> T getRepository(Class<T> clazz) {
+    return (T) repositoryCache.computeIfAbsent(clazz, this::createRepository);
+  }
+
+  private <T extends Repository<?, ?>> T createRepository(Class<T> clazz) {
     try {
       return clazz.getConstructor(EntityManager.class).newInstance(entityManager);
     } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -59,7 +67,6 @@ public class JpaContext implements AutoCloseable {
     }
   }
 
-  @Override
   public void close() {
     rollbackTransaction();
     entityManager.close();

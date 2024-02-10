@@ -15,6 +15,10 @@ public abstract class Repository<T extends Persistible<K>, K> {
   }
 
   public Optional<T> findById(K id) {
+    if (id == null) {
+      throw new IllegalArgumentException("El id no puede ser nulo");
+    }
+
     return entityManager
         .createQuery("from %s where id = :id".formatted(getEntityClass().getSimpleName()), getEntityClass())
         .setParameter("id", id)
@@ -22,7 +26,7 @@ public abstract class Repository<T extends Persistible<K>, K> {
         .findAny();
   }
 
-  public void insert(T persistible) {
+  public void save(T persistible) {
     if (exists(persistible.getId())) {
       throw new IllegalArgumentException(
           "Ya existe un %s con id %s".formatted(getEntityClass().getSimpleName(), persistible.getId())

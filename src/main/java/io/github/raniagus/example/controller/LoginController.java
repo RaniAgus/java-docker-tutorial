@@ -6,7 +6,7 @@ import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.helpers.HtmlUtil;
-import io.github.raniagus.example.jpa.JpaPlugin;
+import io.github.raniagus.example.jpa.EntityManagerPlugin;
 import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.repository.UsuarioRepository;
@@ -61,7 +61,7 @@ public enum LoginController {
     var origin = ctx.formParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
 
     try {
-      ctx.with(JpaPlugin.class).getRepository(UsuarioRepository.class)
+      ctx.with(EntityManagerPlugin.class).getRepository(UsuarioRepository.class)
           .findByEmail(email.get())
           .ifPresentOrElse(usuario -> {
             if (usuario.getPassword().matches(password.get())) {
