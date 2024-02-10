@@ -1,4 +1,4 @@
-package io.github.raniagus.example.model;
+package io.github.raniagus.example.jpa;
 
 import java.util.UUID;
 import javax.persistence.GeneratedValue;

@@ -1,5 +1,6 @@
 package io.github.raniagus.example.model;
 
+import io.github.raniagus.example.jpa.Persistible;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

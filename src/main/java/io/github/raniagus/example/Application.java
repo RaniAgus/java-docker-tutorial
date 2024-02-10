@@ -8,7 +8,7 @@ import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.helpers.MustachePlugin;
-import io.github.raniagus.example.helpers.JavalinJpaExtras;
+import io.github.raniagus.example.jpa.JpaPlugin;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
@@ -31,8 +31,8 @@ public class Application {
         mustacheConfig.templatePath = "./templates/";
         mustacheConfig.templateExtension = ".mustache";
       }));
-      javalinConfig.registerPlugin(new JavalinJpaExtras(properties ->
-          properties.putAll(config.getHibernateProperties())
+      javalinConfig.registerPlugin(new JpaPlugin(jpaConfig ->
+          jpaConfig.properties = config.getHibernateProperties()
       ));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
