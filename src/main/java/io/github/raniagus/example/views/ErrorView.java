@@ -6,6 +6,6 @@ public record ErrorView(
 ) implements View {
   @Override
   public String filePath() {
-    return "error";
+    return "error.mustache";
   }
 }

@@ -6,7 +6,6 @@ import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.helpers.URLUtil;
-import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Usuario;
 import io.github.raniagus.example.repository.RepositorioDeUsuarios;
 import io.github.raniagus.example.views.LoginView;
@@ -30,8 +29,6 @@ public enum LoginController {
     } else if (!ctx.routeRoles().contains(usuario.getRol())) {
       throw new UserNotAuthorizedException();
     }
-
-    ctx.with(MustachePlugin.class).setValue("usuario", usuario);
   }
 
   public void renderLogin(Context ctx) {
@@ -44,13 +41,12 @@ public enum LoginController {
       return;
     }
 
-    ctx.with(MustachePlugin.class).render(
-        new LoginView(
-            email,
-            origin,
-            errors.isBlank() ? Set.of() : Set.of(errors.split(",", -1))
-        )
+    var view = new LoginView(
+        email,
+        origin,
+        errors.isBlank() ? Set.of() : Set.of(errors.split(",", -1))
     );
+    ctx.render(view.filePath(), view.toMap());
   }
 
   public void performLogin(Context ctx) {

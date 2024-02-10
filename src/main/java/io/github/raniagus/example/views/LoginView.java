@@ -27,6 +27,6 @@ public record LoginView(
 
   @Override
   public String filePath() {
-    return "login";
+    return "login.mustache";
   }
 }

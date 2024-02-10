@@ -1,5 +1,6 @@
 package io.github.raniagus.example;
 
+import com.github.mustachejava.DefaultMustacheFactory;
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
 import io.github.raniagus.example.bootstrap.Bootstrap;
 import io.github.raniagus.example.constants.Routes;
@@ -8,11 +9,13 @@ import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
-import io.github.raniagus.example.helpers.MustachePlugin;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.time.LocalDate;
+import org.eclipse.jetty.io.RuntimeIOException;
 
 public class Application {
   public static final Config config = Config.create();
@@ -33,10 +36,15 @@ public class Application {
   @SuppressWarnings("java:S2095")
   public static void startServer() {
     var app = Javalin.create(javalinConfig -> {
-      javalinConfig.registerPlugin(new MustachePlugin(mustacheConfig -> {
-        mustacheConfig.templatePath = "./templates/";
-        mustacheConfig.templateExtension = ".mustache";
-      }));
+      var mustacheFactory = new DefaultMustacheFactory("./templates/");
+      javalinConfig.fileRenderer((path, model, ctx) -> {
+        var mustache = mustacheFactory.compile(path);
+        try (var writer = mustache.execute(new StringWriter(), model)) {
+          return writer.toString();
+        } catch (IOException e) {
+          throw new RuntimeIOException(e);
+        }
+      });
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
         staticFilesConfig.directory = "public";
