@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "usuarios")
 public class Usuario implements Persistible<UUID> {
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+  @GeneratedValue
   private UUID id;
   private String nombre;
   private String apellido;

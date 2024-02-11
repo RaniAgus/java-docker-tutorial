@@ -3,6 +3,9 @@ package io.github.raniagus.example;
 import java.util.Objects;
 import java.util.Properties;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.dialect.PostgresPlusDialect;
+import org.hibernate.tool.schema.Action;
+import org.postgresql.Driver;
 
 public record Config (
     boolean isDevelopment,
@@ -34,10 +37,10 @@ public record Config (
         System.getenv("DATABASE_URL"),
         System.getenv("DATABASE_USERNAME"),
         System.getenv("DATABASE_PASSWORD"),
-        System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
-        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
-        System.getenv().getOrDefault("DATABASE_SHOW_SQL", "false"),
-        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "validate")
+        System.getenv().getOrDefault("DATABASE_DRIVER", Driver.class.getCanonicalName()),
+        System.getenv().getOrDefault("DATABASE_DIALECT", PostgresPlusDialect.class.getCanonicalName()),
+        System.getenv().getOrDefault("DATABASE_SHOW_SQL", String.valueOf(Boolean.FALSE)),
+        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", Action.ACTION_VALIDATE)
     );
   }
 
@@ -47,10 +50,10 @@ public record Config (
         System.getenv().getOrDefault("DATABASE_URL", "jdbc:postgresql://localhost:5432/example"),
         System.getenv().getOrDefault("DATABASE_USERNAME", "postgres"),
         System.getenv().getOrDefault("DATABASE_PASSWORD", "postgres"),
-        System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
-        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
-        System.getenv().getOrDefault("DATABASE_SHOW_SQL", "true"),
-        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "create-drop")
+        System.getenv().getOrDefault("DATABASE_DRIVER", Driver.class.getCanonicalName()),
+        System.getenv().getOrDefault("DATABASE_DIALECT", PostgresPlusDialect.class.getCanonicalName()),
+        System.getenv().getOrDefault("DATABASE_SHOW_SQL", String.valueOf(Boolean.TRUE)),
+        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", Action.ACTION_CREATE_THEN_DROP)
     );
   }
 

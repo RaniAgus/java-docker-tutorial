@@ -8,7 +8,7 @@ import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.helpers.MustachePlugin;
-import io.github.raniagus.example.jpa.EntityManagerPlugin;
+import io.github.raniagus.example.jpa.JPAPlugin;
 import io.github.raniagus.example.model.Rol;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 
 public class Application {
   public static final Config config = Config.create();
-  public static final EntityManagerPlugin entityManagerExtras = new EntityManagerPlugin(configurer ->
+  public static final JPAPlugin jpaPlugin = new JPAPlugin(configurer ->
     configurer.properties.putAll(config.getHibernateProperties())
   );
 
@@ -34,7 +34,7 @@ public class Application {
         mustacheConfig.templatePath = "./templates/";
         mustacheConfig.templateExtension = ".mustache";
       }));
-      javalinConfig.registerPlugin(entityManagerExtras);
+      javalinConfig.registerPlugin(jpaPlugin);
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
         staticFilesConfig.directory = "public";

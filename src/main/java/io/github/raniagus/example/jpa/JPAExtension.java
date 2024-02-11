@@ -5,12 +5,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EntityManagerExtension {
+public class JPAExtension implements AutoCloseable {
+  private static final Logger log = LoggerFactory.getLogger(JPAExtension.class);
+
   private final EntityManager entityManager;
   private final Map<Class<? extends Repository<?, ?>>, Object> repositoryCache = new HashMap<>();
 
-  public EntityManagerExtension(EntityManager entityManager) {
+  public JPAExtension(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 
@@ -67,8 +71,11 @@ public class EntityManagerExtension {
     }
   }
 
+  @Override
   public void close() {
+    log.info("Closing entityManager instance: {}", entityManager);
     rollbackTransaction();
     entityManager.close();
+    log.info("Closed entityManager instance: {}", entityManager);
   }
 }
