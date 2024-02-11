@@ -2,6 +2,7 @@ package io.github.raniagus.example;
 
 import java.util.Objects;
 import java.util.Properties;
+import org.hibernate.cfg.AvailableSettings;
 
 public record Config (
     boolean isDevelopment,
@@ -55,13 +56,13 @@ public record Config (
 
   public Properties getHibernateProperties() {
     var properties = new Properties();
-    properties.setProperty("hibernate.connection.url", databaseUrl);
-    properties.setProperty("hibernate.connection.username", databaseUsername);
-    properties.setProperty("hibernate.connection.password", databasePassword);
-    properties.setProperty("hibernate.connection.driver_class", databaseDriver);
-    properties.setProperty("hibernate.dialect", databaseDialect);
-    properties.setProperty("hibernate.show_sql", databaseShowSql);
-    properties.setProperty("hibernate.hbm2ddl.auto", databaseHbm2ddlAuto);
+    properties.setProperty(AvailableSettings.URL, databaseUrl);
+    properties.setProperty(AvailableSettings.USER, databaseUsername);
+    properties.setProperty(AvailableSettings.PASS, databasePassword);
+    properties.setProperty(AvailableSettings.DRIVER, databaseDriver);
+    properties.setProperty(AvailableSettings.DIALECT, databaseDialect);
+    properties.setProperty(AvailableSettings.SHOW_SQL, databaseShowSql);
+    properties.setProperty(AvailableSettings.HBM2DDL_AUTO, databaseHbm2ddlAuto);
     return properties;
   }
 }
