@@ -135,11 +135,10 @@ CMD ["io.github.raniagus.example.Application"]
   `ENTRYPOINT`. En este caso, le pasamos el nombre de la clase que queremos
   ejecutar.
 
-La diferencia entre ambos es que `ENTRYPOINT` está pensado para indicar el
-comando principal de la imagen, mientras que `CMD` está pensado para indicar
-argumentos por defecto para dicho comando. `CMD` está pensado para ser
-sobrescrito al momento de ejecutar el contenedor, mientras que `ENTRYPOINT` no.
-Veremos un ejemplo de esto en el siguiente paso.
+La diferencia entre ambos es semántica: `ENTRYPOINT` está pensado para indicar
+el comando principal de la imagen, mientras que `CMD` indica argumentos por
+defecto para dicho comando, que más adelante podremos sobreescribir fácilmente a
+la hora de ejecutar el contenedor.
 
 ## Ejecutando nuestra primera imagen
 
