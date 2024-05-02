@@ -242,23 +242,17 @@ import org.hibernate.cfg.AvailableSettings;
 
 public static void main(String[] args) {
   WithSimplePersistenceUnit.configure(properties -> properties
-      .set(AvailableSettings.URL, System.getenv("DATABASE_URL"))
-      .set(AvailableSettings.USER, System.getenv("DATABASE_USERNAME"))
-      .set(AvailableSettings.PASS, System.getenv("DATABASE_PASSWORD"))
+      .set("hibernate.connection.url", System.getenv("DATABASE_URL"))
+      .set("hibernate.connection.username", System.getenv("DATABASE_USERNAME"))
+      .set("hibernate.connection.password", System.getenv("DATABASE_PASSWORD"))
       // También podemos proveer valores por defecto de esta forma:
-      .set(AvailableSettings.DRIVER, System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"))
-      .set(AvailableSettings.DIALECT, System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"))
+      .set("hibernate.connection.driver_class", System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"))
+      .set("hibernate.dialect", System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"))
   );
 
   // ...
 }
 ```
-
-> [!NOTE]
-> La clase `AvailableSettings` de Hibernate provee una lista de todas las
-> propiedades que es posible configurar. Son simplemente constantes de tipo
-> `String` que representan el nombre de la propiedad, por ejemplo,
-> `AvailableSettings.URL` tiene como valor `"hibernate.connection.url"`.
 
 Con esto, ya podremos pasarle las credenciales de la base de datos como
 variables de entorno cuando ejecutemos el contenedor:
