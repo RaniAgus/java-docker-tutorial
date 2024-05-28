@@ -37,7 +37,7 @@ public record Config (
         System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
         System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
         System.getenv().getOrDefault("DATABASE_SHOW_SQL", "false"),
-        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "validate")
+        System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "none")
     );
   }
 
