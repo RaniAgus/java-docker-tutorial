@@ -21,9 +21,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./Dockerfile
-            image: ghcr.io/${{ github.actor }}/java_docker_tutorial_web
+            image: ghcr.io/raniagus/java_docker_tutorial_web
           - dockerfile: ./cron.Dockerfile
-            image: ghcr.io/${{ github.actor }}/java_docker_tutorial_cron
+            image: ghcr.io/raniagus/java_docker_tutorial_cron
     permissions:
       contents: read
       packages: write
