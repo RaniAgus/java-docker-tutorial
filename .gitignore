@@ -4,7 +4,7 @@ jte-classes/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .env
-.terraform
+.terraform*
 terraform.tfstate*
 
 ### IntelliJ IDEA ###
