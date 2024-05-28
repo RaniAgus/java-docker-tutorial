@@ -1,4 +1,4 @@
-name: Create and publish a Docker image to ghcr.io
+name: GitHub Container Registry
 
 # Configures this workflow to run every time a change is pushed to the branch called `main`.
 on:
