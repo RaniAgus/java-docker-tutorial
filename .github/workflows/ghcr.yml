@@ -11,6 +11,12 @@ on:
       - 'src/**'
   workflow_dispatch:
 
+# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a
+# name for the Docker image that this workflow builds.
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: java_docker_tutorial
+
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
   build-and-push-image:
@@ -21,9 +27,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./Dockerfile
-            image: ghcr.io/raniagus/java_docker_tutorial_web
+            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}_web
           - dockerfile: ./cron.Dockerfile
-            image: ghcr.io/raniagus/java_docker_tutorial_cron
+            image: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}_cron
     permissions:
       contents: read
       packages: write
