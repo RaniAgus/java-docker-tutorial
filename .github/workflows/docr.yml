@@ -12,12 +12,20 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ${{ github.event.repository.name }}
+  IMAGE_NAME: java_docker_tutorial
 
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./Dockerfile
+            image: registry.digitalocean.com/raniagus/java_docker_tutorial_web
+          - dockerfile: ./cron.Dockerfile
+            image: registry.digitalocean.com/raniagus/java_docker_tutorial_cron
     permissions:
       contents: read
       packages: write
@@ -30,11 +38,23 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Build container image
-        run: docker build -t registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY }}/$(echo $IMAGE_NAME | tr '-' '_'):$(echo $GITHUB_SHA | head -c7) .
-
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 1200
 
-      - name: Push image to DigitalOcean Container Registry
-        run: docker push registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY }}/$(echo $IMAGE_NAME | tr '-' '_'):$(echo $GITHUB_SHA | head -c7)
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ matrix.image }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # https://docs.docker.com/build/cache/backends/gha/#using-dockerbuild-push-action
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
