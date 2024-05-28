@@ -6,6 +6,7 @@ jte-classes/
 .env
 .terraform*
 terraform.tfstate*
+terraform.tfvars
 
 ### IntelliJ IDEA ###
 .idea/
