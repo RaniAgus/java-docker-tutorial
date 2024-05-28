@@ -11,9 +11,6 @@ on:
       - 'src/**'
   workflow_dispatch:
 
-env:
-  IMAGE_NAME: java_docker_tutorial
-
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
   build-and-push-image:
