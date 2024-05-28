@@ -23,9 +23,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./Dockerfile
-            image: registry.digitalocean.com/raniagus/java_docker_tutorial_web
+            tag: web
           - dockerfile: ./cron.Dockerfile
-            image: registry.digitalocean.com/raniagus/java_docker_tutorial_cron
+            tag: cron
     permissions:
       contents: read
       packages: write
@@ -45,7 +45,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ matrix.image }}
+          images: registry.digitalocean.com/raniagus/java_docker_tutorial
+          tags: ${{ matrix.tag }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
