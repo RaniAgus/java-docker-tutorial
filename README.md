@@ -458,11 +458,6 @@ repositorio y las variables de entorno correspondientes.
 Algunas opciones gratuitas al momento de escribir este tutorial (ordenadas de
 más a menos recomendable) son:
 
-- [Fly.io](https://fly.io/) - Tiene una
-  [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podemos
-  desplegar una aplicación web manualmente siguiendo
-  [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
-
 - [Render](https://render.com/) - Tiene dos formas de desplegar bajo la opción
   "New Web Service":
 
@@ -479,6 +474,11 @@ más a menos recomendable) son:
      desplegar la imagen cada vez que se pushee a la branch principal. La
      desventaja de este método es que requiere autorización de la organización
      para poder vincular el repo.
+
+- [Fly.io](https://fly.io/) - Tiene una
+  [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podemos
+  desplegar una aplicación web manualmente siguiendo
+  [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
 
 - [back4app](https://www.back4app.com/) - Solamente permite vincular un
   repositorio de GitHub desde
