@@ -11,17 +11,19 @@ on:
       - 'src/**'
   workflow_dispatch:
 
-# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a
-# name for the Docker image that this workflow builds.
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 # There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./Dockerfile
+            image: ghcr.io/${{ github.actor }}/java_docker_tutorial_web
+          - dockerfile: ./cron.Dockerfile
+            image: ghcr.io/${{ github.actor }}/java_docker_tutorial_cron
     permissions:
       contents: read
       packages: write
@@ -45,7 +47,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ matrix.image }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's
       # `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path.
@@ -56,6 +58,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
