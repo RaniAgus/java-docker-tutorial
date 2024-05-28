@@ -47,7 +47,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/raniagus/java_docker_tutorial
+          images: ghcr.io/${{ github.actor }}/java_docker_tutorial
           tags: ${{ matrix.tag }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's
       # `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
