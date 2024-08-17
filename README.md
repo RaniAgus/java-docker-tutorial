@@ -103,6 +103,11 @@ COPY pom.xml .
 COPY src ./src
 ```
 
+> [!NOTE]
+> También, así como para `git` existen los archivos `.gitignore`, para Docker
+> pueden crear un archivo `.dockerignore` que incluya todos los archivos que
+> no quieran agregar al repo.
+
 A continuación, toca generar el artefacto de nuestra aplicación. Para ello,
 utilizaremos la instrucción `RUN`:
 
@@ -378,11 +383,11 @@ WORKDIR /app
 # Ejecutamos la aplicación
 ```
 
-¡Muy importante! Como se trata dos imágenes distintas, vamos a tener que copiar
+Muy importante: como se trata dos imágenes distintas, vamos a tener que copiar
 el artefacto de la imagen base a la imagen final. Para esto es necesario darle
 un nombre a la imagen base y utilizarlo en la sentencia `COPY` a través del flag
 `--from`. En mi caso, como verán arriba, elegí ponerle el nombre `builder`, así
-que la instrucción me quedará así:
+que la instrucción me quedó así:
 
 ```dockerfile
 COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
@@ -392,7 +397,7 @@ COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 > Nótese que a su vez renombré el artefacto a `application.jar`. Esto
 > solo lo hice para que todos los pasos descritos en el `Dockerfile` sean
 > independientes del nombre y la versión del artefacto. No se olviden de
-> cambiar el nombre en el `ENTRYPOINT`:
+> cambiar el nombre en el `ENTRYPOINT` en caso de usar uno distinto:
 >
 > ```dockerfile
 > ENTRYPOINT ["java", "-cp", "application.jar"]
@@ -475,10 +480,10 @@ más a menos recomendable) son:
      desventaja de este método es que requiere autorización de la organización
      para poder vincular el repo.
 
-- [Fly.io](https://fly.io/) - Tiene una
+- ~~[Fly.io](https://fly.io/) - Tiene una
   [CLI](https://fly.io/docs/hands-on/install-flyctl/) desde la cual podemos
   desplegar una aplicación web manualmente siguiendo
-  [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).
+  [este tutorial](https://fly.io/docs/languages-and-frameworks/dockerfile/).~~
 
 - [back4app](https://www.back4app.com/) - Solamente permite vincular un
   repositorio de GitHub desde
@@ -563,9 +568,9 @@ docker run --rm -it \
   java-cron
 ```
 
-Ya tenemos nuestra aplicación web y nuestros cron jobs corriendo en contenedores
-de Docker :rocket:
-
+Luego de seguir los mismos pasos que seguimos para desplegar el container de la
+aplicación web, ya tenemos nuestra aplicación web y nuestros cron jobs corriendo
+en contenedores de Docker :rocket:
 
 ## Troubleshooting
 
@@ -614,7 +619,8 @@ COPY data ./data
 Por eso antes mencionaba que si tu ruta empieza con `src/main/resources` muy
 probablemente te encuentres acá: porque el IDE puede encontrar el archivo ya que
 se encuentra en el mismo sistema operativo, pero en el contenedor eventualmente
-vamos a descartar dichos archivos y quedarnos solo con el `.jar`.
+vamos a descartar dichos archivos y quedarnos solo con el `.jar`. Es por esto que
+requerimos de hacer un `COPY` aparte para traernos el archivo al container.
 
 Como alternativa a esto, quizás sea conveniente cambiar tu lector de archivos por
 uno que lea desde el classpath, para así quitar la parte que dice
