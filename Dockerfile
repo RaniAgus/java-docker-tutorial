@@ -14,7 +14,6 @@ RUN mvn package -o
 FROM eclipse-temurin:17-jre-alpine
 
 ARG UID=1001
-
 ARG GID=1001
 
 RUN addgroup -g "$GID" appuser && \
