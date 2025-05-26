@@ -1,16 +1,16 @@
 package io.github.raniagus.example.controller;
 
-import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.view.ErrorView;
 import io.github.raniagus.example.view.View;
 import io.javalin.http.Context;
 
-import java.util.Map;
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ErrorController {
 
   public void handleShouldLogin(Context ctx) {
-    ctx.redirect(Routes.LOGIN.getRoute(Map.of("origin", ctx.path())));
+    ctx.redirect("/login?origin=%s".formatted(encode(ctx.path(), UTF_8)));
   }
 
   public void handleNotFound(Context ctx) {

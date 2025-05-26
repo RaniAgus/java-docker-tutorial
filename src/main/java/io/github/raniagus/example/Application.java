@@ -1,7 +1,6 @@
 package io.github.raniagus.example;
 
 import io.github.raniagus.example.component.hibernate.HibernatePersistenceContext;
-import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.controller.ErrorController;
 import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
@@ -48,7 +47,7 @@ public class Application implements Runnable {
       javalinConfig.fileRenderer(fileRenderer);
       javalinConfig.registerPlugin(hibernatePersistenceContext);
       javalinConfig.staticFiles.add(staticFilesConfig -> {
-        staticFilesConfig.hostedPath = Routes.PUBLIC.getRoute();
+        staticFilesConfig.hostedPath = "/public";
         staticFilesConfig.directory = "public";
         staticFilesConfig.location = Location.CLASSPATH;
       });
@@ -57,10 +56,10 @@ public class Application implements Runnable {
 
     app.beforeMatched(loginController::handleSession);
 
-    app.get(Routes.HOME.toString(), homeController::renderHome, Rol.USER, Rol.ADMIN);
-    app.get(Routes.LOGIN.toString(), loginController::renderLogin);
-    app.post(Routes.LOGIN.toString(), loginController::performLogin);
-    app.post(Routes.LOGOUT.toString(), loginController::performLogout);
+    app.get("/", homeController::renderHome, Rol.USER, Rol.ADMIN);
+    app.get("/login", loginController::renderLogin);
+    app.post("/login", loginController::performLogin);
+    app.post("/logout", loginController::performLogout);
 
     app.exception(ShouldLoginException.class, (e, ctx) -> errorController.handleShouldLogin(ctx));
     app.exception(UserNotAuthorizedException.class, (e, ctx) -> errorController.handleNotFound(ctx));

@@ -1,6 +1,5 @@
 package io.github.raniagus.example.controller;
 
-import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.dto.SessionUserDto;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
@@ -16,6 +15,9 @@ import io.javalin.validation.Validator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static java.net.URLEncoder.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class LoginController {
   private final UsuarioService usuarioService;
@@ -42,7 +44,7 @@ public class LoginController {
             .getOrDefault("");
 
     String origin = ctx.queryParamAsClass("origin", String.class)
-            .getOrDefault(Routes.HOME.getRoute());
+            .getOrDefault("/");
 
     String errors = ctx.queryParamAsClass("errors", String.class)
             .getOrDefault("");
@@ -68,7 +70,7 @@ public class LoginController {
         .check(s -> s.length() >= 8, "INVALID_PASSWORD");
 
     String origin = ctx.formParamAsClass("origin", String.class)
-        .getOrDefault(Routes.HOME.getRoute());
+        .getOrDefault("/");
 
     try {
       Optional<SessionUserDto> usuario = usuarioService.obtenerUsuario(email.get(), password.get());
@@ -76,24 +78,24 @@ public class LoginController {
         ctx.sessionAttribute(Session.USUARIO, usuario.get());
         ctx.redirect(origin);
       } else {
-        ctx.redirect(Routes.LOGIN.getRoute(Map.of(
-            "origin", origin,
-            "email", email.get(),
-            "errors", "email,password"
-        )));
+        ctx.redirect("/login?origin=%s&email=%s&errors=%s".formatted(
+            encode(origin, UTF_8),
+            encode(email.get(), UTF_8),
+            encode("email,password", UTF_8)
+        ));
       }
     } catch (ValidationException e) {
       Map<String, ?> errors = Validation.collectErrors(email, password);
-      ctx.redirect(Routes.LOGIN.getRoute(Map.of(
-          "origin", origin,
-          "email", email.errors().isEmpty() ? email.get() : "",
-          "errors", String.join(",", errors.keySet())
-      )));
+      ctx.redirect("/login?origin=%s&email=%s&errors=%s".formatted(
+          encode(origin, UTF_8),
+          encode(email.errors().isEmpty() ? email.get() : "", UTF_8),
+          encode(String.join(",", errors.keySet()), UTF_8)
+      ));
     }
   }
 
   public void performLogout(Context ctx) {
     ctx.consumeSessionAttribute(Session.USUARIO);
-    ctx.redirect(Routes.HOME.getRoute());
+    ctx.redirect("/");
   }
 }
