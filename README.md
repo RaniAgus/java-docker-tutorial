@@ -213,11 +213,11 @@ contenedor, podemos sobreescribir el `CMD` al final del `docker run`, por
 ejemplo:
 
 ```shell
-docker run --rm java-app io.github.raniagus.example.bootstrap.Bootstrap
+docker run --rm java-app io.github.raniagus.example.Bootstrap
 ```
 
 En este caso, la aplicación se ejecutará con la clase
-`io.github.raniagus.example.bootstrap.Bootstrap` en lugar de
+`io.github.raniagus.example.Bootstrap` en lugar de
 `io.github.raniagus.example.Application`.
 
 ## Externalizando la configuración
@@ -507,7 +507,7 @@ ejecutar. En mi caso, voy a hacer uno que inserte datos de prueba en la base de
 datos cada 5 minutos y otro que imprima un texto simple cada 15 segundos:
 
 ```
-*/5 * * * * java -cp application.jar io.github.raniagus.example.bootstrap.Bootstrap
+*/5 * * * * java -cp application.jar io.github.raniagus.example.Bootstrap
 
 */15 * * * * * * echo "Hello from supercronic!"
 ```

@@ -1,93 +1,99 @@
 package io.github.raniagus.example.controller;
 
-import io.github.raniagus.example.constants.Params;
 import io.github.raniagus.example.constants.Routes;
 import io.github.raniagus.example.constants.Session;
+import io.github.raniagus.example.dto.SessionUserDto;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.exception.ShouldLoginException;
-import io.github.raniagus.example.helpers.URLUtil;
-import io.github.raniagus.example.model.Usuario;
-import io.github.raniagus.example.repository.RepositorioDeUsuarios;
-import io.github.raniagus.example.views.LoginView;
+import io.github.raniagus.example.service.UsuarioService;
+import io.github.raniagus.example.view.LoginView;
+import io.github.raniagus.example.view.View;
 import io.javalin.http.Context;
 import io.javalin.validation.Validation;
 import io.javalin.validation.ValidationException;
+import io.javalin.validation.Validator;
+
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
-public enum LoginController {
-  INSTANCE;
+public class LoginController {
+  private final UsuarioService usuarioService;
+
+  public LoginController(UsuarioService usuarioService) {
+    this.usuarioService = usuarioService;
+  }
 
   public void handleSession(Context ctx) {
     if (ctx.routeRoles().isEmpty()) {
       return;
     }
 
-    Usuario usuario = ctx.sessionAttribute(Session.USUARIO);
+    SessionUserDto usuario = ctx.sessionAttribute(Session.USUARIO);
     if (usuario == null) {
       throw new ShouldLoginException();
-    } else if (!ctx.routeRoles().contains(usuario.getRol())) {
+    } else if (!ctx.routeRoles().contains(usuario.rol())) {
       throw new UserNotAuthorizedException();
     }
   }
 
   public void renderLogin(Context ctx) {
-    var email = ctx.queryParamAsClass(Params.EMAIL, String.class).getOrDefault("");
-    var origin = ctx.queryParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
-    var errors = ctx.queryParamAsClass(Params.ERRORS, String.class).getOrDefault("");
+    String email = ctx.queryParamAsClass("email", String.class)
+            .getOrDefault("");
+
+    String origin = ctx.queryParamAsClass("origin", String.class)
+            .getOrDefault(Routes.HOME.getRoute());
+
+    String errors = ctx.queryParamAsClass("errors", String.class)
+            .getOrDefault("");
 
     if (ctx.sessionAttribute(Session.USUARIO) != null) {
       ctx.redirect(origin);
       return;
     }
 
-    var view = new LoginView(
+    View view = new LoginView(
         email,
         origin,
-        errors.isBlank() ? Set.of() : Set.of(errors.split(",", -1))
+        errors.isBlank() ? Set.of() : Set.of(errors.split(","))
     );
-    ctx.render(view.filePath(), view.toMap());
+    ctx.render(view.filePath(), view.model());
   }
 
   public void performLogin(Context ctx) {
-    var email = ctx.formParamAsClass(Params.EMAIL, String.class)
+    Validator<String> email = ctx.formParamAsClass("email", String.class)
         .check(s -> s.matches(".+@.+\\..+"), "INVALID_EMAIL");
-    var password = ctx.formParamAsClass(Params.PASSWORD, String.class)
+
+    Validator<String> password = ctx.formParamAsClass("password", String.class)
         .check(s -> s.length() >= 8, "INVALID_PASSWORD");
-    var origin = ctx.formParamAsClass(Params.ORIGIN, String.class).getOrDefault(Routes.HOME);
+
+    String origin = ctx.formParamAsClass("origin", String.class)
+        .getOrDefault(Routes.HOME.getRoute());
 
     try {
-      RepositorioDeUsuarios.INSTANCE.buscarPorEmail(email.get())
-          .ifPresentOrElse(usuario -> {
-            if (usuario.getPassword().matches(password.get())) {
-              ctx.sessionAttribute(Session.USUARIO, usuario);
-              ctx.redirect(origin);
-            } else {
-              ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
-                  Map.entry(Params.ORIGIN, origin),
-                  Map.entry(Params.EMAIL, email.get()),
-                  Map.entry(Params.ERRORS, Params.PASSWORD)
-              ));
-            }
-          }, () ->
-            ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
-                Map.entry(Params.ORIGIN, origin),
-                Map.entry(Params.EMAIL, email.get()),
-                Map.entry(Params.ERRORS, String.join(",", Params.EMAIL, Params.PASSWORD))
-            ))
-          );
+      Optional<SessionUserDto> usuario = usuarioService.obtenerUsuario(email.get(), password.get());
+      if (usuario.isPresent()) {
+        ctx.sessionAttribute(Session.USUARIO, usuario.get());
+        ctx.redirect(origin);
+      } else {
+        ctx.redirect(Routes.LOGIN.getRoute(Map.of(
+            "origin", origin,
+            "email", email.get(),
+            "errors", "email,password"
+        )));
+      }
     } catch (ValidationException e) {
-      var errors = Validation.collectErrors(email, password);
-      ctx.redirect(URLUtil.pathWithParams(Routes.LOGIN,
-          Map.entry(Params.ORIGIN, origin),
-          Map.entry(Params.EMAIL, email.errors().isEmpty() ? email.get() : ""),
-          Map.entry(Params.ERRORS, String.join(",", errors.keySet()))
-      ));
+      Map<String, ?> errors = Validation.collectErrors(email, password);
+      ctx.redirect(Routes.LOGIN.getRoute(Map.of(
+          "origin", origin,
+          "email", email.errors().isEmpty() ? email.get() : "",
+          "errors", String.join(",", errors.keySet())
+      )));
     }
   }
 
   public void performLogout(Context ctx) {
     ctx.consumeSessionAttribute(Session.USUARIO);
-    ctx.redirect(Routes.HOME);
+    ctx.redirect(Routes.HOME.getRoute());
   }
 }

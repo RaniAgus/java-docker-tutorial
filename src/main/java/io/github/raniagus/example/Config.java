@@ -1,8 +1,10 @@
 package io.github.raniagus.example;
 
+import org.hibernate.cfg.JdbcSettings;
+import org.hibernate.cfg.SchemaToolingSettings;
+
 import java.util.Objects;
 import java.util.Properties;
-import org.hibernate.cfg.AvailableSettings;
 
 public record Config (
     boolean isDevelopment,
@@ -11,7 +13,10 @@ public record Config (
     String databasePassword,
     String databaseDriver,
     String databaseDialect,
+    String databaseFormatSql,
+    String databaseHighlightSql,
     String databaseShowSql,
+    String databaseUseSqlComments,
     String databaseHbm2ddlAuto
 ) {
   public Config {
@@ -20,12 +25,15 @@ public record Config (
     Objects.requireNonNull(databasePassword, "databasePassword is required");
     Objects.requireNonNull(databaseDriver, "databaseDriver is required");
     Objects.requireNonNull(databaseDialect, "databaseDialect is required");
+    Objects.requireNonNull(databaseFormatSql, "databaseFormatSql is required");
+    Objects.requireNonNull(databaseHighlightSql, "databaseHighlightSql is required");
     Objects.requireNonNull(databaseShowSql, "databaseShowSql is required");
+    Objects.requireNonNull(databaseUseSqlComments, "databaseUseSqlComments is required");
     Objects.requireNonNull(databaseHbm2ddlAuto, "databaseHbm2ddlAuto is required");
   }
 
   public static Config create() {
-    return Objects.equals(System.getProperty("user.name"), "appuser") ? createProd() : createDev();
+    return Objects.equals(System.getProperty("application.env"), "prod") ? createProd() : createDev();
   }
 
   private static Config createProd() {
@@ -35,8 +43,11 @@ public record Config (
         System.getenv("DATABASE_USERNAME"),
         System.getenv("DATABASE_PASSWORD"),
         System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
-        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
+        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"), 
+        System.getenv().getOrDefault("DATABASE_FORMAT_SQL", "false"),
+        System.getenv().getOrDefault("DATABASE_HIGHLIGHT_SQL", "false"),
         System.getenv().getOrDefault("DATABASE_SHOW_SQL", "false"),
+        System.getenv().getOrDefault("DATABASE_USE_SQL_COMMENTS", "false"),
         System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "validate")
     );
   }
@@ -49,20 +60,26 @@ public record Config (
         System.getenv().getOrDefault("DATABASE_PASSWORD", "postgres"),
         System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
         System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
+        System.getenv().getOrDefault("DATABASE_FORMAT_SQL", "true"),
+        System.getenv().getOrDefault("DATABASE_HIGHLIGHT_SQL", "true"),
         System.getenv().getOrDefault("DATABASE_SHOW_SQL", "true"),
+        System.getenv().getOrDefault("DATABASE_USE_SQL_COMMENTS", "true"),
         System.getenv().getOrDefault("DATABASE_HBM2DDL_AUTO", "create-drop")
     );
   }
 
   public Properties getHibernateProperties() {
     var properties = new Properties();
-    properties.setProperty(AvailableSettings.URL, databaseUrl);
-    properties.setProperty(AvailableSettings.USER, databaseUsername);
-    properties.setProperty(AvailableSettings.PASS, databasePassword);
-    properties.setProperty(AvailableSettings.DRIVER, databaseDriver);
-    properties.setProperty(AvailableSettings.DIALECT, databaseDialect);
-    properties.setProperty(AvailableSettings.SHOW_SQL, databaseShowSql);
-    properties.setProperty(AvailableSettings.HBM2DDL_AUTO, databaseHbm2ddlAuto);
+    System.setProperty(JdbcSettings.JAKARTA_JDBC_URL, databaseUrl);
+    System.setProperty(JdbcSettings.JAKARTA_JDBC_USER, databaseUsername);
+    System.setProperty(JdbcSettings.JAKARTA_JDBC_PASSWORD, databasePassword);
+    System.setProperty(JdbcSettings.JAKARTA_JDBC_DRIVER, databaseDriver);
+    System.setProperty(JdbcSettings.DIALECT, databaseDialect);
+    System.setProperty(JdbcSettings.FORMAT_SQL, databaseFormatSql);
+    System.setProperty(JdbcSettings.HIGHLIGHT_SQL, databaseHighlightSql);
+    System.setProperty(JdbcSettings.SHOW_SQL, databaseShowSql);
+    System.setProperty(JdbcSettings.USE_SQL_COMMENTS, databaseUseSqlComments);
+    System.setProperty(SchemaToolingSettings.HBM2DDL_AUTO, databaseHbm2ddlAuto);
     return properties;
   }
 }

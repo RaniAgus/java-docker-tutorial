@@ -1,5 +1,7 @@
 package io.github.raniagus.example.constants;
 
-public enum Session {;
+public final class Session {
   public static final String USUARIO = "usuario";
+
+  private Session() {}
 }

@@ -1,4 +1,4 @@
-package io.github.raniagus.example.views.util;
+package io.github.raniagus.example.view;
 
 public record Input(
     String name,

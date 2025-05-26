@@ -1,7 +1,5 @@
-package io.github.raniagus.example.views;
+package io.github.raniagus.example.view;
 
-import io.github.raniagus.example.constants.Params;
-import io.github.raniagus.example.views.util.Input;
 import java.util.Set;
 
 public record LoginView(
@@ -10,15 +8,15 @@ public record LoginView(
     Set<String> errors
 ) implements View {
   public Input email() {
-    return new Input(Params.EMAIL, emailValue, errors.contains(Params.EMAIL));
+    return new Input("email", emailValue, errors.contains("email"));
   }
 
   public Input password() {
-    return new Input(Params.PASSWORD, "", errors.contains(Params.PASSWORD));
+    return new Input("password", "", errors.contains("password"));
   }
 
   public Input origin() {
-    return new Input(Params.ORIGIN, originValue, false);
+    return new Input("origin", originValue, false);
   }
 
   public boolean hasErrors() {

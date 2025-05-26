@@ -57,19 +57,14 @@
         </dependency>
         <!-- Database -->
         <dependency>
-            <groupId>io.github.flbulgarelli</groupId>
-            <artifactId>jpa-extras</artifactId>
-            <version>[1.0.0-rc1,)</version>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.4.4.Final</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>[42.0.0,43.0.0)</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>[8.0.0,9.0.0)</version>
         </dependency>
         <!-- Logging -->
         <dependency>

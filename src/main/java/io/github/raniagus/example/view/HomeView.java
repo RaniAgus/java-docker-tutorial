@@ -1,4 +1,4 @@
-package io.github.raniagus.example.views;
+package io.github.raniagus.example.view;
 
 public record HomeView(
     String nombre,

@@ -27,5 +27,5 @@ COPY --from=builder /build/target/*-with-dependencies.jar ./application.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-cp", "application.jar"]
+ENTRYPOINT ["java", "-Dapplication.env=prod", "-cp", "application.jar"]
 CMD ["io.github.raniagus.example.Application"]

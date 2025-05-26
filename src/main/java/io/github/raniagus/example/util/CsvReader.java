@@ -1,4 +1,4 @@
-package io.github.raniagus.example.bootstrap;
+package io.github.raniagus.example.util;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
