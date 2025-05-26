@@ -21,9 +21,9 @@ ARG GID=1001
 
 ADD "${SUPERCRONIC_URL}" /usr/local/bin/supercronic
 
-RUN echo "${SUPERCRONIC_SHA1SUM} /usr/local/bin/supercronic" | sha1sum -c -; \
-    chmod +x /usr/local/bin/supercronic \
-    addgroup -g "$GID" appuser; \
+RUN echo "${SUPERCRONIC_SHA1SUM} /usr/local/bin/supercronic" | sha1sum -c - && \
+    chmod +x /usr/local/bin/supercronic && \
+    addgroup -g "$GID" appuser && \
     adduser -u "$UID" -G appuser -D appuser
 
 USER appuser
