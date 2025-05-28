@@ -3,8 +3,9 @@ package io.github.raniagus.example;
 import org.hibernate.cfg.JdbcSettings;
 import org.hibernate.cfg.SchemaToolingSettings;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 
 public record Config (
     boolean isDevelopment,
@@ -68,8 +69,8 @@ public record Config (
     );
   }
 
-  public Properties getHibernateProperties() {
-    var properties = new Properties();
+  public Map<String, String> getHibernateProperties() {
+    Map<String, String> properties = new HashMap<>();
     System.setProperty(JdbcSettings.JAKARTA_JDBC_URL, databaseUrl);
     System.setProperty(JdbcSettings.JAKARTA_JDBC_USER, databaseUsername);
     System.setProperty(JdbcSettings.JAKARTA_JDBC_PASSWORD, databasePassword);

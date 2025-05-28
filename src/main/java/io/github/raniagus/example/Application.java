@@ -1,6 +1,6 @@
 package io.github.raniagus.example;
 
-import io.github.raniagus.example.component.hibernate.HibernatePersistenceContext;
+import io.github.raniagus.example.component.hibernate.PerThreadEntityManager;
 import io.github.raniagus.example.controller.ErrorController;
 import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
@@ -21,13 +21,12 @@ public class Application implements Runnable {
 
   // Utility components
   private final FileRenderer fileRenderer = new MustacheFileRenderer("templates");
-  private final HibernatePersistenceContext hibernatePersistenceContext = new HibernatePersistenceContext(config.getHibernateProperties());
 
   // Repository layer
-  private final UsuarioRepository repositorioDeUsuarios = new UsuarioRepository(hibernatePersistenceContext);
+  private final UsuarioRepository repositorioDeUsuarios = new UsuarioRepository();
 
   // Service layer
-  private final UsuarioService usuarioService = new UsuarioService(hibernatePersistenceContext, repositorioDeUsuarios);
+  private final UsuarioService usuarioService = new UsuarioService(repositorioDeUsuarios);
 
   // Controller layer
   private final LoginController loginController = new LoginController(usuarioService);
@@ -35,6 +34,7 @@ public class Application implements Runnable {
   private final ErrorController errorController = new ErrorController();
 
   public static void main(String[] args) {
+    config.getHibernateProperties().forEach(System::setProperty);
     if (config.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
@@ -45,7 +45,6 @@ public class Application implements Runnable {
   public void run() {
     Javalin app = Javalin.create(javalinConfig -> {
       javalinConfig.fileRenderer(fileRenderer);
-      javalinConfig.registerPlugin(hibernatePersistenceContext);
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
         staticFilesConfig.directory = "public";
@@ -66,6 +65,8 @@ public class Application implements Runnable {
 
     app.error(404, errorController::handleNotFound);
     app.error(500, errorController::handleError);
+
+    app.after(ctx -> PerThreadEntityManager.getInstance().dispose());
 
     app.start(8080);
   }

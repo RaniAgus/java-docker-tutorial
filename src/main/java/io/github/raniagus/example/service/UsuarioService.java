@@ -1,6 +1,6 @@
 package io.github.raniagus.example.service;
 
-import io.github.raniagus.example.component.hibernate.TransactionManager;
+import io.github.raniagus.example.component.hibernate.TransactionalOps;
 import io.github.raniagus.example.dto.CsvUserDto;
 import io.github.raniagus.example.dto.SessionUserDto;
 import io.github.raniagus.example.repository.UsuarioRepository;
@@ -8,12 +8,10 @@ import io.github.raniagus.example.repository.UsuarioRepository;
 import java.util.List;
 import java.util.Optional;
 
-public class UsuarioService {
-  private final TransactionManager transactionManager;
+public class UsuarioService implements TransactionalOps {
   private final UsuarioRepository usuarioRepository;
 
-  public UsuarioService(TransactionManager transactionManager, UsuarioRepository usuarioRepository) {
-    this.transactionManager = transactionManager;
+  public UsuarioService(UsuarioRepository usuarioRepository) {
     this.usuarioRepository = usuarioRepository;
   }
 
@@ -24,7 +22,7 @@ public class UsuarioService {
   }
 
   public List<SessionUserDto> borrarYGuardarTodos(Iterable<CsvUserDto> usuarios) {
-    return transactionManager.supply(() -> {
+    return runInTransaction(() -> {
       usuarioRepository.deleteAll();
       usuarios.forEach(dto -> usuarioRepository.save(dto.toEntity()));
       return usuarioRepository.findAll().stream()
