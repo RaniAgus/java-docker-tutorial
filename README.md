@@ -243,7 +243,6 @@ credenciales de la base de datos de las variables de entorno usando la función
 
 ```java
 import io.github.flbulgarelli.jpa.extras.simple.WithSimplePersistenceUnit;
-import org.hibernate.cfg.AvailableSettings;
 
 public static void main(String[] args) {
   WithSimplePersistenceUnit.configure(properties -> properties
