@@ -16,7 +16,7 @@ public class ServiceLocator {
   public ServiceLocator(Config config) {
     // Components
     registerInstance(PerThreadEntityManager.class, new PerThreadEntityManager(
-        "io.github.raniagus.example.model", config.getPersistenceProperties()));
+        getClass().getPackageName(), config.getPersistenceProperties()));
 
     // Repositories
     registerInstance(UsuarioRepository.class, new UsuarioRepository(getInstance(PerThreadEntityManager.class)));
