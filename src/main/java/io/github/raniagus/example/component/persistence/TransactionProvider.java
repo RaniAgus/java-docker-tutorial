@@ -1,8 +1,12 @@
-package io.github.raniagus.example.component.hibernate;
+package io.github.raniagus.example.component.persistence;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
-public interface TransactionalOps {
+/**
+ * Mixin for adding simple access to {@link EntityManager} transactions
+ */
+public interface TransactionProvider extends WithEntityManager {
   @FunctionalInterface
   interface ThrowingSupplier<T, E extends Throwable> {
     T get() throws E;
@@ -21,7 +25,7 @@ public interface TransactionalOps {
   }
 
   default <T, E extends Throwable> T runInTransaction(ThrowingSupplier<T, E> supplier) throws E {
-    EntityTransaction transaction = PerThreadEntityManager.getInstance().getEntityManager().getTransaction();
+    EntityTransaction transaction = getEntityManager().getTransaction();
     boolean wasActive = transaction.isActive();
     if (!wasActive) {
       transaction.begin();
@@ -33,7 +37,7 @@ public interface TransactionalOps {
       }
       return result;
     } catch (Exception e) {
-      if (transaction.isActive() && !wasActive) {
+      if (transaction.isActive()) {
         transaction.rollback();
       }
       throw e;

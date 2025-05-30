@@ -1,11 +1,11 @@
 package io.github.raniagus.example;
 
+import jakarta.persistence.PersistenceConfiguration;
 import org.hibernate.cfg.JdbcSettings;
 import org.hibernate.cfg.SchemaToolingSettings;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 public record Config (
     boolean isDevelopment,
@@ -13,7 +13,6 @@ public record Config (
     String databaseUsername,
     String databasePassword,
     String databaseDriver,
-    String databaseDialect,
     String databaseFormatSql,
     String databaseHighlightSql,
     String databaseShowSql,
@@ -25,7 +24,6 @@ public record Config (
     Objects.requireNonNull(databaseUsername, "databaseUsername is required");
     Objects.requireNonNull(databasePassword, "databasePassword is required");
     Objects.requireNonNull(databaseDriver, "databaseDriver is required");
-    Objects.requireNonNull(databaseDialect, "databaseDialect is required");
     Objects.requireNonNull(databaseFormatSql, "databaseFormatSql is required");
     Objects.requireNonNull(databaseHighlightSql, "databaseHighlightSql is required");
     Objects.requireNonNull(databaseShowSql, "databaseShowSql is required");
@@ -44,7 +42,6 @@ public record Config (
         System.getenv("DATABASE_USERNAME"),
         System.getenv("DATABASE_PASSWORD"),
         System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
-        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"), 
         System.getenv().getOrDefault("DATABASE_FORMAT_SQL", "false"),
         System.getenv().getOrDefault("DATABASE_HIGHLIGHT_SQL", "false"),
         System.getenv().getOrDefault("DATABASE_SHOW_SQL", "false"),
@@ -60,7 +57,6 @@ public record Config (
         System.getenv().getOrDefault("DATABASE_USERNAME", "postgres"),
         System.getenv().getOrDefault("DATABASE_PASSWORD", "postgres"),
         System.getenv().getOrDefault("DATABASE_DRIVER", "org.postgresql.Driver"),
-        System.getenv().getOrDefault("DATABASE_DIALECT", "org.hibernate.dialect.PostgresPlusDialect"),
         System.getenv().getOrDefault("DATABASE_FORMAT_SQL", "true"),
         System.getenv().getOrDefault("DATABASE_HIGHLIGHT_SQL", "true"),
         System.getenv().getOrDefault("DATABASE_SHOW_SQL", "true"),
@@ -69,18 +65,17 @@ public record Config (
     );
   }
 
-  public Map<String, String> getHibernateProperties() {
-    Map<String, String> properties = new HashMap<>();
-    System.setProperty(JdbcSettings.JAKARTA_JDBC_URL, databaseUrl);
-    System.setProperty(JdbcSettings.JAKARTA_JDBC_USER, databaseUsername);
-    System.setProperty(JdbcSettings.JAKARTA_JDBC_PASSWORD, databasePassword);
-    System.setProperty(JdbcSettings.JAKARTA_JDBC_DRIVER, databaseDriver);
-    System.setProperty(JdbcSettings.DIALECT, databaseDialect);
-    System.setProperty(JdbcSettings.FORMAT_SQL, databaseFormatSql);
-    System.setProperty(JdbcSettings.HIGHLIGHT_SQL, databaseHighlightSql);
-    System.setProperty(JdbcSettings.SHOW_SQL, databaseShowSql);
-    System.setProperty(JdbcSettings.USE_SQL_COMMENTS, databaseUseSqlComments);
-    System.setProperty(SchemaToolingSettings.HBM2DDL_AUTO, databaseHbm2ddlAuto);
+  public Properties getPersistenceProperties() {
+    Properties properties = new Properties();
+    properties.setProperty(PersistenceConfiguration.JDBC_URL, databaseUrl);
+    properties.setProperty(PersistenceConfiguration.JDBC_USER, databaseUsername);
+    properties.setProperty(PersistenceConfiguration.JDBC_PASSWORD, databasePassword);
+    properties.setProperty(PersistenceConfiguration.JDBC_DRIVER, databaseDriver);
+    properties.setProperty(JdbcSettings.FORMAT_SQL, databaseFormatSql);
+    properties.setProperty(JdbcSettings.HIGHLIGHT_SQL, databaseHighlightSql);
+    properties.setProperty(JdbcSettings.SHOW_SQL, databaseShowSql);
+    properties.setProperty(JdbcSettings.USE_SQL_COMMENTS, databaseUseSqlComments);
+    properties.setProperty(SchemaToolingSettings.HBM2DDL_AUTO, databaseHbm2ddlAuto);
     return properties;
   }
 }

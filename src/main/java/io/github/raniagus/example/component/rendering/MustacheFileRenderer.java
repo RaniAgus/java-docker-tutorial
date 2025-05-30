@@ -1,4 +1,4 @@
-package io.github.raniagus.example.component.mustache;
+package io.github.raniagus.example.component.rendering;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;

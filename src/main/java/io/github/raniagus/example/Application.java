@@ -1,41 +1,25 @@
 package io.github.raniagus.example;
 
-import io.github.raniagus.example.component.hibernate.PerThreadEntityManager;
+import io.github.raniagus.example.component.persistence.PerThreadEntityManager;
+import io.github.raniagus.example.component.rendering.MustacheFileRenderer;
 import io.github.raniagus.example.controller.ErrorController;
 import io.github.raniagus.example.controller.HomeController;
 import io.github.raniagus.example.controller.LoginController;
 import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
 import io.github.raniagus.example.model.Rol;
-import io.github.raniagus.example.repository.UsuarioRepository;
-import io.github.raniagus.example.service.UsuarioService;
-import io.github.raniagus.example.component.mustache.MustacheFileRenderer;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
-import io.javalin.rendering.FileRenderer;
 
 import java.time.LocalDate;
 
 public class Application implements Runnable {
-  private static final Config config = Config.create();
+  public static final Config CONFIG = Config.create();
+  public static final ServiceLocator LOCATOR = new ServiceLocator(CONFIG);
 
-  // Utility components
-  private final FileRenderer fileRenderer = new MustacheFileRenderer("templates");
-
-  // Repository layer
-  private final UsuarioRepository repositorioDeUsuarios = new UsuarioRepository();
-
-  // Service layer
-  private final UsuarioService usuarioService = new UsuarioService(repositorioDeUsuarios);
-
-  // Controller layer
-  private final LoginController loginController = new LoginController(usuarioService);
-  private final HomeController homeController = new HomeController();
-  private final ErrorController errorController = new ErrorController();
 
   public static void main(String[] args) {
-    config.getHibernateProperties().forEach(System::setProperty);
-    if (config.databaseHbm2ddlAuto().equals("create-drop")) {
+    if (CONFIG.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();
     }
     new Application().run();
@@ -43,8 +27,14 @@ public class Application implements Runnable {
 
   @Override
   public void run() {
+    LoginController loginController = LOCATOR.getInstance(LoginController.class);
+    HomeController homeController = LOCATOR.getInstance(HomeController.class);
+    ErrorController errorController = LOCATOR.getInstance(ErrorController.class);
+
+    PerThreadEntityManager perThreadEntityManager = LOCATOR.getInstance(PerThreadEntityManager.class);
+
     Javalin app = Javalin.create(javalinConfig -> {
-      javalinConfig.fileRenderer(fileRenderer);
+      javalinConfig.fileRenderer(new MustacheFileRenderer("templates"));
       javalinConfig.staticFiles.add(staticFilesConfig -> {
         staticFilesConfig.hostedPath = "/public";
         staticFilesConfig.directory = "public";
@@ -66,7 +56,7 @@ public class Application implements Runnable {
     app.error(404, errorController::handleNotFound);
     app.error(500, errorController::handleError);
 
-    app.after(ctx -> PerThreadEntityManager.getInstance().dispose());
+    app.after(ctx -> perThreadEntityManager.disposeEntityManager());
 
     app.start(8080);
   }
