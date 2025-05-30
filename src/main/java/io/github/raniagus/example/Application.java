@@ -17,7 +17,6 @@ public class Application implements Runnable {
   public static final Config CONFIG = Config.create();
   public static final ServiceLocator LOCATOR = new ServiceLocator(CONFIG);
 
-
   public static void main(String[] args) {
     if (CONFIG.databaseHbm2ddlAuto().equals("create-drop")) {
       new Bootstrap().run();

@@ -1,9 +1,7 @@
 package io.github.raniagus.example.controller;
 
-import io.github.raniagus.example.constants.Session;
 import io.github.raniagus.example.dto.SessionUserDto;
 import io.github.raniagus.example.exception.UserNotAuthorizedException;
-import io.github.raniagus.example.exception.ShouldLoginException;
 import io.github.raniagus.example.service.UsuarioService;
 import io.github.raniagus.example.view.LoginView;
 import io.github.raniagus.example.view.View;
@@ -19,7 +17,7 @@ import java.util.Set;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class LoginController {
+public class LoginController extends Controller {
   private final UsuarioService usuarioService;
 
   public LoginController(UsuarioService usuarioService) {
@@ -31,10 +29,8 @@ public class LoginController {
       return;
     }
 
-    SessionUserDto usuario = ctx.sessionAttribute(Session.USUARIO);
-    if (usuario == null) {
-      throw new ShouldLoginException();
-    } else if (!ctx.routeRoles().contains(usuario.rol())) {
+    SessionUserDto usuario = getSessionUser(ctx);
+    if (!ctx.routeRoles().contains(usuario.rol())) {
       throw new UserNotAuthorizedException();
     }
   }
@@ -49,7 +45,7 @@ public class LoginController {
     String errors = ctx.queryParamAsClass("errors", String.class)
             .getOrDefault("");
 
-    if (ctx.sessionAttribute(Session.USUARIO) != null) {
+    if (isUserLoggedIn(ctx)) {
       ctx.redirect(origin);
       return;
     }
@@ -75,7 +71,7 @@ public class LoginController {
     try {
       Optional<SessionUserDto> usuario = usuarioService.obtenerUsuario(email.get(), password.get());
       if (usuario.isPresent()) {
-        ctx.sessionAttribute(Session.USUARIO, usuario.get());
+        setSessionUser(ctx, usuario.get());
         ctx.redirect(origin);
       } else {
         ctx.redirect("/login?origin=%s&email=%s&errors=%s".formatted(
@@ -95,7 +91,7 @@ public class LoginController {
   }
 
   public void performLogout(Context ctx) {
-    ctx.consumeSessionAttribute(Session.USUARIO);
+    removeSessionUser(ctx);
     ctx.redirect("/");
   }
 }

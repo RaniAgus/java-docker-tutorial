@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UsuarioRepository {
-  private final PersistenceProvider entityManager;
+  private final PersistenceProvider persistenceProvider;
 
-  public UsuarioRepository(PersistenceProvider entityManager) {
-    this.entityManager = entityManager;
+  public UsuarioRepository(PersistenceProvider persistenceProvider) {
+    this.persistenceProvider = persistenceProvider;
   }
 
   public boolean existsById(UUID id) {
@@ -19,30 +19,30 @@ public class UsuarioRepository {
   }
 
   public List<Usuario> findAll() {
-    return entityManager
+    return persistenceProvider
         .createQuery("from Usuario", Usuario.class)
         .getResultList();
   }
 
   public Optional<Usuario> findById(UUID id) {
-    return Optional.ofNullable(entityManager.find(Usuario.class, id));
+    return Optional.ofNullable(persistenceProvider.find(Usuario.class, id));
   }
 
   public void save(Usuario persistible) {
     if (existsById(persistible.getId())) {
       throw new IllegalArgumentException("Ya existe un Usuario con id " + persistible.getId());
     }
-    entityManager.persist(persistible);
+    persistenceProvider.persist(persistible);
   }
 
   public void deleteAll() {
-    entityManager
+    persistenceProvider
         .createQuery("delete from Usuario where 1=1")
         .executeUpdate();
   }
 
   public Optional<Usuario> findByEmail(String email) {
-    return entityManager
+    return persistenceProvider
         .createQuery("from Usuario where email = :email", Usuario.class)
         .setParameter("email", email)
         .getResultList()

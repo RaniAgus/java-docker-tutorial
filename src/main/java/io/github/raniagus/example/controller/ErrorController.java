@@ -7,7 +7,7 @@ import io.javalin.http.Context;
 import static java.net.URLEncoder.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class ErrorController {
+public class ErrorController extends Controller {
 
   public void handleShouldLogin(Context ctx) {
     ctx.redirect("/login?origin=%s".formatted(encode(ctx.path(), UTF_8)));
